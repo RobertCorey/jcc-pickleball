@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Drop-In Pickleball — JCC of Greater Rhode Island</title>
+<meta name="description" content="Every open drop-in pickleball session at the Jewish Alliance of Greater Rhode Island JCC — times, courts, prices, live availability, and one-tap registration. Refreshed hourly." />
+<meta name="color-scheme" content="light" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bone: #f3efe2;
+    --bone-2: #ece6d4;
+    --paper: #faf7ee;
+    --ink: #1a1b13;
+    --ink-soft: #4a4b3e;
+    --ink-faint: #84846f;
+    --line: #d8d2bf;
+    --line-strong: #c3bca5;
+    --lime: #c6f23b;
+    --lime-deep: #a9d423;
+    --forest: #14483a;
+    --forest-2: #0c3328;
+    --clay: #c75b39;
+    --clay-soft: #f1d8cd;
+    --gold: #d99a2b;
+    --shadow: 0 1px 0 rgba(0,0,0,.04), 0 14px 30px -18px rgba(20,30,15,.30);
+    --shadow-lift: 0 1px 0 rgba(0,0,0,.05), 0 26px 50px -22px rgba(20,30,15,.42);
+    --r: 14px;
+    --maxw: 1120px;
+    --font-display: "Bricolage Grotesque", "Hanken Grotesque", system-ui, sans-serif;
+    --font-body: "Hanken Grotesque", system-ui, -apple-system, sans-serif;
+    /* day-of-week accent hues */
+    --d-mon: #7c8a2e; --d-tue: #c6f23b; --d-wed: #2f8f73; --d-thu: #d99a2b;
+    --d-fri: #3d6fb0; --d-sat: #b5562f; --d-sun: #8b5fb0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    background: var(--bone);
+    line-height: 1.5;
+    letter-spacing: -0.003em;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* paper grain + soft court-light wash */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(120% 70% at 85% -10%, rgba(198,242,59,.16), transparent 60%),
+      radial-gradient(90% 60% at -10% 8%, rgba(20,72,58,.10), transparent 55%);
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .5; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+  .wrap { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+
+  a { color: inherit; }
+  ::selection { background: var(--lime); color: var(--ink); }
+  :focus-visible { outline: 2.5px solid var(--forest); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---------------- top bar ---------------- */
+  .topbar { border-bottom: 1.5px solid var(--ink); background: var(--bone); position: relative; z-index: 2; }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 14px; padding-bottom: 14px; }
+  .brand { display: flex; align-items: center; gap: 11px; font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.02em; text-decoration: none; }
+  .brand .mark {
+    width: 30px; height: 30px; border-radius: 9px; background: var(--ink); flex: none;
+    display: grid; place-items: center;
+  }
+  .brand .mark svg { width: 19px; height: 19px; }
+  .topbar .right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--ink-soft); }
+  .topbar .right .freshness { display: inline-flex; align-items: center; gap: 7px; }
+  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--lime-deep); box-shadow: 0 0 0 0 rgba(169,212,35,.6); animation: pulse 2.4s ease-out infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(169,212,35,.55);} 70% { box-shadow: 0 0 0 9px rgba(169,212,35,0);} 100% { box-shadow: 0 0 0 0 rgba(169,212,35,0);} }
+  .src-link { text-decoration: none; border-bottom: 1.5px solid var(--line-strong); padding-bottom: 1px; transition: border-color .15s; white-space: nowrap; }
+  .src-link:hover { border-color: var(--ink); }
+
+  /* ---------------- hero ---------------- */
+  .hero { padding: clamp(34px, 7vw, 76px) 0 clamp(26px, 5vw, 44px); position: relative; }
+  .kicker { font-family: var(--font-body); font-weight: 600; font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--forest); display: inline-flex; align-items: center; gap: 10px; }
+  .kicker::before { content: ""; width: 26px; height: 1.5px; background: var(--forest); display: inline-block; }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(40px, 8.4vw, 96px);
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+    margin: 16px 0 0;
+    max-width: 14ch;
+  }
+  h1 .accent { position: relative; white-space: nowrap; }
+  h1 .accent::after { content: ""; position: absolute; left: -2px; right: -2px; bottom: 0.07em; height: 0.30em; background: var(--lime); z-index: -1; transform: rotate(-1deg); border-radius: 2px; }
+  .lede { margin-top: 22px; font-size: clamp(15px, 1.7vw, 18.5px); color: var(--ink-soft); max-width: 56ch; line-height: 1.55; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .hero-grid { margin-top: clamp(26px, 4vw, 40px); display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(14px, 2.4vw, 22px); align-items: stretch; }
+  @media (max-width: 760px) { .hero-grid { grid-template-columns: 1fr; } }
+
+  .next-card {
+    background: var(--ink); color: var(--bone); border-radius: var(--r); padding: clamp(20px, 3vw, 30px);
+    position: relative; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .next-card::before { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border: 1.5px solid rgba(198,242,59,.25); border-radius: 50%; }
+  .next-card::after { content: ""; position: absolute; right: -10px; bottom: -90px; width: 200px; height: 200px; border: 1.5px solid rgba(198,242,59,.15); border-radius: 50%; }
+  .next-card .lbl { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--lime); font-weight: 600; }
+  .next-card .nx-when { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3vw, 30px); letter-spacing: -.02em; margin-top: 10px; line-height: 1.08; }
+  .next-card .nx-name { font-size: 15px; color: rgba(243,239,226,.78); margin-top: 7px; }
+  .next-card .nx-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 16px; font-size: 13px; color: rgba(243,239,226,.7); }
+  .next-card .nx-meta b { color: var(--bone); font-weight: 600; }
+  .next-card .nx-cta { margin-top: 20px; }
+
+  .stats-card { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5px; background: var(--line-strong); border: 1.5px solid var(--line-strong); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
+  .stat { background: var(--paper); padding: clamp(16px, 2.4vw, 24px); display: flex; flex-direction: column; gap: 4px; }
+  .stat .v { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.03em; line-height: 1; }
+  .stat .v .unit { font-size: .42em; color: var(--ink-faint); font-weight: 600; margin-left: 4px; letter-spacing: 0; }
+  .stat .k { font-size: 12.5px; color: var(--ink-soft); }
+  .stat.accent { background: var(--lime); }
+  .stat.accent .k { color: var(--forest-2); }
+
+  /* ---------------- toolbar ---------------- */
+  .toolbar-anchor { height: 1px; }
+  .toolbar {
+    position: sticky; top: 0; z-index: 20; margin-top: clamp(28px, 5vw, 48px);
+    background: rgba(243,239,226,.86); backdrop-filter: blur(10px) saturate(1.3); -webkit-backdrop-filter: blur(10px) saturate(1.3);
+    border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink);
+  }
+  .toolbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-top: 12px; padding-bottom: 12px; }
+  .search { flex: 1 1 220px; min-width: 180px; position: relative; }
+  .search input {
+    width: 100%; font-family: var(--font-body); font-size: 14.5px; color: var(--ink);
+    background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: 999px; padding: 10px 14px 10px 38px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .search input:focus { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(20,72,58,.12); outline: none; }
+  .search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-faint); }
+  .daychips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--font-body); font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 999px;
+    border: 1.5px solid var(--line-strong); background: var(--paper); color: var(--ink-soft); cursor: pointer;
+    transition: all .14s; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--ink); color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bone); border-color: var(--ink); }
+  .chip .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 1px; }
+  .toggles { display: flex; gap: 6px; }
+  .toggle {
+    font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 999px; cursor: pointer; user-select: none;
+    border: 1.5px dashed var(--line-strong); background: transparent; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 7px;
+    transition: all .14s;
+  }
+  .toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .toggle .box { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--line-strong); display: grid; place-items: center; transition: all .14s; }
+  .toggle .box svg { width: 10px; height: 10px; opacity: 0; transition: opacity .12s; }
+  .toggle:hover { border-color: var(--ink); color: var(--ink); }
+  .toggle:has(input:checked) { background: var(--lime); border-style: solid; border-color: var(--lime-deep); color: var(--forest-2); }
+  .toggle:has(input:checked) .box { background: var(--forest-2); border-color: var(--forest-2); }
+  .toggle:has(input:checked) .box svg { opacity: 1; color: var(--lime); }
+  .sortwrap { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-soft); }
+  .sortwrap select {
+    font-family: var(--font-body); font-size: 13.5px; font-weight: 600; color: var(--ink); background: var(--paper);
+    border: 1.5px solid var(--line-strong); border-radius: 999px; padding: 7px 28px 7px 12px; cursor: pointer;
+    appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2384846f' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .sortwrap select:focus { border-color: var(--forest); outline: none; }
+
+  /* ---------------- results ---------------- */
+  main { padding: clamp(26px, 4vw, 40px) 0 80px; }
+  .resultline { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .resultline .n { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+  .resultline .n em { font-style: normal; color: var(--ink-faint); font-weight: 600; font-family: var(--font-body); }
+  .resultline .clearbtn { font-size: 13px; font-weight: 600; color: var(--clay); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .resultline .clearbtn[hidden] { display: none; }
+
+  .daygroup { margin-bottom: clamp(28px, 4vw, 40px); }
+  .daygroup-head {
+    display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid var(--line);
+    position: relative;
+  }
+  .daygroup-head .dnum { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 3vw, 30px); letter-spacing: -.03em; line-height: 1; }
+  .daygroup-head .dwd { font-family: var(--font-display); font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-soft); }
+  .daygroup-head .dmo { font-size: 13px; color: var(--ink-faint); margin-left: auto; }
+  .daygroup-head.is-today .dnum { color: var(--forest); }
+  .daygroup-head .todaytag { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: var(--lime); color: var(--forest-2); padding: 3px 8px; border-radius: 999px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+
+  .card {
+    background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: var(--r);
+    padding: 18px 18px 16px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; gap: 14px;
+    box-shadow: var(--shadow);
+    transition: transform .18s cubic-bezier(.2,.7,.3,1), box-shadow .18s, border-color .18s;
+    opacity: 0; animation: rise .5s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; opacity: 1; } .dot-live { animation: none; } }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: var(--ink); }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--day, var(--line-strong)); }
+  .card.past { opacity: .62; }
+  .card.past:hover { transform: none; box-shadow: var(--shadow); border-color: var(--line-strong); }
+  .card.full { background: linear-gradient(180deg, #fbf6ee, #f7ede4); }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .timeblock { display: flex; flex-direction: column; }
+  .timeblock .t { font-family: var(--font-display); font-weight: 800; font-size: 26px; letter-spacing: -.03em; line-height: 1; }
+  .timeblock .t .ampm { font-size: .5em; font-weight: 700; color: var(--ink-faint); margin-left: 3px; letter-spacing: 0; }
+  .timeblock .range { font-size: 12.5px; color: var(--ink-faint); margin-top: 5px; font-variant-numeric: tabular-nums; }
+
+  .availpill {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .03em; padding: 4px 9px; border-radius: 999px; white-space: nowrap; flex: none;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .availpill.good { background: #e8f6cf; color: #4f6a14; }
+  .availpill.low { background: #fdeccd; color: #8a5b12; }
+  .availpill.full { background: var(--clay-soft); color: #8c3318; }
+  .availpill.soon { background: var(--bone-2); color: var(--ink-soft); }
+  .availpill.past { background: var(--bone-2); color: var(--ink-faint); }
+  .availpill .pdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .card-body { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+  .activity-name { font-family: var(--font-display); font-weight: 700; font-size: 17.5px; letter-spacing: -.012em; line-height: 1.18; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--ink-soft); }
+  .card-meta .mi { display: inline-flex; align-items: center; gap: 6px; }
+  .card-meta .mi svg { width: 13px; height: 13px; color: var(--ink-faint); flex: none; }
+
+  .meter { margin-top: auto; }
+  .meter .bar { height: 8px; border-radius: 999px; background: var(--bone-2); overflow: hidden; border: 1px solid var(--line); }
+  .meter .fill { height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.3,.8,.3,1); }
+  .meter .fill.good { background: linear-gradient(90deg, var(--lime-deep), var(--lime)); }
+  .meter .fill.low { background: linear-gradient(90deg, #d99a2b, #ecc04b); }
+  .meter .fill.full { background: linear-gradient(90deg, var(--clay), #d97c5a); }
+  .meter .lab { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-faint); margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .meter .lab .right { color: var(--ink-soft); font-weight: 600; }
+
+  .card-foot { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+  .btn {
+    font-family: var(--font-body); font-weight: 700; font-size: 14px; letter-spacing: -.005em;
+    padding: 11px 16px; border-radius: 10px; text-decoration: none; cursor: pointer; border: 1.5px solid transparent;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform .12s, background .15s, box-shadow .15s, color .15s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { flex: 1; background: var(--ink); color: var(--bone); }
+  .btn-primary:hover { background: var(--forest-2); }
+  .btn-primary .arrow { transition: transform .18s; }
+  .btn-primary:hover .arrow { transform: translateX(3px); }
+  .btn-lime { flex: 1; background: var(--lime); color: var(--ink); border-color: var(--lime-deep); }
+  .btn-lime:hover { background: var(--lime-deep); }
+  .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); padding: 11px 13px; }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+  .btn[aria-disabled="true"] { background: var(--bone-2); color: var(--ink-faint); border-color: var(--line); cursor: default; pointer-events: none; flex: 1; }
+
+  .hero-cta {
+    font-family: var(--font-body); font-weight: 700; font-size: 14.5px; padding: 12px 18px; border-radius: 10px;
+    background: var(--lime); color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 9px;
+    border: 1.5px solid var(--lime-deep); transition: transform .12s, background .15s;
+  }
+  .hero-cta:hover { background: var(--lime-deep); }
+  .hero-cta:active { transform: translateY(1px); }
+  .hero-cta.ghost { background: transparent; border-color: rgba(243,239,226,.4); color: var(--bone); }
+  .hero-cta.ghost:hover { border-color: var(--lime); color: var(--lime); }
+
+  /* discounts strip */
+  .discounts { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .disc-pill {
+    display: inline-flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-soft);
+    background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: 999px; padding: 8px 14px;
+  }
+  .disc-pill b { color: var(--ink); font-weight: 700; }
+  .disc-pill .tag { background: var(--gold); color: #422c06; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; letter-spacing: .03em; }
+
+  /* empty / error */
+  .empty, .errbox { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
+  .empty .big, .errbox .big { font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--ink); margin-bottom: 8px; letter-spacing: -.02em; }
+  .errbox code { background: var(--bone-2); padding: 2px 6px; border-radius: 5px; font-size: 13px; }
+  .skeleton-card { background: var(--paper); border: 1.5px solid var(--line); border-radius: var(--r); height: 230px; position: relative; overflow: hidden; }
+  .skeleton-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent); transform: translateX(-100%); animation: sweep 1.3s infinite; }
+  @keyframes sweep { 100% { transform: translateX(100%); } }
+
+  /* footer */
+  footer { border-top: 1.5px solid var(--ink); background: var(--ink); color: var(--bone); padding: clamp(34px, 5vw, 56px) 0 clamp(28px, 4vw, 40px); position: relative; z-index: 1; }
+  footer .cols { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: clamp(20px, 4vw, 48px); }
+  @media (max-width: 700px) { footer .cols { grid-template-columns: 1fr; gap: 26px; } }
+  footer h3 { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--lime); margin-bottom: 12px; }
+  footer p, footer li { font-size: 13.5px; color: rgba(243,239,226,.74); line-height: 1.6; }
+  footer ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  footer a.fl { text-decoration: none; border-bottom: 1px solid rgba(243,239,226,.3); transition: border-color .15s, color .15s; }
+  footer a.fl:hover { border-color: var(--lime); color: var(--lime); }
+  footer .biglogo { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 5vw, 46px); letter-spacing: -.03em; line-height: 1; color: var(--bone); margin-bottom: 14px; }
+  footer .biglogo .accent { color: var(--lime); }
+  footer .legal { margin-top: clamp(24px, 4vw, 40px); padding-top: 18px; border-top: 1px solid rgba(243,239,226,.16); font-size: 12px; color: rgba(243,239,226,.5); display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
+      <span>Court&nbsp;Time<span style="color:var(--ink-faint);font-weight:600">&nbsp;/ Providence</span></span>
+    </a>
+    <div class="right">
+      <span class="freshness" id="freshness" title="Data is re-scraped automatically"><span class="dot-live"></span><span id="freshness-text">loading…</span></span>
+      <a class="src-link" id="source-link" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">Official store ↗</a>
+    </div>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="kicker">JCC of Greater Rhode Island · Open Drop-In Play</span>
+    <h1 id="hero-title">Drop-in <span class="accent">pickleball</span>, all in one place.</h1>
+    <p class="lede" id="hero-lede">
+      Every open drop-in session at the JCC gymnasium — <strong>times, courts, prices and live availability</strong> —
+      pulled straight from the registration system and refreshed automatically. Tap a session to register on the official site.
+    </p>
+
+    <div class="hero-grid">
+      <div class="next-card" id="next-card">
+        <span class="lbl">Next session</span>
+        <div class="nx-when" id="nx-when">—</div>
+        <div class="nx-name" id="nx-name"></div>
+        <div class="nx-meta" id="nx-meta"></div>
+        <div class="nx-cta" id="nx-cta"></div>
+      </div>
+      <div class="stats-card" id="stats-card" aria-label="Schedule at a glance">
+        <div class="stat"><span class="v" id="st-activities">—</span><span class="k">weekly sessions on the schedule</span></div>
+        <div class="stat accent"><span class="v" id="st-upcoming">—</span><span class="k">upcoming dates you can still book</span></div>
+        <div class="stat"><span class="v" id="st-open">—</span><span class="k">have open spots right now</span></div>
+        <div class="stat"><span class="v" id="st-price">—</span><span class="k">per drop-in (member rate, low end)</span></div>
+      </div>
+    </div>
+
+    <div class="discounts" id="discounts"></div>
+  </div>
+</header>
+
+<div class="toolbar-anchor" id="results"></div>
+<div class="toolbar">
+  <div class="wrap">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" id="q" placeholder="Search activity, day, court…" autocomplete="off" aria-label="Search sessions" />
+    </div>
+    <div class="daychips" id="daychips" role="group" aria-label="Filter by day of week"></div>
+    <div class="toggles">
+      <label class="toggle"><input type="checkbox" id="t-upcoming" checked /><span class="box"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l3 3 5-6.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Upcoming only</label>
+      <label class="toggle"><input type="checkbox" id="t-open" /><span class="box"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l3 3 5-6.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Open spots only</label>
+    </div>
+    <div class="sortwrap">
+      <label for="sort">Sort</label>
+      <select id="sort">
+        <option value="date">Date &amp; time</option>
+        <option value="spots">Most spots left</option>
+        <option value="activity">Activity name</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="resultline">
+      <div class="n" id="resultcount">Loading sessions…</div>
+      <button class="clearbtn" id="clearbtn" hidden>Clear all filters</button>
+    </div>
+    <div id="list">
+      <div class="cards">
+        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="biglogo">Court<span class="accent">Time</span></div>
+    <div class="cols">
+      <div>
+        <h3>What this is</h3>
+        <p>An independent, friendlier view of the Jewish Alliance of Greater Rhode Island JCC's open drop-in pickleball schedule. The data is scraped from the JCC's Amilia store on a schedule and published here. Registration and payment still happen on the official site — the buttons just take you there.</p>
+      </div>
+      <div>
+        <h3>Where to play</h3>
+        <p id="foot-location">JCC Gymnasium<br>401 Elmgrove Avenue<br>Providence, RI 02906</p>
+        <p style="margin-top:8px"><a class="fl" id="foot-map" href="https://maps.google.com/?q=401+Elmgrove+Avenue+Providence+RI+02906" target="_blank" rel="noopener">Open in Maps ↗</a></p>
+      </div>
+      <div>
+        <h3>Official links</h3>
+        <ul>
+          <li><a class="fl" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">Pickleball program ↗</a></li>
+          <li><a class="fl" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland" target="_blank" rel="noopener">JCC store home ↗</a></li>
+          <li><a class="fl" href="https://www.jewishallianceri.org/" target="_blank" rel="noopener">Jewish Alliance of RI ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span id="foot-updated">Data updated —</span>
+      <span>Unofficial · not affiliated with the JCC or Amilia · schedule &amp; pricing subject to change on the official site.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var WD_FULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var WD_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var MO_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var DAY_VAR = ["--d-sun","--d-mon","--d-tue","--d-wed","--d-thu","--d-fri","--d-sat"];
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  function esc(x) { return String(x == null ? "" : x).replace(/[&<>"']/g, function (c) { return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+  // start strings look like "2026-05-08T08:00:00.01" (venue-local). Parse as plain wall-clock.
+  function parseLocal(iso) {
+    var m = String(iso || "").match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/);
+    if (!m) return null;
+    var d = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
+    return { d: d, y: +m[1], mo: +m[2], day: +m[3], h: +m[4], mi: +m[5], wd: d.getDay() };
+  }
+  function fmtTime(h, mi) { var ap = h < 12 ? "AM" : "PM", hh = h % 12 || 12; return hh + ":" + pad2(mi) + " " + ap; }
+  function fmtTimeHTML(h, mi) { var ap = h < 12 ? "AM" : "PM", hh = h % 12 || 12; return hh + ":" + pad2(mi) + '<span class="ampm">' + ap + "</span>"; }
+  function fmtMoney(n) { if (n == null) return ""; var f = Number(n); return "$" + (f % 1 === 0 ? f.toFixed(0) : f.toFixed(2)); }
+  function priceText(s) {
+    var lo = s.drop_in_best_price, hi = s.drop_in_price;
+    if (lo != null && hi != null && lo !== hi) return fmtMoney(lo) + "–" + fmtMoney(hi);
+    return fmtMoney(hi != null ? hi : lo);
+  }
+  function dateKeyOf(p) { return p ? (p.y * 10000 + p.mo * 100 + p.day) : 0; }
+  function relDay(p, todayKey) {
+    if (!p) return "";
+    var k = dateKeyOf(p);
+    if (k === todayKey) return "Today";
+    var dt = Math.round((p.d - new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) / 86400000);
+    if (dt === 1) return "Tomorrow";
+    if (dt > 1 && dt < 7) return "This " + WD_FULL[p.wd];
+    if (dt >= 7 && dt < 14) return "Next " + WD_FULL[p.wd];
+    return WD_FULL[p.wd] + ", " + MO_SHORT[p.mo - 1] + " " + p.day;
+  }
+  function timeAgo(date) {
+    if (!date) return "";
+    var s = Math.max(0, (Date.now() - date.getTime()) / 1000);
+    if (s < 90) return "just now";
+    if (s < 3600) return Math.round(s / 60) + " min ago";
+    if (s < 86400) { var h = Math.round(s / 3600); return h + " hour" + (h === 1 ? "" : "s") + " ago"; }
+    var d = Math.round(s / 86400); return d + " day" + (d === 1 ? "" : "s") + " ago";
+  }
+  function clean(loc) { return loc ? String(loc).split("|")[0].trim() : ""; }
+
+  // ---- availability classification ----
+  function availInfo(s) {
+    if (s.has_passed) return { cls: "past", label: "Done", short: "past", pct: clamp01(fillPct(s)) };
+    var cap = (typeof s.capacity === "number") ? s.capacity : null;
+    var left = (typeof s.spots_remaining === "number") ? s.spots_remaining : null;
+    if (s.has_unlimited_spots) return { cls: "good", label: "Open", short: "open", pct: 0.12 };
+    if (s.status === "available_soon") return { cls: "soon", label: "Opens soon", short: "soon", pct: 0 };
+    if (left === 0 || s.status === "full" || s.has_place_left === false) {
+      return { cls: "full", label: s.wait_list_enabled ? "Full · waitlist" : "Full", short: "full", pct: 1 };
+    }
+    if (left != null) {
+      var lab = left + " spot" + (left === 1 ? "" : "s") + " left";
+      return { cls: left <= 3 ? "low" : "good", label: lab, short: lab, pct: clamp01(fillPct(s)) };
+    }
+    return { cls: "good", label: "Open", short: "open", pct: 0.1 };
+  }
+  function fillPct(s) {
+    var cap = s.capacity, left = s.spots_remaining;
+    if (typeof cap === "number" && cap > 0 && typeof left === "number") return (cap - left) / cap;
+    if (typeof s.spots_reserved === "number" && typeof cap === "number" && cap > 0) return s.spots_reserved / cap;
+    return 0;
+  }
+  function clamp01(x) { return Math.max(0, Math.min(1, x)); }
+
+  // ---- state ----
+  var STATE = { all: [], q: "", day: "", upcoming: true, openOnly: true, sort: "date", revealed: false, todayKey: dateKeyOf(parseLocal(new Date().toISOString())) };
+
+  function load() {
+    var url = "data/sessions.json?v=" + Date.now();
+    fetch(url, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(init)
+      .catch(function (err) {
+        $("#list").innerHTML =
+          '<div class="errbox"><div class="big">Couldn’t load the schedule</div>' +
+          '<p>' + esc(String(err)) + '. If you’re opening this file directly, serve the folder instead: ' +
+          '<code>python3 -m http.server</code> in the <code>site/</code> directory, then visit <code>localhost:8000</code>. ' +
+          'You can also browse the schedule on the <a href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">official store ↗</a>.</p></div>';
+        $("#resultcount").textContent = "Failed to load.";
+        $("#freshness-text").textContent = "offline";
+        $("#freshness .dot-live").style.background = "var(--clay)";
+      });
+  }
+
+  function init(data) {
+    var prog = (data.program && data.program.title) || "Pickleball";
+    // hero title: keep the styled phrase but reflect actual program word if not "Pickleball"
+    if (/pickle/i.test(prog)) {
+      // leave the designed title
+    } else {
+      $("#hero-title").innerHTML = "Drop-in <span class=\"accent\">" + esc(prog.toLowerCase()) + "</span>, all in one place.";
+    }
+    $("#source-link").href = (data.program && data.program.url) || $("#source-link").href;
+
+    var rows = (data.sessions || []).map(function (s) {
+      var p = parseLocal(s.start), pe = parseLocal(s.end);
+      var av = availInfo(s);
+      return {
+        s: s, p: p, pe: pe, av: av,
+        wd: p ? p.wd : -1,
+        actLower: (s.activity_name || "").toLowerCase(),
+        hay: ((s.activity_name || "") + " " + (s.location || "") + " " + (p ? WD_FULL[p.wd] : "") + " " +
+              (p ? MO_SHORT[p.mo - 1] + " " + p.day : "") + " " + (s.sub_category_name || "") + " " + (data.program && data.program.title || "")).toLowerCase(),
+        sortT: dateKeyOf(p) * 10000 + (p ? p.h * 60 + p.mi : 0),
+        leftNum: (typeof s.spots_remaining === "number") ? s.spots_remaining : -1
+      };
+    });
+    STATE.all = rows;
+
+    // ---- next session ----
+    var upcoming = rows.filter(function (r) { return r.p && !r.s.has_passed; }).sort(function (a, b) { return a.sortT - b.sortT; });
+    var nx = upcoming[0];
+    if (nx) {
+      $("#nx-when").innerHTML = esc(relDay(nx.p, STATE.todayKey)) + " · " + fmtTimeHTML(nx.p.h, nx.p.mi);
+      $("#nx-name").textContent = nx.s.activity_name || "";
+      var loc = clean(nx.s.location);
+      var bits = [];
+      if (nx.pe) bits.push('<b>' + fmtTime(nx.p.h, nx.p.mi) + '–' + fmtTime(nx.pe.h, nx.pe.mi) + '</b>');
+      if (loc) bits.push('<b>' + esc(loc) + '</b>');
+      if (priceText(nx.s)) bits.push(esc(priceText(nx.s)) + ' / drop-in');
+      bits.push(esc(nx.av.label));
+      $("#nx-meta").innerHTML = bits.join('<span style="opacity:.4">·</span>&nbsp;');
+      var nxUrl = nx.s.registration_url || nx.s.details_url || ($("#source-link").href);
+      $("#nx-cta").innerHTML = '<a class="hero-cta" href="' + esc(nxUrl) + '" target="_blank" rel="noopener">Register on Amilia<span aria-hidden="true">→</span></a>' +
+        ' <a class="hero-cta ghost" href="#results">Browse all ↓</a>';
+    } else {
+      $("#next-card").innerHTML = '<span class="lbl">Schedule</span><div class="nx-when">No upcoming sessions</div><div class="nx-name">Check the official store for the next session block.</div><div class="nx-cta" style="margin-top:18px"><a class="hero-cta" href="' + esc($("#source-link").href) + '" target="_blank" rel="noopener">Open the JCC store ↗</a></div>';
+    }
+
+    // ---- stats ----
+    var totals = data.totals || {};
+    var openNow = upcoming.filter(function (r) { return r.av.cls === "good" || r.av.cls === "low"; }).length;
+    var lowPrice = null;
+    rows.forEach(function (r) { var v = r.s.drop_in_best_price; if (v != null && (lowPrice == null || v < lowPrice)) lowPrice = v; });
+    $("#st-activities").textContent = totals.activities != null ? totals.activities : (new Set(rows.map(function (r) { return r.s.activity_id; })).size);
+    setUnit($("#st-upcoming"), upcoming.length, "dates");
+    setUnit($("#st-open"), openNow, "now");
+    $("#st-price").textContent = lowPrice != null ? fmtMoney(lowPrice) : "—";
+
+    // ---- discounts ----
+    var promos = [];
+    (data.sub_categories || []).forEach(function (sc) {
+      (sc.activities || []).forEach(function (a) {
+        (a.promotions || []).forEach(function (pr) {
+          var key = (pr.title || "") + "|" + (pr.discount || "");
+          if (promos.some(function (x) { return x.key === key; })) return;
+          var detail = "";
+          if (pr.details && pr.details.length) detail = pr.details.join(" · ");
+          else if (pr.notes && pr.notes.length) detail = pr.notes.join(" · ");
+          else if (pr.text) detail = pr.text;
+          promos.push({ key: key, title: pr.title || "Discount", discount: pr.discount || "", detail: detail });
+        });
+      });
+    });
+    var notices = (data.notices || []).filter(Boolean);
+    var dEl = $("#discounts"), dh = "";
+    promos.forEach(function (pr) {
+      dh += '<span class="disc-pill">' + (pr.discount ? '<span class="tag">' + esc(pr.discount.replace(/^Discount of\s*/i, "").trim()) + '</span>' : "") +
+        '<b>' + esc(pr.title) + '</b>' + (pr.detail ? ' — ' + esc(pr.detail) : "") + '</span>';
+    });
+    notices.forEach(function (n) { dh += '<span class="disc-pill">ℹ︎&nbsp;' + esc(n) + '</span>'; });
+    dEl.innerHTML = dh;
+
+    // ---- footer location ----
+    var facAddr = null;
+    (data.sub_categories || []).forEach(function (sc) { (sc.activities || []).forEach(function (a) { if (!facAddr && a.facility) facAddr = a.facility; }); });
+    if (facAddr) {
+      var fl = [facAddr.name, facAddr.address1, [facAddr.city, facAddr.province].filter(Boolean).join(", ") + (facAddr.postal_code ? " " + facAddr.postal_code : "")].filter(Boolean);
+      $("#foot-location").innerHTML = fl.map(esc).join("<br>");
+      if (facAddr.latitude && facAddr.longitude) $("#foot-map").href = "https://maps.google.com/?q=" + facAddr.latitude + "," + facAddr.longitude;
+      else if (facAddr.address1) $("#foot-map").href = "https://maps.google.com/?q=" + encodeURIComponent([facAddr.address1, facAddr.city, facAddr.province, facAddr.postal_code].filter(Boolean).join(" "));
+    }
+
+    // ---- freshness ----
+    var scraped = data.scraped_at_utc ? new Date(data.scraped_at_utc) : null;
+    if (scraped && !isNaN(scraped)) {
+      $("#freshness-text").textContent = "updated " + timeAgo(scraped);
+      $("#freshness").title = "Schedule re-scraped " + scraped.toLocaleString();
+      $("#foot-updated").textContent = "Data updated " + scraped.toLocaleString() + " · refreshes hourly";
+    } else {
+      $("#freshness-text").textContent = "live";
+      $("#foot-updated").textContent = "Refreshes hourly";
+    }
+
+    // ---- day chips ----
+    var daysPresent = [];
+    rows.forEach(function (r) { if (r.wd >= 0 && daysPresent.indexOf(r.wd) === -1) daysPresent.push(r.wd); });
+    daysPresent.sort(function (a, b) { return ((a + 6) % 7) - ((b + 6) % 7); }); // Mon-first
+    var chipsHTML = '<button class="chip" data-day="" aria-pressed="true">All days</button>';
+    daysPresent.forEach(function (wd) {
+      chipsHTML += '<button class="chip" data-day="' + wd + '" aria-pressed="false"><span class="swatch" style="background:var(' + DAY_VAR[wd] + ')"></span>' + WD_SHORT[wd] + '</button>';
+    });
+    $("#daychips").innerHTML = chipsHTML;
+    $("#daychips").addEventListener("click", function (e) {
+      var b = e.target.closest(".chip"); if (!b) return;
+      STATE.day = b.getAttribute("data-day");
+      Array.prototype.forEach.call(this.querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
+      render();
+    });
+
+    // ---- controls ----
+    var qEl = $("#q");
+    qEl.addEventListener("input", function () { STATE.q = this.value.trim().toLowerCase(); render(); });
+    $("#t-upcoming").addEventListener("change", function () { STATE.upcoming = this.checked; render(); });
+    $("#t-open").addEventListener("change", function () { STATE.openOnly = this.checked; render(); });
+    $("#sort").addEventListener("change", function () { STATE.sort = this.value; render(); });
+    $("#clearbtn").addEventListener("click", function () {
+      STATE.q = ""; STATE.day = ""; STATE.upcoming = true; STATE.openOnly = false;
+      qEl.value = ""; $("#t-upcoming").checked = true; $("#t-open").checked = false;
+      Array.prototype.forEach.call($("#daychips").querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c.getAttribute("data-day") === "" ? "true" : "false"); });
+      render();
+    });
+    // sensible default: if there are open upcoming sessions show "open only"; else don't
+    if (openNow === 0) { STATE.openOnly = false; $("#t-open").checked = false; }
+
+    render(true);
+    // keep freshness label ticking
+    setInterval(function () { if (scraped && !isNaN(scraped)) $("#freshness-text").textContent = "updated " + timeAgo(scraped); }, 60000);
+  }
+
+  function setUnit(el, val, unit) { el.innerHTML = String(val) + ' <span class="unit">' + esc(unit) + '</span>'; }
+
+  function passesFilters(r) {
+    if (STATE.upcoming && r.s.has_passed) return false;
+    if (STATE.openOnly) { if (!(r.av.cls === "good" || r.av.cls === "low")) return false; }
+    if (STATE.day !== "" && String(r.wd) !== String(STATE.day)) return false;
+    if (STATE.q && r.hay.indexOf(STATE.q) === -1) return false;
+    return true;
+  }
+
+  function render(firstPaint) {
+    var rows = STATE.all.filter(passesFilters);
+
+    if (STATE.sort === "spots") {
+      rows.sort(function (a, b) { return b.leftNum - a.leftNum || a.sortT - b.sortT; });
+    } else if (STATE.sort === "activity") {
+      rows.sort(function (a, b) { return a.actLower.localeCompare(b.actLower) || a.sortT - b.sortT; });
+    } else {
+      rows.sort(function (a, b) { return a.sortT - b.sortT; });
+    }
+
+    var total = STATE.all.length;
+    var filtered = (STATE.q || STATE.day !== "" || !STATE.upcoming || STATE.openOnly);
+    $("#resultcount").innerHTML = '<strong>' + rows.length + '</strong> session' + (rows.length === 1 ? "" : "s") +
+      (filtered ? ' <em>· of ' + total + '</em>' : ' <em>· ' + (STATE.upcoming ? 'upcoming' : 'total') + '</em>');
+    $("#clearbtn").hidden = !(STATE.q || STATE.day !== "" || STATE.openOnly || !STATE.upcoming);
+
+    var listEl = $("#list");
+    if (!rows.length) {
+      listEl.innerHTML = '<div class="empty"><div class="big">Nothing matches those filters</div><p>Try clearing the day filter or the “open spots only” toggle — or check the <a href="' + esc($("#source-link").href) + '" target="_blank" rel="noopener">official store ↗</a>.</p></div>';
+      return;
+    }
+
+    var groupByDate = (STATE.sort === "date");
+    var html = "", curKey = null, idx = 0;
+    var revealStagger = (firstPaint && !STATE.revealed && rows.length <= 80);
+
+    rows.forEach(function (r) {
+      if (groupByDate) {
+        var k = dateKeyOf(r.p);
+        if (k !== curKey) {
+          if (curKey !== null) html += "</div>"; // close .cards
+          curKey = k;
+          var isToday = (k === STATE.todayKey);
+          html += '<section class="daygroup"><div class="daygroup-head' + (isToday ? " is-today" : "") + '">' +
+            '<span class="dnum">' + (r.p ? r.p.day : "?") + '</span>' +
+            '<span class="dwd">' + (r.p ? WD_FULL[r.p.wd] : "") + '</span>' +
+            (isToday ? '<span class="todaytag">Today</span>' : '') +
+            '<span class="dmo">' + (r.p ? MO_SHORT[r.p.mo - 1] + " " + r.p.y : "") + '</span>' +
+            '</div><div class="cards">';
+        }
+      } else if (curKey !== "flat") {
+        if (curKey !== null) html += "</div>";
+        curKey = "flat"; html += '<section class="daygroup"><div class="cards">';
+      }
+      html += cardHTML(r, revealStagger ? idx : -1);
+      idx++;
+    });
+    if (curKey !== null) html += "</div></section>";
+    listEl.innerHTML = html;
+    if (firstPaint) STATE.revealed = true;
+  }
+
+  function cardHTML(r, staggerIdx) {
+    var s = r.s, p = r.p, pe = r.pe, av = r.av;
+    var dayVar = (r.wd >= 0) ? DAY_VAR[r.wd] : null;
+    var loc = clean(s.location);
+    var delay = staggerIdx >= 0 ? Math.min(staggerIdx, 14) * 38 : 0;
+    var styleParts = [];
+    if (dayVar) styleParts.push("--day:var(" + dayVar + ")");
+    if (delay) styleParts.push("animation-delay:" + delay + "ms");
+    var style = styleParts.length ? ' style="' + styleParts.join(";") + '"' : "";
+    var cls = "card" + (s.has_passed ? " past" : "") + (av.cls === "full" ? " full" : "");
+
+    var meterPct = Math.round(av.pct * 100);
+    var meterCls = av.cls === "full" ? "full" : (av.cls === "low" ? "low" : "good");
+    var meterLeftLab, meterRightLab;
+    if (typeof s.capacity === "number" && s.capacity > 0) {
+      var taken = (typeof s.spots_remaining === "number") ? (s.capacity - s.spots_remaining) : (s.spots_reserved || Math.round(av.pct * s.capacity));
+      meterLeftLab = taken + " / " + s.capacity + " filled";
+      meterRightLab = s.has_passed ? "" : (typeof s.spots_remaining === "number" ? (s.spots_remaining > 0 ? s.spots_remaining + " left" : "full") : "");
+    } else {
+      meterLeftLab = s.has_unlimited_spots ? "Unlimited space" : (s.attendance_string || "");
+      meterRightLab = "";
+    }
+
+    var pillIcon = (av.cls === "full") ? "" : '<span class="pdot"></span>';
+    var pill = '<span class="availpill ' + av.cls + '">' + pillIcon + esc(av.label) + '</span>';
+
+    // action button
+    var foot;
+    var amilia = $("#source-link") ? $("#source-link").href : "";
+    if (s.has_passed) {
+      foot = '<span class="btn" aria-disabled="true">Session finished</span>';
+    } else if (av.cls === "full") {
+      var fUrl = s.details_url || s.registration_url || amilia;
+      foot = '<a class="btn btn-ghost" href="' + esc(fUrl) + '" target="_blank" rel="noopener" style="flex:1">' + (s.wait_list_enabled ? "Join the waitlist ↗" : "View on Amilia ↗") + '</a>';
+    } else if (s.can_register && s.registration_url) {
+      foot = '<a class="btn btn-lime" href="' + esc(s.registration_url) + '" target="_blank" rel="noopener">Register now <span class="arrow" aria-hidden="true">→</span></a>';
+    } else if (av.cls === "soon") {
+      foot = '<a class="btn btn-ghost" href="' + esc(s.details_url || amilia) + '" target="_blank" rel="noopener" style="flex:1">Set a reminder on Amilia ↗</a>';
+    } else {
+      var rUrl = s.registration_url || s.details_url || amilia;
+      foot = '<a class="btn btn-primary" href="' + esc(rUrl) + '" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>';
+    }
+    if (s.details_url) {
+      foot += '<a class="btn btn-ghost" href="' + esc(s.details_url) + '" target="_blank" rel="noopener" title="See this activity on the JCC store" aria-label="Activity details on Amilia">Details ↗</a>';
+    }
+
+    var relLabel = (p && !s.has_passed) ? relDay(p, STATE.todayKey) : (s.has_passed ? "Past" : (p ? WD_FULL[p.wd] : ""));
+
+    return (
+      '<article class="' + cls + '"' + style + '>' +
+        '<div class="card-top">' +
+          '<div class="timeblock">' +
+            '<div class="t">' + (p ? fmtTimeHTML(p.h, p.mi) : "—") + '</div>' +
+            '<div class="range">' + (p && pe ? esc(fmtTime(p.h, p.mi) + " – " + fmtTime(pe.h, pe.mi)) : (p ? esc(WD_FULL[p.wd]) : "")) + '</div>' +
+          '</div>' +
+          pill +
+        '</div>' +
+        '<div class="card-body">' +
+          '<div class="activity-name">' + esc(s.activity_name || "Drop-in session") + '</div>' +
+          '<div class="card-meta">' +
+            '<span class="mi"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' + esc(relLabel) + '</span>' +
+            (loc ? '<span class="mi"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 14s5-4.2 5-8a5 5 0 10-10 0c0 3.8 5 8 5 8z" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="6" r="1.8" stroke="currentColor" stroke-width="1.4"/></svg>' + esc(loc) + '</span>' : '') +
+            (priceText(s) ? '<span class="mi"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.6v6.8M9.8 6c-.5-.7-3.6-1-3.6.5 0 1.4 3.6 1 3.6 2.4 0 1.4-3.1 1.2-3.6.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><strong style="color:var(--ink);font-weight:600">' + esc(priceText(s)) + '</strong>&nbsp;/ drop-in</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="meter">' +
+          '<div class="bar"><div class="fill ' + meterCls + '" style="width:' + meterPct + '%"></div></div>' +
+          '<div class="lab"><span>' + esc(meterLeftLab) + '</span>' + (meterRightLab ? '<span class="right">' + esc(meterRightLab) + '</span>' : '') + '</div>' +
+        '</div>' +
+        '<div class="card-foot">' + foot + '</div>' +
+      '</article>'
+    );
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", load);
+  else load();
+})();
+</script>
+</body>
+</html>

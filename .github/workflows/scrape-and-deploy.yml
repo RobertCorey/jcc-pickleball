@@ -1,0 +1,60 @@
+name: Scrape & deploy
+
+on:
+  schedule:
+    # hourly, at :07 past the hour (offset to avoid the top-of-hour stampede)
+    - cron: "7 * * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# allow the workflow to commit refreshed data and publish Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scrape the JCC store → site/data/sessions.json
+        run: python3 scraper/build_site.py
+
+      - name: Commit refreshed data (if changed)
+        run: |
+          if [[ -n "$(git status --porcelain site/data/sessions.json)" ]]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add site/data/sessions.json
+            git commit -m "data: refresh pickleball schedule ($(date -u +'%Y-%m-%d %H:%MZ'))"
+            git push
+          else
+            echo "No data change."
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
