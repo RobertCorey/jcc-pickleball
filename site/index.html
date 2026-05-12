@@ -138,8 +138,9 @@
   .row .mid .sub { font-size: 12.5px; color: var(--ink-faint); margin-top: 1px; font-variant-numeric: tabular-nums; }
   .row .mid .sub .price { color: var(--ink-soft); font-weight: 600; }
   .row .end { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
-  .avail { font-size: 12px; font-weight: 700; letter-spacing: .02em; display: inline-flex; align-items: center; gap: 6px; }
-  .avail .pdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .avail { font-size: 12px; font-weight: 600; letter-spacing: .01em; display: inline-flex; align-items: center; gap: 6px; }
+  .avail b { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .avail .pdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
   .avail.good { color: #5b7a17; }
   .avail.low  { color: var(--amber); }
   .avail.full { color: var(--clay); }
@@ -314,17 +315,31 @@
     return s || (n || "Drop-in session");
   }
 
-  // availability classification
-  function avail(s) {
-    if (s.has_passed) return { cls: "past", label: "Done", dot: false };
-    if (s.has_unlimited_spots) return { cls: "good", label: "Open", dot: true };
-    if (s.status === "available_soon") return { cls: "soon", label: "Opens soon", dot: false };
+  // spots: capacity / how many signed up ("going") / how many left
+  function spotsInfo(s) {
+    var cap = (!s.has_unlimited_spots && typeof s.capacity === "number" && s.capacity > 0) ? s.capacity : null;
     var left = (typeof s.spots_remaining === "number") ? s.spots_remaining : null;
-    if (left === 0 || s.status === "full" || s.has_place_left === false) {
-      return { cls: "full", label: s.wait_list_enabled ? "Full · waitlist" : "Full", dot: false };
+    var going = (typeof s.spots_reserved === "number") ? s.spots_reserved
+              : (cap != null && left != null ? cap - left : null);
+    return { cap: cap, left: left, going: going };
+  }
+
+  // availability classification → {cls (color), dot, html (rich label, numbers pre-escaped-safe)}
+  function avail(s) {
+    var i = spotsInfo(s);
+    var go = (i.going != null && i.going >= 0) ? '<b>' + i.going + '</b> going' : null;
+    if (s.has_passed) return { cls: "past", dot: false, html: (i.going != null ? '<b>' + i.going + '</b> signed up' : "Done") };
+    if (s.has_unlimited_spots) return { cls: "good", dot: true, html: go || "Open" };
+    if (s.status === "available_soon") return { cls: "soon", dot: false, html: "Opens soon" };
+    if (i.left === 0 || s.status === "full" || s.has_place_left === false) {
+      var n = (i.cap != null) ? i.cap : i.going;
+      return { cls: "full", dot: false, html: (n != null ? '<b>' + n + '</b> going · full' : "Full") };
     }
-    if (left != null) return { cls: left <= 3 ? "low" : "good", label: left + " spot" + (left === 1 ? "" : "s") + " left", dot: true };
-    return { cls: "good", label: "Open", dot: true };
+    if (i.left != null) {
+      var goingN = (i.going != null) ? i.going : 0;
+      return { cls: i.left <= 3 ? "low" : "good", dot: true, html: '<b>' + goingN + '</b> going · ' + i.left + ' left' };
+    }
+    return { cls: "good", dot: true, html: "Open" };
   }
 
   var STATE = { all: [], day: "", showPast: false, tk: todayKeyNow() };
@@ -502,7 +517,7 @@
       '</div>';
 
       // end: availability + action
-      var availHTML = '<span class="avail ' + a.cls + '">' + (a.dot ? '<span class="pdot"></span>' : '') + esc(a.label) + '</span>';
+      var availHTML = '<span class="avail ' + a.cls + '">' + (a.dot ? '<span class="pdot"></span>' : '') + a.html + '</span>';
       var goHTML;
       if (s.has_passed) goHTML = '<span class="go disabled">—</span>';
       else if (a.cls === "full") goHTML = '<a class="go ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + (s.wait_list_enabled ? 'Waitlist <span aria-hidden="true">↗</span>' : 'View <span aria-hidden="true">↗</span>') + '</a>';
