@@ -62,26 +62,33 @@
 
   /* ---------------- top bar ---------------- */
   .topbar { border-bottom: 1.5px solid var(--ink); background: var(--bone); position: relative; z-index: 3; }
-  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; }
-  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 16.5px; letter-spacing: -0.02em; text-decoration: none; }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 16.5px; letter-spacing: -0.02em; text-decoration: none; min-width: 0; }
   .brand .mark { width: 28px; height: 28px; border-radius: 8px; background: var(--ink); flex: none; display: grid; place-items: center; }
   .brand .mark svg { width: 18px; height: 18px; }
-  .topbar .right { display: flex; align-items: center; gap: 15px; font-size: 12.5px; color: var(--ink-soft); }
-  .freshness { display: inline-flex; align-items: center; gap: 7px; }
-  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--lime-deep); box-shadow: 0 0 0 0 rgba(169,212,35,.6); animation: pulse 2.6s ease-out infinite; }
+  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--lime-deep); flex: none; box-shadow: 0 0 0 0 rgba(169,212,35,.6); animation: pulse 2.6s ease-out infinite; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(169,212,35,.5);} 70% { box-shadow: 0 0 0 9px rgba(169,212,35,0);} 100% { box-shadow: 0 0 0 0 rgba(169,212,35,0);} }
-  .src-link { text-decoration: none; border-bottom: 1.5px solid var(--line-strong); padding-bottom: 1px; transition: border-color .15s; white-space: nowrap; }
+  .src-link { text-decoration: none; font-size: 13px; color: var(--ink-soft); border-bottom: 1.5px solid var(--line-strong); padding-bottom: 1px; transition: border-color .15s; white-space: nowrap; flex: none; }
   .src-link:hover { border-color: var(--ink); }
 
   /* ---------------- hero ---------------- */
   .hero { padding: clamp(26px, 5vw, 48px) 0 clamp(16px, 3vw, 24px); }
   .kicker { font-family: var(--font-body); font-weight: 600; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--forest); display: inline-flex; align-items: center; gap: 10px; }
-  .kicker::before { content: ""; width: 24px; height: 1.5px; background: var(--forest); display: inline-block; }
-  h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(38px, 8.2vw, 76px); line-height: 0.96; letter-spacing: -0.035em; margin: 12px 0 0; }
+  .kicker::before { content: ""; width: 24px; height: 1.5px; background: var(--forest); display: inline-block; flex: none; }
+  h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(36px, 8.2vw, 76px); line-height: 0.96; letter-spacing: -0.035em; margin: 12px 0 0; }
   h1 .accent { position: relative; white-space: nowrap; }
   h1 .accent::after { content: ""; position: absolute; left: -2px; right: -2px; bottom: 0.07em; height: 0.3em; background: var(--lime); z-index: -1; transform: rotate(-1deg); border-radius: 2px; }
-  .lede { margin-top: 16px; font-size: clamp(14.5px, 1.5vw, 16.5px); color: var(--ink-soft); max-width: 56ch; line-height: 1.55; }
+  .lede { margin-top: 14px; font-size: clamp(15px, 1.5vw, 17px); color: var(--ink-soft); max-width: 52ch; line-height: 1.5; }
   .lede strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------------- freshness / disclaimer note ---------------- */
+  .freshnote { margin-top: 16px; max-width: 62ch; }
+  .fc-pill { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 14.5px; letter-spacing: -.01em; color: var(--forest-2);
+    background: #eef5d6; border: 1.5px solid var(--lime-deep); padding: 7px 14px 7px 12px; border-radius: 999px; }
+  .freshnote > p { margin-top: 12px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+  .freshnote > p strong { color: var(--ink); font-weight: 700; }
+  .freshnote > p a { color: var(--forest); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid var(--line-strong); transition: border-color .15s; white-space: nowrap; }
+  .freshnote > p a:hover { border-color: var(--forest); }
 
   /* ---------------- "good to know" ---------------- */
   .glance { margin-top: clamp(20px, 3vw, 28px); background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: var(--r); padding: clamp(16px, 2.4vw, 22px) clamp(16px, 2.6vw, 24px); }
@@ -185,9 +192,13 @@
   footer .legal { margin-top: clamp(20px, 3vw, 32px); padding-top: 16px; border-top: 1px solid rgba(243,239,226,.16); font-size: 11.5px; color: rgba(243,239,226,.5); display: flex; flex-wrap: wrap; gap: 5px 16px; justify-content: space-between; }
 
   @media (max-width: 560px) {
-    .row { grid-template-columns: 70px 1fr; row-gap: 8px; }
+    .row { grid-template-columns: 64px 1fr; row-gap: 8px; padding-left: 10px; }
     .row .end { grid-column: 1 / -1; justify-content: space-between; }
     .row .mid .name { font-size: 15px; }
+    .row .when .dt { font-size: 16px; }
+    .filters .lab { display: none; }
+    .pasttoggle { margin-left: 0; }
+    .glance li { font-size: 13.5px; }
   }
 </style>
 </head>
@@ -199,10 +210,7 @@
       <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
       <span>JCC&nbsp;Open&nbsp;Play</span>
     </a>
-    <div class="right">
-      <span class="freshness" id="freshness" title="Re-scraped automatically"><span class="dot-live"></span><span id="freshness-text">loading…</span></span>
-      <a class="src-link" id="source-link" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">Official store ↗</a>
-    </div>
+    <a class="src-link" id="source-link" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">Official store ↗</a>
   </div>
 </div>
 
@@ -210,7 +218,18 @@
   <div class="wrap">
     <span class="kicker">Jewish Alliance of Greater Rhode Island</span>
     <h1>JCC Open <span class="accent">Play</span></h1>
-    <p class="lede">The JCC's drop-in pickleball schedule — every upcoming session, pulled live from the registration system. Tap one to register on the official site.</p>
+    <p class="lede">An easier-to-read copy of the JCC's drop-in pickleball schedule — every upcoming session in one tidy list.</p>
+
+    <div class="freshnote">
+      <span class="fc-pill"><span class="dot-live"></span><span id="fc-when">Updated just now</span></span>
+      <p>
+        Heads up — this isn't the official site, and it isn't always up to the minute. It re-checks the JCC's schedule
+        roughly <strong>once an hour</strong>, so headcounts and open spots can run a little behind what's actually there.
+        The <a id="fc-link" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">official JCC store&nbsp;↗</a>
+        is the real source of truth: that's where you register, and where you should double-check before you count on a spot.
+        This page just exists to make the schedule quicker to scan.
+      </p>
+    </div>
 
     <section class="glance" aria-label="Good to know">
       <h2>Good to know</h2>
@@ -352,7 +371,7 @@
       $("#list").innerHTML = '<div class="errbox"><div class="big">Couldn’t load the schedule</div><p>' + esc(String(err)) +
         '. Browse it on the <a href="' + esc($("#source-link").getAttribute("href")) + '" target="_blank" rel="noopener">official store ↗</a> instead.</p></div>';
       $("#countline").textContent = "Failed to load.";
-      $("#freshness-text").textContent = "offline"; $("#freshness .dot-live").style.background = "var(--clay)";
+      var fcw = $("#fc-when"); if (fcw) { fcw.textContent = "Couldn’t reach the schedule"; var d = $(".fc-pill .dot-live"); if (d) d.style.background = "var(--clay)"; }
       $("#showpast").hidden = true;
     });
 
@@ -369,15 +388,17 @@
     buildGlance(data, rows);
     buildFooter(data);
 
-    // freshness
+    // freshness — prominent "updated …" pill near the top + footer line
     var scraped = data.scraped_at_utc ? new Date(data.scraped_at_utc) : null;
+    var fcw = $("#fc-when"), pill = $(".fc-pill");
     if (scraped && !isNaN(scraped)) {
-      $("#freshness-text").textContent = "updated " + timeAgo(scraped);
-      $("#freshness").title = "Schedule re-scraped " + scraped.toLocaleString();
-      $("#foot-updated").textContent = "Schedule updated " + scraped.toLocaleString() + " · refreshes hourly";
-      setInterval(function () { $("#freshness-text").textContent = "updated " + timeAgo(scraped); }, 60000);
+      var setW = function () { fcw.textContent = "Updated " + timeAgo(scraped); };
+      setW();
+      if (pill) pill.title = "Schedule last re-checked " + scraped.toLocaleString();
+      $("#foot-updated").textContent = "Schedule last updated " + scraped.toLocaleString() + " · re-checks hourly";
+      setInterval(setW, 60000);
     } else {
-      $("#freshness-text").textContent = "live";
+      fcw.textContent = "Live schedule";
     }
 
     // day chips
@@ -443,7 +464,6 @@
     } else {
       items.push({ ico: "📍", html: "<b>Where</b> — JCC Gymnasium, 401 Elmgrove Ave, Providence, RI 02906" });
     }
-    items.push({ ico: "🔄", html: "<b>This page</b> — auto-refreshes hourly from the JCC's registration system. It mirrors a public schedule; it isn't the official site." });
 
     $("#glance-list").innerHTML = items.map(function (it) {
       return '<li><span class="ico" aria-hidden="true">' + it.ico + '</span><span>' + it.html + '</span></li>';
