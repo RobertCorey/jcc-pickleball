@@ -9,14 +9,14 @@
 <link rel="canonical" href="{{CANONICAL}}" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
 <meta property="og:type" content="website" />
-<meta property="og:site_name" content="JCC Open Play" />
+<meta property="og:site_name" content="Providence JCC Pickleball" />
 <meta property="og:title" content="{{OG_TITLE}}" />
 <meta property="og:description" content="{{OG_DESC}}" />
 <meta property="og:url" content="{{CANONICAL}}" />
 <meta property="og:image" content="{{OG_IMAGE}}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="JCC Open Play — drop-in pickleball schedule" />
+<meta property="og:image:alt" content="Drop-in pickleball at the Providence JCC — schedule" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{{OG_TITLE}}" />
 <meta name="twitter:description" content="{{OG_DESC}}" />
@@ -56,7 +56,7 @@
   .card{margin-top:18px;background:var(--paper);border:1.5px solid var(--line-strong);border-radius:var(--r);padding:clamp(20px,3.4vw,30px);box-shadow:0 1px 0 rgba(0,0,0,.04),0 16px 34px -20px rgba(20,30,15,.3);position:relative;overflow:hidden;}
   .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--day,var(--lime-deep));}
   .when-rel{font-family:var(--fb);font-weight:700;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);}
-  h1{font-family:var(--fd);font-weight:800;font-size:clamp(28px,6vw,40px);letter-spacing:-.03em;line-height:1.05;margin:8px 0 0;}
+  h1{font-family:var(--fd);font-weight:800;font-size:clamp(25px,5.4vw,38px);letter-spacing:-.03em;line-height:1.08;margin:8px 0 0;}
   .when-line{margin-top:10px;font-size:clamp(16px,2.2vw,19px);font-weight:600;color:var(--ink);}
   .when-line .sep{color:var(--ink-faint);font-weight:400;margin:0 6px;}
   .meta-line{margin-top:8px;font-size:14px;color:var(--ink-soft);}
@@ -108,7 +108,7 @@
   <div class="wrap">
     <a class="brand" href="{{HOME_HREF}}">
       <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
-      <span>JCC&nbsp;Open&nbsp;Play</span>
+      <span>JCC&nbsp;Pickleball</span>
     </a>
     <a class="src-link" href="{{STORE_URL}}" target="_blank" rel="noopener">Official store ↗</a>
   </div>
@@ -120,8 +120,8 @@
 
     <article class="card" style="--day:{{DAY_COLOR}}">
       <div class="when-rel">{{WHEN_REL}}</div>
-      <h1>{{ACTIVITY}}</h1>
-      <div class="when-line">{{WHEN_DATE}}<span class="sep">·</span>{{WHEN_TIME}}</div>
+      <h1>{{WHEN_DATE}}</h1>
+      <div class="when-line">{{WHEN_TIME}}<span class="sep">·</span>Open drop-in pickleball</div>
       <div class="meta-line">{{VENUE}}{{PRICE_BIT}}</div>
 
       <div class="avail-row">

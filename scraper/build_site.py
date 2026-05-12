@@ -247,7 +247,16 @@ def build_session_pages(doc) -> int:
         pr = price_range(s.get("drop_in_best_price"), s.get("drop_in_price"))
         reg_url = s.get("registration_url") or s.get("details_url") or store_url
 
-        when_rel = (rel_when(p, today) or "") if p and not s.get("has_passed") else ("Past session" if s.get("has_passed") else "")
+        # the "when" ribbon above the date — only relative labels (Today / Tomorrow /
+        # This Friday / Next Friday); for far-out dates it stays empty so it isn't
+        # just a redundant weekday under the date headline.
+        if s.get("has_passed"):
+            when_rel = "Past session"
+        elif p:
+            r = rel_when(p, today)
+            when_rel = r if (r and r != WD_FULL[p["wd"]]) else ""
+        else:
+            when_rel = ""
         when_date = f"{WD_FULL[p['wd']]}, {MO_FULL[p['mo'] - 1]} {p['d']}, {p['y']}" if p else "—"
         when_time = (f"{fmt_time(p['h'], p['mi'])} – {fmt_time(pe['h'], pe['mi'])}" if (p and pe) else (fmt_time(p['h'], p['mi']) if p else ""))
         day_color = DAY_COLOR.get(p["wd"], "#a9d423") if p else "#a9d423"
@@ -271,21 +280,21 @@ def build_session_pages(doc) -> int:
         else:
             cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>'
 
-        # OG / meta text
+        # OG / meta text — keyed to this specific date, not the recurring slot name
         canonical = f"{SITE_BASE_URL}/s/{sid}/"
         date_brief = f"{WD_SHORT[p['wd']]}, {MO_SHORT[p['mo'] - 1]} {p['d']}" if p else ""
-        og_title = f"Pickleball drop-in — {date_brief}" + (f" · {fmt_time(p['h'], p['mi'])}" if p else "") + f" ({act})"
+        date_long = f"{WD_FULL[p['wd']]}, {MO_FULL[p['mo'] - 1]} {p['d']}" if p else ""
+        time_brief = fmt_time(p["h"], p["mi"]) if p else ""
+        og_title = f"Drop-in pickleball · {date_brief}" + (f" at {time_brief}" if time_brief else "") + " · Providence JCC"
         if s.get("has_passed"):
-            og_desc = f"{venue_short}. This drop-in pickleball session ({when_time}) has already happened — see the upcoming schedule."
+            og_desc = f"Drop-in pickleball at the Providence JCC — {date_long}, {when_time}. This session has already happened; see the upcoming schedule."
         else:
-            bits = [venue_short]
-            if when_time:
-                bits.append(when_time)
-            og_desc = ". ".join([f"{', '.join(bits)}", label_plain[:1].upper() + label_plain[1:]])
+            head = f"Drop-in pickleball at the Providence JCC — {date_long}" + (f", {when_time}" if when_time else "") + "."
+            og_desc = f"{head} {venue_short}. {label_plain[:1].upper() + label_plain[1:]}"
             if pr:
                 og_desc += f" · {pr} per drop-in"
             og_desc += ". Tap to register on the official JCC site."
-        page_title = f"{act} — {date_brief} · JCC Open Play" if date_brief else f"{act} · JCC Open Play"
+        page_title = (f"Pickleball · {date_brief}" + (f" at {time_brief}" if time_brief else "") + " · Providence JCC") if date_brief else "Drop-in pickleball · Providence JCC"
 
         price_bit = f' · <span class="price">{esc(pr)}</span> / drop-in' if pr else ""
 
