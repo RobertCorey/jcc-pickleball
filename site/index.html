@@ -240,6 +240,7 @@
   .meter .lab .right { color: var(--ink-soft); font-weight: 600; }
 
   .card-foot { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+  .card-foot > .btn { flex: 1; }
   .btn {
     font-family: var(--font-body); font-weight: 700; font-size: 14px; letter-spacing: -.005em;
     padding: 11px 16px; border-radius: 10px; text-decoration: none; cursor: pointer; border: 1.5px solid transparent;
@@ -728,24 +729,23 @@
     var pillIcon = (av.cls === "full") ? "" : '<span class="pdot"></span>';
     var pill = '<span class="availpill ' + av.cls + '">' + pillIcon + esc(av.label) + '</span>';
 
-    // action button
+    // action button — links to the activity page on Amilia (pinned to this
+    // session's month). There's no per-session registration page on Amilia;
+    // you pick the day on the activity-page calendar, so a single button is it.
     var foot;
     var amilia = $("#source-link") ? $("#source-link").href : "";
+    var actUrl = s.registration_url || s.details_url || amilia;
     if (s.has_passed) {
       foot = '<span class="btn" aria-disabled="true">Session finished</span>';
     } else if (av.cls === "full") {
-      var fUrl = s.details_url || s.registration_url || amilia;
-      foot = '<a class="btn btn-ghost" href="' + esc(fUrl) + '" target="_blank" rel="noopener" style="flex:1">' + (s.wait_list_enabled ? "Join the waitlist ↗" : "View on Amilia ↗") + '</a>';
-    } else if (s.can_register && s.registration_url) {
-      foot = '<a class="btn btn-lime" href="' + esc(s.registration_url) + '" target="_blank" rel="noopener">Register now <span class="arrow" aria-hidden="true">→</span></a>';
+      foot = '<a class="btn btn-ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' +
+        (s.wait_list_enabled ? 'Join the waitlist <span aria-hidden="true">↗</span>' : 'View on Amilia <span aria-hidden="true">↗</span>') + '</a>';
     } else if (av.cls === "soon") {
-      foot = '<a class="btn btn-ghost" href="' + esc(s.details_url || amilia) + '" target="_blank" rel="noopener" style="flex:1">Set a reminder on Amilia ↗</a>';
+      foot = '<a class="btn btn-ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">Opens soon — view on Amilia <span aria-hidden="true">↗</span></a>';
+    } else if (s.can_register) {
+      foot = '<a class="btn btn-lime" href="' + esc(actUrl) + '" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>';
     } else {
-      var rUrl = s.registration_url || s.details_url || amilia;
-      foot = '<a class="btn btn-primary" href="' + esc(rUrl) + '" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>';
-    }
-    if (s.details_url) {
-      foot += '<a class="btn btn-ghost" href="' + esc(s.details_url) + '" target="_blank" rel="noopener" title="See this activity on the JCC store" aria-label="Activity details on Amilia">Details ↗</a>';
+      foot = '<a class="btn btn-primary" href="' + esc(actUrl) + '" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>';
     }
 
     var relLabel = (p && !s.has_passed) ? relDay(p, STATE.todayKey) : (s.has_passed ? "Past" : (p ? WD_FULL[p.wd] : ""));

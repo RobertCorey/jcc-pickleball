@@ -362,9 +362,23 @@ def shape_session(raw: dict, store_base_url: str = "") -> dict:
         status = "passed"
     else:
         status = ACTIVITY_STATE.get(state, f"state_{state}")
+    # Amilia has no GET-able page for an individual drop-in segment
+    # (".../shop/Activities/{id}/DropIns/{segmentId}" 404s — that template is
+    # only used internally by the calendar's add-to-cart POST). The deepest
+    # public link is the activity page, which renders a month calendar you click
+    # a day on; pin it to the session's month so the right day is in view.
     reg_url = None
-    if raw.get("ActivityId") and raw.get("SegmentId"):
-        reg_url = f"{store_base_url}/shop/Activities/{raw['ActivityId']}/DropIns/{raw['SegmentId']}"
+    activity_url = None
+    if raw.get("ActivityId"):
+        activity_url = f"{store_base_url}/shop/activities/{raw['ActivityId']}"
+        m = re.match(r"(\d{4})-(\d{2})-(\d{2})", str(raw.get("start") or ""))
+        if m:
+            reg_url = (
+                f"{activity_url}?view=month&date={m.group(1)}-{m.group(2)}-{m.group(3)}"
+                "&scrollToCalendar=true"
+            )
+        else:
+            reg_url = activity_url
     return {
         "segment_id": raw.get("SegmentId"),
         "start": raw.get("start"),
@@ -483,7 +497,9 @@ def build_document(url: str, *, window_years: int = 2) -> dict:
                     "category": act["category"],
                     "activity_id": act["id"],
                     "activity_name": act["name"],
+                    "details_url": act["details_url"],
                     "location": act["location"],
+                    "facility": act["facility"],
                     **s,
                 }
             )
