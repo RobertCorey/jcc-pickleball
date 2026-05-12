@@ -48,14 +48,19 @@ jobs:
         env:
           SITE_BASE_URL: https://robertcorey.github.io/jcc-pickleball
 
-      - name: Commit refreshed data (if changed)
+      # Best-effort: keep a record of the schedule in git history. Never blocks the
+      # deploy — the Pages artifact is uploaded from the working tree either way,
+      # and a push that loses a race just gets picked up next cycle.
+      - name: Commit refreshed data (best-effort)
+        continue-on-error: true
         run: |
           if [[ -n "$(git status --porcelain site/data/sessions.json)" ]]; then
             git config user.name  "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add site/data/sessions.json
             git commit -m "data: refresh pickleball schedule ($(date -u +'%Y-%m-%d %H:%MZ'))"
-            git push
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME:-main}" || true
+            git push || echo "::warning::data commit-back lost a push race; will refresh next cycle"
           else
             echo "No data change."
           fi
