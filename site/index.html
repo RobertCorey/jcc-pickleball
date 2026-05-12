@@ -4,9 +4,25 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>JCC Open Play — Drop-In Pickleball Schedule</title>
-<meta name="description" content="The Jewish Alliance of Greater Rhode Island JCC's open drop-in pickleball schedule — every upcoming session with times, prices, and live availability, plus a one-tap link to register. Refreshed hourly." />
+<meta name="description" content="Every upcoming open drop-in pickleball session at the Jewish Alliance of Greater Rhode Island JCC, in one tidy list — times, prices, how many are signed up, and one tap to register. An unofficial mirror, refreshed hourly." />
 <meta name="color-scheme" content="light" />
+<link rel="canonical" href="https://robertcorey.github.io/jcc-pickleball/" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
+<!-- social link previews -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="JCC Open Play" />
+<meta property="og:title" content="JCC Open Play — Drop-In Pickleball Schedule" />
+<meta property="og:description" content="Every upcoming open drop-in pickleball session at the JCC of Greater Rhode Island, in one tidy list — times, prices, live sign-ups, and one tap to register." />
+<meta property="og:url" content="https://robertcorey.github.io/jcc-pickleball/" />
+<meta property="og:image" content="https://robertcorey.github.io/jcc-pickleball/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="JCC Open Play — drop-in pickleball, all in one list. robertcorey.github.io/jcc-pickleball" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="JCC Open Play — Drop-In Pickleball Schedule" />
+<meta name="twitter:description" content="Every upcoming open drop-in pickleball session at the JCC of Greater Rhode Island — times, prices, live sign-ups, one tap to register." />
+<meta name="twitter:image" content="https://robertcorey.github.io/jcc-pickleball/og.png" />
+<meta name="theme-color" content="#f3efe2" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
@@ -54,7 +70,9 @@
     content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .5; mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
   }
-  .wrap { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; padding: 0 clamp(16px, 4vw, 32px); }
+  .wrap { position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto;
+    padding-left: max(clamp(20px, 5vw, 40px), env(safe-area-inset-left));
+    padding-right: max(clamp(20px, 5vw, 40px), env(safe-area-inset-right)); }
 
   a { color: inherit; }
   ::selection { background: var(--lime); color: var(--ink); }
@@ -62,7 +80,7 @@
 
   /* ---------------- top bar ---------------- */
   .topbar { border-bottom: 1.5px solid var(--ink); background: var(--bone); position: relative; z-index: 3; }
-  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 13px; }
   .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 16.5px; letter-spacing: -0.02em; text-decoration: none; min-width: 0; }
   .brand .mark { width: 28px; height: 28px; border-radius: 8px; background: var(--ink); flex: none; display: grid; place-items: center; }
   .brand .mark svg { width: 18px; height: 18px; }
@@ -105,7 +123,7 @@
   .filters { position: sticky; top: 0; z-index: 5; margin-top: clamp(20px, 3vw, 30px);
     background: rgba(243,239,226,.9); backdrop-filter: blur(9px) saturate(1.3); -webkit-backdrop-filter: blur(9px) saturate(1.3);
     border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
-  .filters .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 0; }
+  .filters .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-block: 10px; }
   .filters .lab { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); margin-right: 2px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { font-family: var(--font-body); font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
@@ -127,21 +145,28 @@
 
   .list { border-top: 1.5px solid var(--line); }
   .row {
+    position: relative;
     display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 14px;
     padding: 13px 4px; border-bottom: 1.5px solid var(--line);
     border-left: 3px solid transparent; padding-left: 12px;
     opacity: 0; animation: rise .42s cubic-bezier(.2,.7,.3,1) forwards;
+    transition: background .14s;
   }
   @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .row { animation: none; opacity: 1; } .dot-live { animation: none; } }
+  .row:hover { background: rgba(20,72,58,.05); }
   .row.today { border-left-color: var(--lime); background: linear-gradient(90deg, rgba(198,242,59,.14), transparent 40%); }
+  .row.today:hover { background: linear-gradient(90deg, rgba(198,242,59,.2), transparent 45%); }
   .row.past { opacity: .5; }
   .row .when { line-height: 1.2; }
   .row .when .wd { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
   .row .when .dt { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
   .row .when .today-tag { display: inline-block; margin-top: 2px; font-size: 9.5px; font-weight: 800; letter-spacing: .1em; background: var(--lime); color: var(--forest-2); padding: 2px 6px; border-radius: 999px; }
   .row .mid { min-width: 0; }
-  .row .mid .name { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: -.012em; }
+  .row .mid .name { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: -.012em; color: inherit; text-decoration: none; }
+  /* the name link's ::after stretches over the whole row → click anywhere (except Register) opens the session page */
+  a.name::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+  .row:hover .mid a.name { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
   .row .mid .sub { font-size: 12.5px; color: var(--ink-faint); margin-top: 1px; font-variant-numeric: tabular-nums; }
   .row .mid .sub .price { color: var(--ink-soft); font-weight: 600; }
   .row .end { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
@@ -157,6 +182,7 @@
     font-family: var(--font-body); font-weight: 700; font-size: 13.5px; letter-spacing: -.005em;
     padding: 8px 13px; border-radius: 9px; text-decoration: none; border: 1.5px solid transparent;
     display: inline-flex; align-items: center; gap: 6px; transition: transform .12s, background .15s, color .15s, border-color .15s;
+    position: relative; z-index: 2; /* stays clickable above the row's stretched link */
   }
   .go:active { transform: translateY(1px); }
   .go.primary { background: var(--lime); color: var(--ink); border-color: var(--lime-deep); }
@@ -528,11 +554,16 @@
         (isToday ? '<div class="today-tag">Today</div>' : '') +
       '</div>';
 
-      // mid
+      // mid — the activity name is a link to a shareable per-session page (its
+      // ::after stretches over the whole row, so clicking anywhere but the
+      // Register button opens that page).
       var timeStr = p ? (pe ? fmtTime(p.h, p.mi) + " – " + fmtTime(pe.h, pe.mi) : fmtTime(p.h, p.mi)) : "";
       var price = priceRange(s.drop_in_best_price, s.drop_in_price);
-      var midHTML = '<div class="mid">' +
-        '<div class="name">' + esc(shortName(s.activity_name)) + '</div>' +
+      var detailHref = s.segment_id ? "s/" + encodeURIComponent(s.segment_id) + "/" : null;
+      var nameHTML = detailHref
+        ? '<a class="name" href="' + detailHref + '">' + esc(shortName(s.activity_name)) + '</a>'
+        : '<span class="name">' + esc(shortName(s.activity_name)) + '</span>';
+      var midHTML = '<div class="mid">' + nameHTML +
         '<div class="sub">' + esc(timeStr) + (price ? ' · <span class="price">' + esc(price) + '</span> / drop-in' : '') + '</div>' +
       '</div>';
 

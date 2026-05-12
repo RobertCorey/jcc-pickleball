@@ -28,8 +28,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Scrape the JCC store → site/data/sessions.json
+      - name: Scrape the JCC store → data + per-session pages
         run: python3 scraper/build_site.py
+        env:
+          SITE_BASE_URL: https://robertcorey.github.io/jcc-pickleball
 
       - name: Commit refreshed data (if changed)
         run: |

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>{{PAGE_TITLE}}</title>
+<meta name="description" content="{{OG_DESC}}" />
+<meta name="color-scheme" content="light" />
+<link rel="canonical" href="{{CANONICAL}}" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="JCC Open Play" />
+<meta property="og:title" content="{{OG_TITLE}}" />
+<meta property="og:description" content="{{OG_DESC}}" />
+<meta property="og:url" content="{{CANONICAL}}" />
+<meta property="og:image" content="{{OG_IMAGE}}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="JCC Open Play — drop-in pickleball schedule" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{OG_TITLE}}" />
+<meta name="twitter:description" content="{{OG_DESC}}" />
+<meta name="twitter:image" content="{{OG_IMAGE}}" />
+<meta name="theme-color" content="#f3efe2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bone:#f3efe2;--bone-2:#ece6d4;--paper:#faf7ee;--ink:#1a1b13;--ink-soft:#4a4b3e;--ink-faint:#84846f;
+    --line:#ddd7c4;--line-strong:#c8c1aa;--lime:#c6f23b;--lime-deep:#a9d423;--forest:#14483a;--forest-2:#0c3328;
+    --clay:#b9542f;--amber:#9a6a14;--r:13px;
+    --fd:"Bricolage Grotesque","Hanken Grotesque",system-ui,sans-serif;--fb:"Hanken Grotesque",system-ui,-apple-system,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{font-family:var(--fb);color:var(--ink);background:var(--bone);line-height:1.5;letter-spacing:-.003em;min-height:100vh;overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(120% 70% at 88% -12%,rgba(198,242,59,.16),transparent 58%),radial-gradient(90% 60% at -12% 6%,rgba(20,72,58,.09),transparent 52%);}
+  body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
+  .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding-left:max(clamp(20px,5vw,40px),env(safe-area-inset-left));padding-right:max(clamp(20px,5vw,40px),env(safe-area-inset-right));}
+  a{color:inherit;}::selection{background:var(--lime);color:var(--ink);}
+  :focus-visible{outline:2.5px solid var(--forest);outline-offset:2px;border-radius:4px;}
+
+  .topbar{border-bottom:1.5px solid var(--ink);background:var(--bone);position:relative;z-index:2;}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:13px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:700;font-size:16.5px;letter-spacing:-.02em;text-decoration:none;}
+  .brand .mark{width:28px;height:28px;border-radius:8px;background:var(--ink);flex:none;display:grid;place-items:center;}
+  .brand .mark svg{width:18px;height:18px;}
+  .src-link{text-decoration:none;font-size:13px;color:var(--ink-soft);border-bottom:1.5px solid var(--line-strong);padding-bottom:1px;white-space:nowrap;flex:none;transition:border-color .15s;}
+  .src-link:hover{border-color:var(--ink);}
+
+  main{padding:clamp(24px,5vw,44px) 0 64px;}
+  .back{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--forest);text-decoration:none;border-bottom:1.5px solid transparent;transition:border-color .15s;}
+  .back:hover{border-bottom-color:var(--forest);}
+
+  .card{margin-top:18px;background:var(--paper);border:1.5px solid var(--line-strong);border-radius:var(--r);padding:clamp(20px,3.4vw,30px);box-shadow:0 1px 0 rgba(0,0,0,.04),0 16px 34px -20px rgba(20,30,15,.3);position:relative;overflow:hidden;}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--day,var(--lime-deep));}
+  .when-rel{font-family:var(--fb);font-weight:700;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);}
+  h1{font-family:var(--fd);font-weight:800;font-size:clamp(28px,6vw,40px);letter-spacing:-.03em;line-height:1.05;margin:8px 0 0;}
+  .when-line{margin-top:10px;font-size:clamp(16px,2.2vw,19px);font-weight:600;color:var(--ink);}
+  .when-line .sep{color:var(--ink-faint);font-weight:400;margin:0 6px;}
+  .meta-line{margin-top:8px;font-size:14px;color:var(--ink-soft);}
+  .meta-line .price{font-weight:600;color:var(--ink);}
+
+  .avail-row{display:flex;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .avail{font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:7px;}
+  .avail b{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .avail .pdot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;}
+  .avail.good{color:#5b7a17;}.avail.low{color:var(--amber);}.avail.full{color:var(--clay);}.avail.soon,.avail.past{color:var(--ink-faint);}
+  .meter{flex:1;min-width:140px;height:8px;border-radius:999px;background:var(--bone-2);border:1px solid var(--line);overflow:hidden;}
+  .meter>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--lime-deep),var(--lime));}
+  .meter.low>i{background:linear-gradient(90deg,#d99a2b,#ecc04b);}
+  .meter.full>i{background:linear-gradient(90deg,var(--clay),#d97c5a);}
+
+  .cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;}
+  .btn{font-family:var(--fb);font-weight:700;font-size:14.5px;padding:12px 18px;border-radius:10px;text-decoration:none;cursor:pointer;border:1.5px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,background .15s,border-color .15s,color .15s;}
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{flex:1;min-width:200px;background:var(--lime);color:var(--ink);border-color:var(--lime-deep);}
+  .btn-primary:hover{background:var(--lime-deep);}
+  .btn-primary .arrow{transition:transform .16s;}.btn-primary:hover .arrow{transform:translateX(3px);}
+  .btn-ghost{background:transparent;border-color:var(--line-strong);color:var(--ink-soft);}
+  .btn-ghost:hover{border-color:var(--ink);color:var(--ink);}
+  .btn[aria-disabled="true"]{flex:1;background:var(--bone-2);color:var(--ink-faint);border-color:var(--line);pointer-events:none;}
+  #copied{font-size:12.5px;color:var(--forest);font-weight:600;align-self:center;opacity:0;transition:opacity .2s;}
+  #copied.show{opacity:1;}
+
+  .fresh{margin-top:14px;font-size:12.5px;color:var(--ink-faint);line-height:1.5;}
+  .fresh b{color:var(--ink-soft);font-weight:600;}
+  .fresh a{color:var(--forest);font-weight:600;text-decoration:none;border-bottom:1px solid var(--line-strong);white-space:nowrap;}
+
+  .glance{margin-top:20px;background:var(--paper);border:1.5px solid var(--line-strong);border-radius:var(--r);padding:clamp(16px,2.6vw,22px) clamp(16px,2.8vw,24px);}
+  .glance h2{font-family:var(--fd);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--forest);margin-bottom:11px;display:inline-flex;align-items:center;gap:9px;}
+  .glance h2::before{content:"";width:20px;height:1.5px;background:var(--forest);}
+  .glance ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .glance li{display:grid;grid-template-columns:21px 1fr;gap:10px;font-size:13.5px;color:var(--ink-soft);line-height:1.5;align-items:start;}
+  .glance li .ico{font-size:15.5px;line-height:1.45;text-align:center;}
+  .glance li b{color:var(--ink);font-weight:700;}
+  .glance li a{color:var(--forest);text-decoration:none;border-bottom:1px solid var(--line-strong);white-space:nowrap;}
+
+  footer{border-top:1.5px solid var(--ink);background:var(--ink);color:var(--bone);padding:clamp(22px,3.5vw,32px) 0;position:relative;z-index:1;font-size:12.5px;color:rgba(243,239,226,.66);}
+  footer a{color:rgba(243,239,226,.85);text-decoration:none;border-bottom:1px solid rgba(243,239,226,.3);}
+  footer a:hover{border-color:var(--lime);color:var(--lime);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="{{HOME_HREF}}">
+      <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
+      <span>JCC&nbsp;Open&nbsp;Play</span>
+    </a>
+    <a class="src-link" href="{{STORE_URL}}" target="_blank" rel="noopener">Official store ↗</a>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <a class="back" href="{{HOME_HREF}}"><span aria-hidden="true">←</span> All sessions</a>
+
+    <article class="card" style="--day:{{DAY_COLOR}}">
+      <div class="when-rel">{{WHEN_REL}}</div>
+      <h1>{{ACTIVITY}}</h1>
+      <div class="when-line">{{WHEN_DATE}}<span class="sep">·</span>{{WHEN_TIME}}</div>
+      <div class="meta-line">{{VENUE}}{{PRICE_BIT}}</div>
+
+      <div class="avail-row">
+        <span class="avail {{AVAIL_CLS}}">{{AVAIL_DOT}}{{AVAIL_HTML}}</span>
+        {{METER_HTML}}
+      </div>
+
+      <div class="cta-row">
+        {{CTA_HTML}}
+        <button class="btn btn-ghost" id="copybtn" type="button">🔗 Copy link to share</button>
+        <span id="copied">Link copied</span>
+      </div>
+
+      <p class="fresh">
+        Sign-up counts here are a snapshot from <b id="fresh-when">when this page was built</b> and re-check about hourly — they can drift, so the
+        <a href="{{REG_URL}}" target="_blank" rel="noopener">official JCC store ↗</a> is the real source of truth. This page just exists for easy sharing.
+      </p>
+    </article>
+
+    <section class="glance" aria-label="Good to know">
+      <h2>Good to know</h2>
+      <ul>{{GLANCE_LIS}}</ul>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Unofficial mirror of the <a href="{{STORE_URL}}" target="_blank" rel="noopener">JCC of Greater Rhode Island</a> pickleball schedule · not affiliated with the JCC or Amilia · <a href="{{HOME_HREF}}">see the full schedule</a>.
+  </div>
+</footer>
+
+<script>
+(function(){
+  // relative "updated N ago"
+  var iso="{{SCRAPED_ISO}}", el=document.getElementById("fresh-when");
+  if(iso&&el){var d=new Date(iso);if(!isNaN(d)){var ago=function(){var s=Math.max(0,(Date.now()-d.getTime())/1000);if(s<90)return"just now";if(s<3600)return Math.round(s/60)+" min ago";if(s<86400){var h=Math.round(s/3600);return h+" hr"+(h===1?"":"s")+" ago";}var dd=Math.round(s/86400);return dd+" day"+(dd===1?"":"s")+" ago";};el.textContent=ago();el.title=d.toLocaleString();setInterval(function(){el.textContent=ago();},60000);}}
+  // copy-link
+  var btn=document.getElementById("copybtn"), msg=document.getElementById("copied");
+  if(btn){btn.addEventListener("click",function(){var url=("{{CANONICAL}}"||location.href);var done=function(){msg.classList.add("show");setTimeout(function(){msg.classList.remove("show");},2200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,done);}else{var t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(t);done();}});}
+})();
+</script>
+</body>
+</html>
