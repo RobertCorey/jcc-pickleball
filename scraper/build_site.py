@@ -29,10 +29,12 @@ ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 
 import scrape_open_play as scraper  # noqa: E402
+import og_images  # noqa: E402
 
 SITE = ROOT / "site"
 DATA_OUT = SITE / "data" / "sessions.json"
 SESSIONS_DIR = SITE / "s"
+GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
 
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://robertcorey.github.io/jcc-pickleball").rstrip("/")
@@ -138,6 +140,37 @@ def avail(s):
 
 
 # ---------------------------------------------------------------------------
+def _facility(doc) -> dict | None:
+    for s in doc.get("sessions", []):
+        if s.get("facility"):
+            return s["facility"]
+    for sc in doc.get("sub_categories", []):
+        for a in sc.get("activities", []):
+            if a.get("facility"):
+                return a["facility"]
+    return None
+
+
+def venue_line(doc) -> str:
+    """One-line venue, e.g. 'Gynmasium · 401 Elmgrove Avenue, Providence, RI 02906'."""
+    fac = _facility(doc)
+    if not fac:
+        return "JCC Gymnasium · 401 Elmgrove Ave, Providence, RI 02906"
+    addr = ", ".join(x for x in [fac.get("address1"), ", ".join(y for y in [fac.get("city"), fac.get("province")] if y) + (" " + fac["postal_code"] if fac.get("postal_code") else "")] if x)
+    name = fac.get("name") or "JCC Gymnasium"
+    return f"{name} · {addr}" if addr else name
+
+
+def venue_parts(doc) -> tuple[str, str]:
+    """Two lines for the OG card: ('Gynmasium · 401 Elmgrove Ave', 'Providence, RI')."""
+    fac = _facility(doc)
+    if not fac:
+        return ("JCC Gymnasium · 401 Elmgrove Ave", "Providence, RI")
+    top = (fac.get("name") or "JCC Gymnasium") + (f" · {fac['address1']}" if fac.get("address1") else "")
+    bottom = ", ".join(x for x in [fac.get("city"), fac.get("province")] if x) or "Providence, RI"
+    return (top, bottom)
+
+
 def build_glance_lis(doc) -> str:
     """The shared 'Good to know' <li> list (HTML), same content for every page."""
     promos = []
@@ -152,20 +185,7 @@ def build_glance_lis(doc) -> str:
                 detail = " · ".join(pr.get("details") or pr.get("notes") or ([pr["text"]] if pr.get("text") else []))
                 promos.append((pr.get("title") or "Discount", pr.get("discount") or "", detail))
     notices = [n for n in (doc.get("notices") or []) if n]
-
-    fac = None
-    for s in doc.get("sessions", []):
-        if s.get("facility"):
-            fac = s["facility"]
-            break
-    if not fac:
-        for sc in doc.get("sub_categories", []):
-            for a in sc.get("activities", []):
-                if a.get("facility"):
-                    fac = a["facility"]
-                    break
-            if fac:
-                break
+    fac = _facility(doc)
 
     # price range across all sessions
     lo = hi = None
@@ -205,26 +225,18 @@ def build_glance_lis(doc) -> str:
     return "".join(f'<li><span class="ico" aria-hidden="true">{ico}</span><span>{html_}</span></li>' for ico, html_ in items)
 
 
-def venue_line(doc) -> str:
-    fac = None
-    for s in doc.get("sessions", []):
-        if s.get("facility"):
-            fac = s["facility"]
-            break
-    if not fac:
-        return "JCC Gymnasium · 401 Elmgrove Ave, Providence, RI 02906"
-    addr = ", ".join(x for x in [fac.get("address1"), ", ".join(y for y in [fac.get("city"), fac.get("province")] if y) + (" " + fac["postal_code"] if fac.get("postal_code") else "")] if x)
-    name = fac.get("name") or "JCC Gymnasium"
-    return f"{name} · {addr}" if addr else name
-
-
-def build_session_pages(doc) -> int:
+def build_session_pages(doc) -> tuple[int, int]:
+    """Write site/s/<id>/index.html for every session (+ a per-session og.png if
+    Playwright is available). Returns (page_count, image_count)."""
     sessions = doc.get("sessions", [])
     if not sessions:
-        return 0
+        return (0, 0)
     glance_lis = build_glance_lis(doc)
     venue = venue_line(doc)
     venue_short = venue.split("·")[0].strip()
+    og_venue_top, og_venue_bottom = venue_parts(doc)
+    og_kicker = "Jewish Alliance of Greater Rhode Island"
+    og_url_text = re.sub(r"^https?://", "", SITE_BASE_URL).rstrip("/")
     store_url = (doc.get("program") or {}).get("url") or scraper.DEFAULT_URL
     scraped_iso = doc.get("scraped_at_utc") or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     today = dt.date.today()
@@ -235,6 +247,7 @@ def build_session_pages(doc) -> int:
     SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
     count = 0
+    og_cards: list[tuple[pathlib.Path, str]] = []  # (out_png, html) for per-session preview images
     for s in sessions:
         sid = s.get("segment_id")
         if not sid:
@@ -303,7 +316,7 @@ def build_session_pages(doc) -> int:
             "OG_TITLE": esc(og_title),
             "OG_DESC": esc(og_desc),
             "CANONICAL": esc(canonical),
-            "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"),
+            "OG_IMAGE": esc(f"{SITE_BASE_URL}/s/{sid}/og.png"),
             "HOME_HREF": "../../",
             "STORE_URL": esc(store_url),
             "REG_URL": esc(reg_url),
@@ -325,11 +338,30 @@ def build_session_pages(doc) -> int:
         out = TEMPLATE
         for k, v in fields.items():
             out = out.replace("{{" + k + "}}", v)
-        dest = SESSIONS_DIR / str(sid) / "index.html"
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(out, encoding="utf-8")
+        sdir = SESSIONS_DIR / str(sid)
+        sdir.mkdir(parents=True, exist_ok=True)
+        (sdir / "index.html").write_text(out, encoding="utf-8")
+
+        # og:image for this page: a fallback copy of the generic card now (so the
+        # URL always resolves), then a session-specific render overwrites it below
+        # if Playwright is available.
+        og_png = sdir / "og.png"
+        if GENERIC_OG.exists():
+            shutil.copyfile(GENERIC_OG, og_png)
+        og_cards.append((og_png, og_images.card_html(
+            date_long=when_date, time_str=when_time,
+            eyebrow=(when_rel.upper() if when_rel else ""),
+            kicker=og_kicker, url_text=og_url_text,
+            venue_top=og_venue_top, venue_bottom=og_venue_bottom,
+        )))
         count += 1
-    return count
+
+    n_imgs = 0
+    try:
+        n_imgs = og_images.render_all(og_cards)
+    except Exception as exc:  # rendering is best-effort; the generic fallbacks stay in place
+        print(f"  (per-session OG images skipped: {exc})", file=sys.stderr)
+    return count, n_imgs
 
 
 # ---------------------------------------------------------------------------
@@ -343,13 +375,14 @@ def main(argv: list[str] | None = None) -> int:
         json.dump(doc, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
 
-    n_pages = build_session_pages(doc)
+    n_pages, n_imgs = build_session_pages(doc)
 
     t = doc.get("totals", {})
+    img_note = f"{n_imgs} session OG images" if n_imgs else "(per-session OG images: generic fallback — Playwright not available)"
     print(
         f"wrote {DATA_OUT.relative_to(ROOT)} ({t.get('activities')} activities, "
         f"{t.get('sessions')} sessions, {t.get('upcoming_sessions')} upcoming) "
-        f"+ {n_pages} session pages under site/s/  [base={SITE_BASE_URL}]",
+        f"+ {n_pages} session pages + {img_note} under site/s/  [base={SITE_BASE_URL}]",
         file=sys.stderr,
     )
     return 0
