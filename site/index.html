@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Drop-In Pickleball — JCC of Greater Rhode Island</title>
+<title>JCC Open Play — Drop-In Pickleball Schedule</title>
 <meta name="description" content="Every open drop-in pickleball session at the Jewish Alliance of Greater Rhode Island JCC — times, courts, prices, live availability, and one-tap registration. Refreshed hourly." />
 <meta name="color-scheme" content="light" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
@@ -83,46 +83,21 @@
   .src-link:hover { border-color: var(--ink); }
 
   /* ---------------- hero ---------------- */
-  .hero { padding: clamp(34px, 7vw, 76px) 0 clamp(26px, 5vw, 44px); position: relative; }
+  .hero { padding: clamp(28px, 5.5vw, 56px) 0 clamp(20px, 3.5vw, 32px); position: relative; }
   .kicker { font-family: var(--font-body); font-weight: 600; font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--forest); display: inline-flex; align-items: center; gap: 10px; }
   .kicker::before { content: ""; width: 26px; height: 1.5px; background: var(--forest); display: inline-block; }
   h1 {
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: clamp(40px, 8.4vw, 96px);
-    line-height: 0.96;
+    font-size: clamp(40px, 8.6vw, 84px);
+    line-height: 0.95;
     letter-spacing: -0.035em;
-    margin: 16px 0 0;
-    max-width: 14ch;
+    margin: 14px 0 0;
   }
   h1 .accent { position: relative; white-space: nowrap; }
   h1 .accent::after { content: ""; position: absolute; left: -2px; right: -2px; bottom: 0.07em; height: 0.30em; background: var(--lime); z-index: -1; transform: rotate(-1deg); border-radius: 2px; }
-  .lede { margin-top: 22px; font-size: clamp(15px, 1.7vw, 18.5px); color: var(--ink-soft); max-width: 56ch; line-height: 1.55; }
+  .lede { margin-top: 18px; font-size: clamp(14.5px, 1.5vw, 17px); color: var(--ink-soft); max-width: 58ch; line-height: 1.55; }
   .lede strong { color: var(--ink); font-weight: 600; }
-
-  .hero-grid { margin-top: clamp(26px, 4vw, 40px); display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(14px, 2.4vw, 22px); align-items: stretch; }
-  @media (max-width: 760px) { .hero-grid { grid-template-columns: 1fr; } }
-
-  .next-card {
-    background: var(--ink); color: var(--bone); border-radius: var(--r); padding: clamp(20px, 3vw, 30px);
-    position: relative; overflow: hidden; box-shadow: var(--shadow);
-  }
-  .next-card::before { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border: 1.5px solid rgba(198,242,59,.25); border-radius: 50%; }
-  .next-card::after { content: ""; position: absolute; right: -10px; bottom: -90px; width: 200px; height: 200px; border: 1.5px solid rgba(198,242,59,.15); border-radius: 50%; }
-  .next-card .lbl { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--lime); font-weight: 600; }
-  .next-card .nx-when { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 3vw, 30px); letter-spacing: -.02em; margin-top: 10px; line-height: 1.08; }
-  .next-card .nx-name { font-size: 15px; color: rgba(243,239,226,.78); margin-top: 7px; }
-  .next-card .nx-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 16px; font-size: 13px; color: rgba(243,239,226,.7); }
-  .next-card .nx-meta b { color: var(--bone); font-weight: 600; }
-  .next-card .nx-cta { margin-top: 20px; }
-
-  .stats-card { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5px; background: var(--line-strong); border: 1.5px solid var(--line-strong); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
-  .stat { background: var(--paper); padding: clamp(16px, 2.4vw, 24px); display: flex; flex-direction: column; gap: 4px; }
-  .stat .v { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.03em; line-height: 1; }
-  .stat .v .unit { font-size: .42em; color: var(--ink-faint); font-weight: 600; margin-left: 4px; letter-spacing: 0; }
-  .stat .k { font-size: 12.5px; color: var(--ink-soft); }
-  .stat.accent { background: var(--lime); }
-  .stat.accent .k { color: var(--forest-2); }
 
   /* ---------------- toolbar ---------------- */
   .toolbar-anchor { height: 1px; }
@@ -257,18 +232,8 @@
   .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
   .btn[aria-disabled="true"] { background: var(--bone-2); color: var(--ink-faint); border-color: var(--line); cursor: default; pointer-events: none; flex: 1; }
 
-  .hero-cta {
-    font-family: var(--font-body); font-weight: 700; font-size: 14.5px; padding: 12px 18px; border-radius: 10px;
-    background: var(--lime); color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 9px;
-    border: 1.5px solid var(--lime-deep); transition: transform .12s, background .15s;
-  }
-  .hero-cta:hover { background: var(--lime-deep); }
-  .hero-cta:active { transform: translateY(1px); }
-  .hero-cta.ghost { background: transparent; border-color: rgba(243,239,226,.4); color: var(--bone); }
-  .hero-cta.ghost:hover { border-color: var(--lime); color: var(--lime); }
-
   /* discounts strip */
-  .discounts { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .discounts { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 9px; }
   .disc-pill {
     display: inline-flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-soft);
     background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: 999px; padding: 8px 14px;
@@ -306,7 +271,7 @@
   <div class="wrap">
     <a class="brand" href="#top">
       <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
-      <span>Court&nbsp;Time<span style="color:var(--ink-faint);font-weight:600">&nbsp;/ Providence</span></span>
+      <span>JCC&nbsp;Open&nbsp;Play</span>
     </a>
     <div class="right">
       <span class="freshness" id="freshness" title="Data is re-scraped automatically"><span class="dot-live"></span><span id="freshness-text">loading…</span></span>
@@ -317,29 +282,12 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <span class="kicker">JCC of Greater Rhode Island · Open Drop-In Play</span>
-    <h1 id="hero-title">Drop-in <span class="accent">pickleball</span>, all in one place.</h1>
-    <p class="lede" id="hero-lede">
-      Every open drop-in session at the JCC gymnasium — <strong>times, courts, prices and live availability</strong> —
-      pulled straight from the registration system and refreshed automatically. Tap a session to register on the official site.
+    <span class="kicker">Jewish Alliance of Greater Rhode Island</span>
+    <h1>JCC Open <span class="accent">Play</span></h1>
+    <p class="lede">
+      Every open drop-in pickleball session at the JCC gymnasium — refreshed automatically.
+      Tap a session to register on the official site.
     </p>
-
-    <div class="hero-grid">
-      <div class="next-card" id="next-card">
-        <span class="lbl">Next session</span>
-        <div class="nx-when" id="nx-when">—</div>
-        <div class="nx-name" id="nx-name"></div>
-        <div class="nx-meta" id="nx-meta"></div>
-        <div class="nx-cta" id="nx-cta"></div>
-      </div>
-      <div class="stats-card" id="stats-card" aria-label="Schedule at a glance">
-        <div class="stat"><span class="v" id="st-activities">—</span><span class="k">weekly sessions on the schedule</span></div>
-        <div class="stat accent"><span class="v" id="st-upcoming">—</span><span class="k">upcoming dates you can still book</span></div>
-        <div class="stat"><span class="v" id="st-open">—</span><span class="k">have open spots right now</span></div>
-        <div class="stat"><span class="v" id="st-price">—</span><span class="k">per drop-in (member rate, low end)</span></div>
-      </div>
-    </div>
-
     <div class="discounts" id="discounts"></div>
   </div>
 </header>
@@ -384,7 +332,7 @@
 
 <footer>
   <div class="wrap">
-    <div class="biglogo">Court<span class="accent">Time</span></div>
+    <div class="biglogo">JCC Open <span class="accent">Play</span></div>
     <div class="cols">
       <div>
         <h3>What this is</h3>
@@ -485,7 +433,7 @@
   function clamp01(x) { return Math.max(0, Math.min(1, x)); }
 
   // ---- state ----
-  var STATE = { all: [], q: "", day: "", upcoming: true, openOnly: true, sort: "date", revealed: false, todayKey: dateKeyOf(parseLocal(new Date().toISOString())) };
+  var STATE = { all: [], q: "", day: "", upcoming: true, openOnly: false, sort: "date", revealed: false, todayKey: dateKeyOf(parseLocal(new Date().toISOString())) };
 
   function load() {
     var url = "data/sessions.json?v=" + Date.now();
@@ -505,13 +453,6 @@
   }
 
   function init(data) {
-    var prog = (data.program && data.program.title) || "Pickleball";
-    // hero title: keep the styled phrase but reflect actual program word if not "Pickleball"
-    if (/pickle/i.test(prog)) {
-      // leave the designed title
-    } else {
-      $("#hero-title").innerHTML = "Drop-in <span class=\"accent\">" + esc(prog.toLowerCase()) + "</span>, all in one place.";
-    }
     $("#source-link").href = (data.program && data.program.url) || $("#source-link").href;
 
     var rows = (data.sessions || []).map(function (s) {
@@ -528,36 +469,6 @@
       };
     });
     STATE.all = rows;
-
-    // ---- next session ----
-    var upcoming = rows.filter(function (r) { return r.p && !r.s.has_passed; }).sort(function (a, b) { return a.sortT - b.sortT; });
-    var nx = upcoming[0];
-    if (nx) {
-      $("#nx-when").innerHTML = esc(relDay(nx.p, STATE.todayKey)) + " · " + fmtTimeHTML(nx.p.h, nx.p.mi);
-      $("#nx-name").textContent = nx.s.activity_name || "";
-      var loc = clean(nx.s.location);
-      var bits = [];
-      if (nx.pe) bits.push('<b>' + fmtTime(nx.p.h, nx.p.mi) + '–' + fmtTime(nx.pe.h, nx.pe.mi) + '</b>');
-      if (loc) bits.push('<b>' + esc(loc) + '</b>');
-      if (priceText(nx.s)) bits.push(esc(priceText(nx.s)) + ' / drop-in');
-      bits.push(esc(nx.av.label));
-      $("#nx-meta").innerHTML = bits.join('<span style="opacity:.4">·</span>&nbsp;');
-      var nxUrl = nx.s.registration_url || nx.s.details_url || ($("#source-link").href);
-      $("#nx-cta").innerHTML = '<a class="hero-cta" href="' + esc(nxUrl) + '" target="_blank" rel="noopener">Register on Amilia<span aria-hidden="true">→</span></a>' +
-        ' <a class="hero-cta ghost" href="#results">Browse all ↓</a>';
-    } else {
-      $("#next-card").innerHTML = '<span class="lbl">Schedule</span><div class="nx-when">No upcoming sessions</div><div class="nx-name">Check the official store for the next session block.</div><div class="nx-cta" style="margin-top:18px"><a class="hero-cta" href="' + esc($("#source-link").href) + '" target="_blank" rel="noopener">Open the JCC store ↗</a></div>';
-    }
-
-    // ---- stats ----
-    var totals = data.totals || {};
-    var openNow = upcoming.filter(function (r) { return r.av.cls === "good" || r.av.cls === "low"; }).length;
-    var lowPrice = null;
-    rows.forEach(function (r) { var v = r.s.drop_in_best_price; if (v != null && (lowPrice == null || v < lowPrice)) lowPrice = v; });
-    $("#st-activities").textContent = totals.activities != null ? totals.activities : (new Set(rows.map(function (r) { return r.s.activity_id; })).size);
-    setUnit($("#st-upcoming"), upcoming.length, "dates");
-    setUnit($("#st-open"), openNow, "now");
-    $("#st-price").textContent = lowPrice != null ? fmtMoney(lowPrice) : "—";
 
     // ---- discounts ----
     var promos = [];
@@ -632,15 +543,12 @@
       Array.prototype.forEach.call($("#daychips").querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c.getAttribute("data-day") === "" ? "true" : "false"); });
       render();
     });
-    // sensible default: if there are open upcoming sessions show "open only"; else don't
-    if (openNow === 0) { STATE.openOnly = false; $("#t-open").checked = false; }
 
     render(true);
     // keep freshness label ticking
     setInterval(function () { if (scraped && !isNaN(scraped)) $("#freshness-text").textContent = "updated " + timeAgo(scraped); }, 60000);
   }
 
-  function setUnit(el, val, unit) { el.innerHTML = String(val) + ' <span class="unit">' + esc(unit) + '</span>'; }
 
   function passesFilters(r) {
     if (STATE.upcoming && r.s.has_passed) return false;
