@@ -22,6 +22,7 @@ import os
 import pathlib
 import re
 import shutil
+import subprocess
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -33,6 +34,7 @@ import og_images  # noqa: E402
 
 SITE = ROOT / "site"
 DATA_OUT = SITE / "data" / "sessions.json"
+BUILD_META_OUT = SITE / "data" / "build.json"
 SESSIONS_DIR = SITE / "s"
 GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
@@ -364,6 +366,66 @@ def build_session_pages(doc) -> tuple[int, int]:
     return count, n_imgs
 
 
+def _git_sha() -> str:
+    """Best-effort short HEAD sha; used when GITHUB_SHA isn't set (local builds)."""
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=str(ROOT),
+            capture_output=True, text=True, timeout=5, check=False,
+        )
+        return r.stdout.strip()
+    except Exception:
+        return ""
+
+
+def _write_build_manifest(*, doc: dict, n_pages: int, n_imgs: int, n_fallbacks: int) -> None:
+    """Drop a small manifest the deployed site advertises for freshness checks.
+
+    Consumed by post-deploy smoke checks and (eventually) by an external uptime
+    pinger that wants to know whether Pages is serving stale data.
+    """
+    meta = {
+        "scraped_at_utc": doc.get("scraped_at_utc") or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "built_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "commit_sha": os.environ.get("GITHUB_SHA") or _git_sha(),
+        "run_id": os.environ.get("GITHUB_RUN_ID", ""),
+        "n_sessions": int((doc.get("totals") or {}).get("sessions") or 0),
+        "n_upcoming_sessions": int((doc.get("totals") or {}).get("upcoming_sessions") or 0),
+        "n_session_pages": int(n_pages),
+        "n_og_images": int(n_imgs),
+        "n_og_fallbacks": int(n_fallbacks),
+        "site_base_url": SITE_BASE_URL,
+    }
+    BUILD_META_OUT.parent.mkdir(parents=True, exist_ok=True)
+    BUILD_META_OUT.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _report_og_health(*, n_pages: int, n_imgs: int, n_fallbacks: int) -> None:
+    """If any per-session OG cards fell back to the generic image, surface that
+    on the GitHub Actions run page (warning + step summary). Never fails the build."""
+    if n_fallbacks <= 0 or n_pages <= 0:
+        return
+    print(
+        f"::warning::OG renders degraded — {n_fallbacks}/{n_pages} session pages "
+        f"fell back to the generic og.png",
+        file=sys.stderr,
+    )
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+    try:
+        with open(summary_path, "a", encoding="utf-8") as fh:
+            fh.write(
+                "\n### ⚠️ OG-image renders degraded\n\n"
+                f"- Rendered: **{n_imgs}** / {n_pages}\n"
+                f"- Fell back to generic `og.png`: **{n_fallbacks}**\n"
+                "\nCheck the *Install Playwright + Chromium* and *Scrape* step logs "
+                "for `::warning::OG render failed` lines.\n"
+            )
+    except Exception as exc:
+        print(f"  (could not append to GITHUB_STEP_SUMMARY: {exc})", file=sys.stderr)
+
+
 # ---------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
@@ -376,6 +438,10 @@ def main(argv: list[str] | None = None) -> int:
         fh.write("\n")
 
     n_pages, n_imgs = build_session_pages(doc)
+    n_fallbacks = max(0, n_pages - n_imgs)
+
+    _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
+    _report_og_health(n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
 
     t = doc.get("totals", {})
     img_note = f"{n_imgs} session OG images" if n_imgs else "(per-session OG images: generic fallback — Playwright not available)"

@@ -8,11 +8,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# allow the workflow to commit refreshed data and publish Pages
+# allow the workflow to commit refreshed data, publish Pages, and file a
+# tracking issue when the run fails so a multi-day outage isn't invisible.
 permissions:
   contents: write
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: pages
@@ -30,17 +32,20 @@ jobs:
 
       # Playwright (+ Chromium) is used to render the per-session social-preview
       # cards. The browser binary is cached; if any of this fails the build still
-      # succeeds — build_site.py falls back to the generic og.png per session.
+      # succeeds — build_site.py falls back to the generic og.png per session
+      # and surfaces a ::warning:: + step-summary note so the degradation isn't
+      # silent. Playwright is pinned exactly and the version is baked into the
+      # cache key so a future bump cleanly invalidates the cached Chromium.
       - name: Cache Playwright browser
         id: pw-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-v1
+          key: playwright-chromium-${{ runner.os }}-1.49.1
       - name: Install Playwright + Chromium
         continue-on-error: true
         run: |
-          python -m pip install --quiet "playwright==1.49.*"
+          python -m pip install --quiet "playwright==1.49.1"
           python -m playwright install --with-deps chromium
 
       - name: Scrape the JCC store → data + per-session pages + preview images
@@ -69,6 +74,35 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
+
+      # If anything in the build job failed, open-or-update a single tracking
+      # issue so a recurring failure isn't invisible. Idempotent: comments on an
+      # existing open issue with the matching title rather than spamming new ones.
+      - name: Notify on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -eu
+          TITLE="CI: scrape-and-deploy is failing"
+          NOW="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          BODY=$(printf '%s\n\n- Run: %s\n- Trigger: `%s`\n- Commit: `%s`\n- Time: %s\n\nThis issue is auto-updated on each failure; close it once the workflow is green again.' \
+            "The hourly **scrape-and-deploy** workflow failed." \
+            "$RUN_URL" "$EVENT" "$SHA" "$NOW")
+          # find an existing open issue with the exact title (jq filter, not search relevance)
+          existing="$(gh issue list --state open --limit 100 \
+            --json number,title --jq ".[] | select(.title==\"$TITLE\") | .number" | head -n1)"
+          if [ -n "$existing" ]; then
+            echo "Updating existing tracking issue #$existing"
+            gh issue comment "$existing" --body "$BODY"
+          else
+            echo "Opening new tracking issue"
+            gh issue create --title "$TITLE" --body "$BODY"
+          fi
 
   deploy:
     needs: build
