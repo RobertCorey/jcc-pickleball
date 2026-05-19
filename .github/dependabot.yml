@@ -1,0 +1,18 @@
+# Weekly bump for third-party GitHub Actions so the workflow doesn't silently
+# drift onto deprecated runtimes (Node 20 → Node 24, etc.). Only the Actions
+# ecosystem for now — the Python scraper is stdlib-only and the JS scaffold
+# manages its own deps via npm; add an `npm` block here if/when we want
+# automated PRs for those too.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    labels:
+      - dependencies
+      - github-actions
