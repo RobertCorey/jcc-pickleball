@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import html as _html
 import pathlib
+import sys
 
 
 def available() -> bool:
@@ -86,26 +87,45 @@ def card_html(*, date_long: str, time_str: str, eyebrow: str, kicker: str,
 
 
 def render_all(cards: list[tuple[pathlib.Path, str]]) -> int:
-    """cards: list of (output_png_path, html_string). Returns number rendered."""
+    """cards: list of (output_png_path, html_string). Returns number rendered.
+
+    Each card is rendered in its own try/except so one bad card can't take
+    down the rest. Failures emit GitHub Actions ``::warning::`` lines so they
+    show up on the run summary instead of being silently swallowed into the
+    generic ``og.png`` fallback that the caller drops in beforehand.
+    """
     if not cards:
         return 0
     try:
         from playwright.sync_api import sync_playwright
-    except Exception:
+    except Exception as exc:
+        print(f"::warning::OG image render skipped — Playwright not importable ({exc})", file=sys.stderr)
         return 0
     n = 0
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch()
-        page = browser.new_page(viewport={"width": 1200, "height": 630}, device_scale_factor=1)
-        for i, (out_path, html) in enumerate(cards):
-            page.set_content(html, wait_until="load")
-            try:
-                page.evaluate("() => document.fonts.ready.then(() => true)")
-            except Exception:
-                pass
-            page.wait_for_timeout(500 if i == 0 else 90)  # let webfonts paint (cold-cache on the first one)
-            out_path.parent.mkdir(parents=True, exist_ok=True)
-            page.screenshot(path=str(out_path), clip={"x": 0, "y": 0, "width": 1200, "height": 630})
-            n += 1
-        browser.close()
+    failures = 0
+    try:
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch()
+            page = browser.new_page(viewport={"width": 1200, "height": 630}, device_scale_factor=1)
+            for i, (out_path, html) in enumerate(cards):
+                try:
+                    page.set_content(html, wait_until="load")
+                    try:
+                        page.evaluate("() => document.fonts.ready.then(() => true)")
+                    except Exception:
+                        pass
+                    page.wait_for_timeout(500 if i == 0 else 90)  # let webfonts paint (cold-cache on the first one)
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+                    page.screenshot(path=str(out_path), clip={"x": 0, "y": 0, "width": 1200, "height": 630})
+                    n += 1
+                except Exception as exc:
+                    failures += 1
+                    print(f"::warning::OG render failed for session {out_path.parent.name}: {exc}", file=sys.stderr)
+            browser.close()
+    except Exception as exc:
+        # browser launch / context-manager exit / etc. — partial counts are fine; caller's
+        # pre-copied generic og.png stays in place for the missing ones.
+        print(f"::warning::OG image renderer aborted after {n}/{len(cards)} ({exc})", file=sys.stderr)
+    if failures:
+        print(f"::warning::OG image render: {failures} of {len(cards)} cards failed", file=sys.stderr)
     return n
