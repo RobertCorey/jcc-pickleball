@@ -3,3 +3,9 @@ __pycache__/
 
 # generated per build (in the Pages artifact, not the repo)
 site/s/
+
+# v2 (Vite + React) toolchain
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
