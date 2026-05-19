@@ -30,6 +30,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      # ---- v2 (Vite + React + TS + Tailwind + SSG) toolchain smoke test ----
+      # The v2 scaffold lives at the repo root alongside the Python scraper.
+      # We build it in CI to catch toolchain regressions, but the Pages
+      # artifact below still ships site/ — the v1 vanilla HTML. The cutover
+      # to dist/ happens in a later PR once the React port is feature-complete.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install JS deps
+        run: npm ci
+      - name: Build v2 (smoke test, not deployed yet)
+        run: npm run build
+
       # Playwright (+ Chromium) is used to render the per-session social-preview
       # cards. The browser binary is cached; if any of this fails the build still
       # succeeds — build_site.py falls back to the generic og.png per session
