@@ -1,6 +1,6 @@
 {
   "source_url": "https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731",
-  "scraped_at_utc": "2026-05-20T21:44:50+00:00",
+  "scraped_at_utc": "2026-05-20T22:40:09+00:00",
   "store": {
     "organization": "jewishallianceofgreaterrhodeisland",
     "language": "en",
@@ -18,7 +18,7 @@
     "sub_categories": 1,
     "activities": 5,
     "sessions": 84,
-    "upcoming_sessions": 72
+    "upcoming_sessions": 71
   },
   "sub_categories": [
     {
@@ -1675,8 +1675,8 @@
               "start": "2026-05-20T18:00:00.01",
               "end": "2026-05-20T19:30:00",
               "all_day": false,
-              "has_passed": false,
-              "status": "registration_available",
+              "has_passed": true,
+              "status": "passed",
               "state_code": 0,
               "capacity": 16,
               "has_unlimited_spots": false,
@@ -1690,7 +1690,7 @@
               "fee": null,
               "wait_list_enabled": true,
               "wait_list_spots_reserved": 0,
-              "can_register": true,
+              "can_register": false,
               "has_drop_ins": false,
               "already_in_cart": false,
               "description": null,
@@ -5298,8 +5298,8 @@
       "start": "2026-05-20T18:00:00.01",
       "end": "2026-05-20T19:30:00",
       "all_day": false,
-      "has_passed": false,
-      "status": "registration_available",
+      "has_passed": true,
+      "status": "passed",
       "state_code": 0,
       "capacity": 16,
       "has_unlimited_spots": false,
@@ -5313,7 +5313,7 @@
       "fee": null,
       "wait_list_enabled": true,
       "wait_list_spots_reserved": 0,
-      "can_register": true,
+      "can_register": false,
       "has_drop_ins": false,
       "already_in_cart": false,
       "description": null,
