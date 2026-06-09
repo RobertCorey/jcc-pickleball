@@ -1,6 +1,6 @@
 {
   "source_url": "https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731",
-  "scraped_at_utc": "2026-06-09T09:23:33+00:00",
+  "scraped_at_utc": "2026-06-09T11:14:00+00:00",
   "store": {
     "organization": "jewishallianceofgreaterrhodeisland",
     "language": "en",
@@ -2255,7 +2255,7 @@
               "drop_in_best_price": 5.25,
               "fee": null,
               "wait_list_enabled": true,
-              "wait_list_spots_reserved": 0,
+              "wait_list_spots_reserved": 1,
               "can_register": true,
               "has_drop_ins": false,
               "already_in_cart": false,
@@ -6281,7 +6281,7 @@
       "drop_in_best_price": 5.25,
       "fee": null,
       "wait_list_enabled": true,
-      "wait_list_spots_reserved": 0,
+      "wait_list_spots_reserved": 1,
       "can_register": true,
       "has_drop_ins": false,
       "already_in_cart": false,
