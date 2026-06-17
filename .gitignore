@@ -3,6 +3,8 @@ __pycache__/
 
 # generated per build (in the Pages artifact, not the repo)
 site/s/
+site/sitemap.xml
+site/robots.txt
 
 # v2 (Vite + React) toolchain
 node_modules/

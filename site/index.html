@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Drop-In Pickleball at the Providence JCC — Schedule</title>
-<meta name="description" content="Open drop-in pickleball at the Providence JCC (Jewish Alliance of Greater Rhode Island, 401 Elmgrove Ave) — every upcoming session in one tidy list, with times, prices, how many are signed up, and one tap to register. Unofficial mirror, refreshed hourly." />
+<title>Pickleball in Providence, RI — Drop-In Sessions at the JCC</title>
+<meta name="description" content="Where to play pickleball in Providence, RI: open drop-in pickleball at the JCC of Greater Rhode Island, 401 Elmgrove Ave. Every upcoming session, time, and price in one list — no partner or membership needed. Unofficial schedule, refreshed hourly." />
 <meta name="color-scheme" content="light" />
 <link rel="canonical" href="https://robertcorey.github.io/jcc-pickleball/" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
 <!-- social link previews -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Providence JCC Pickleball" />
-<meta property="og:title" content="Drop-In Pickleball at the Providence JCC" />
-<meta property="og:description" content="Every upcoming open drop-in pickleball session at the Providence JCC (Jewish Alliance of Greater Rhode Island) — times, prices, live sign-ups, and one tap to register." />
+<meta property="og:title" content="Pickleball in Providence, RI — Drop-In at the JCC" />
+<meta property="og:description" content="Where to play pickleball in Providence: open drop-in sessions at the JCC of Greater Rhode Island (401 Elmgrove Ave) — every upcoming time, price, and live sign-up count, with one tap to register." />
 <meta property="og:url" content="https://robertcorey.github.io/jcc-pickleball/" />
 <meta property="og:image" content="https://robertcorey.github.io/jcc-pickleball/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content="Drop-in pickleball at the Providence JCC — schedule. robertcorey.github.io/jcc-pickleball" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Drop-In Pickleball at the Providence JCC" />
-<meta name="twitter:description" content="Every upcoming open drop-in pickleball session at the Providence JCC — times, prices, live sign-ups, one tap to register." />
+<meta name="twitter:title" content="Pickleball in Providence, RI — Drop-In at the JCC" />
+<meta name="twitter:description" content="Where to play pickleball in Providence: open drop-in sessions at the JCC of Greater Rhode Island — every upcoming time, price, and live sign-up count, one tap to register." />
 <meta name="twitter:image" content="https://robertcorey.github.io/jcc-pickleball/og.png" />
 <meta name="theme-color" content="#f3efe2" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -118,6 +118,21 @@
   .glance li b { color: var(--ink); font-weight: 700; }
   .glance li a { color: var(--forest); text-decoration: none; border-bottom: 1px solid var(--line-strong); transition: border-color .15s; white-space: nowrap; }
   .glance li a:hover { border-color: var(--forest); }
+
+  /* ---------------- FAQ ---------------- */
+  .faq { padding: clamp(34px, 5vw, 56px) 0 clamp(8px, 2vw, 16px); }
+  .faq .eyebrow { font-family: var(--font-body); font-weight: 600; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--forest); display: inline-flex; align-items: center; gap: 10px; }
+  .faq .eyebrow::before { content: ""; width: 24px; height: 1.5px; background: var(--forest); display: inline-block; flex: none; }
+  .faq h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 3.4vw, 32px); letter-spacing: -.03em; margin: 12px 0 clamp(16px, 2.4vw, 24px); }
+  .faq .qa { display: grid; gap: 12px; }
+  .faq details { background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: var(--r); overflow: hidden; }
+  .faq summary { list-style: none; cursor: pointer; padding: clamp(14px, 2vw, 18px) clamp(16px, 2.4vw, 22px); font-family: var(--font-display); font-weight: 700; font-size: clamp(15px, 1.7vw, 17px); color: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-weight: 600; color: var(--forest); font-size: 20px; line-height: 1; flex: none; transition: transform .18s; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq .ans { padding: 0 clamp(16px, 2.4vw, 22px) clamp(15px, 2vw, 19px); font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
+  .faq .ans a { color: var(--forest); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid var(--line-strong); transition: border-color .15s; }
+  .faq .ans a:hover { border-color: var(--forest); }
 
   /* ---------------- filter strip ---------------- */
   .filters { position: sticky; top: 0; z-index: 5; margin-top: clamp(20px, 3vw, 30px);
@@ -228,6 +243,64 @@
     .glance li { font-size: 13.5px; }
   }
 </style>
+<!-- FAQ structured data — mirrors the visible Q&A in the .faq section below so
+     it's eligible for FAQ rich results. Keep the two in sync if either changes. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Where can I play pickleball in Providence, RI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One of the easiest options is open drop-in pickleball at the JCC of Greater Rhode Island, on the gymnasium courts at 401 Elmgrove Avenue, Providence, RI 02906. This page lists every upcoming drop-in session so you can see what's on and register."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is drop-in pickleball free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It's a low per-session drop-in fee — typically just a few dollars — paid on the official JCC store, and discount passes are often available. The current price for each session is shown next to it in the schedule above."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a partner or a team?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. These are open drop-in (sometimes called \"open play\") sessions — you can show up on your own and games are arranged on the spot. It's a friendly way to meet other players around Providence and greater Rhode Island."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What skill level is it for?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open drop-in is welcoming to all levels, from first-timers to experienced players. Bring your own paddle if you have one; if not, ask the JCC front desk about loaners when you register."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I register for a session?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Registration and payment happen on the official JCC store (powered by Amilia). Tap Register on any session above, or open a session's page, to go straight to the official listing to sign up. This site is just an unofficial, easier-to-scan view of the schedule."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When is open pickleball at the JCC?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Days and times vary week to week, and the JCC adds new sessions regularly. The schedule above is refreshed from the official store about once an hour, so check back for the latest open drop-in times — and confirm on the official JCC store before you head over."
+      }
+    }
+  ]
+}
+</script>
 <!-- Privacy-friendly analytics (GoatCounter): no cookies, no consent banner.
      count.js is vendored (site/count.js) and served first-party so ad/tracker
      blockers don't drop the script host. Register the code at goatcounter.com
@@ -251,7 +324,7 @@
   <div class="wrap">
     <span class="kicker">Jewish Alliance of Greater Rhode Island</span>
     <h1>Drop-in <span class="accent">pickleball</span><br>at the Providence JCC</h1>
-    <p class="lede">An easier-to-read copy of the Providence JCC's open drop-in pickleball schedule — every upcoming session in one tidy list.</p>
+    <p class="lede">Looking for <strong>somewhere to play pickleball in Providence</strong>? The JCC of Greater Rhode Island runs open drop-in pickleball at 401 Elmgrove Avenue — no membership or partner needed, all levels welcome. Here's every upcoming session in one tidy list, with one tap to register on the JCC store.</p>
 
     <div class="freshnote">
       <span class="fc-pill"><span class="dot-live"></span><span id="fc-when">Updated just now</span></span>
@@ -294,6 +367,39 @@
     <button class="showpast" id="showpast" hidden></button>
   </div>
 </main>
+
+<section class="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    <span class="eyebrow">Good to know</span>
+    <h2 id="faq-h">Pickleball in Providence — common questions</h2>
+    <div class="qa">
+      <details>
+        <summary>Where can I play pickleball in Providence, RI?</summary>
+        <div class="ans">One of the easiest options is open drop-in pickleball at the JCC of Greater Rhode Island, on the gymnasium courts at 401 Elmgrove Avenue, Providence, RI 02906. This page lists every upcoming drop-in session so you can see what's on and register.</div>
+      </details>
+      <details>
+        <summary>Is drop-in pickleball free?</summary>
+        <div class="ans">It's a low per-session drop-in fee — typically just a few dollars — paid on the official JCC store, and discount passes are often available. The current price for each session is shown next to it in the schedule above.</div>
+      </details>
+      <details>
+        <summary>Do I need a partner or a team?</summary>
+        <div class="ans">No. These are open drop-in (sometimes called "open play") sessions — you can show up on your own and games are arranged on the spot. It's a friendly way to meet other players around Providence and greater Rhode Island.</div>
+      </details>
+      <details>
+        <summary>What skill level is it for?</summary>
+        <div class="ans">Open drop-in is welcoming to all levels, from first-timers to experienced players. Bring your own paddle if you have one; if not, ask the JCC front desk about loaners when you register.</div>
+      </details>
+      <details>
+        <summary>How do I register for a session?</summary>
+        <div class="ans">Registration and payment happen on the official JCC store (powered by Amilia). Tap <strong>Register</strong> on any session above, or open a session's page, to go straight to the official listing to sign up. This site is just an unofficial, easier-to-scan view of the schedule.</div>
+      </details>
+      <details>
+        <summary>When is open pickleball at the JCC?</summary>
+        <div class="ans">Days and times vary week to week, and the JCC adds new sessions regularly. The schedule above is refreshed from the official store about once an hour, so check back for the latest open drop-in times — and confirm on the official JCC store before you head over.</div>
+      </details>
+    </div>
+  </div>
+</section>
 
 <footer>
   <div class="wrap">
@@ -617,9 +723,9 @@
       // calendar) "View", since you can't check out a drop-in on a calendar feed.
       var regVerb = ((STATE.venues[s.source_id] || {}).booking_system === "amilia") ? "Register" : "View";
       if (s.has_passed) goHTML = '<span class="go disabled">—</span>';
-      else if (a.cls === "full") goHTML = '<a class="go ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + (s.wait_list_enabled ? 'Waitlist <span aria-hidden="true">↗</span>' : 'View <span aria-hidden="true">↗</span>') + '</a>';
-      else if (a.cls === "soon") goHTML = '<a class="go ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">View <span aria-hidden="true">↗</span></a>';
-      else goHTML = '<a class="go primary" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + regVerb + ' <span class="arrow" aria-hidden="true">' + (regVerb === "View" ? "↗" : "→") + '</span></a>';
+      else if (a.cls === "full") goHTML = '<a class="go ghost js-reg" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + (s.wait_list_enabled ? 'Waitlist <span aria-hidden="true">↗</span>' : 'View <span aria-hidden="true">↗</span>') + '</a>';
+      else if (a.cls === "soon") goHTML = '<a class="go ghost js-reg" href="' + esc(actUrl) + '" target="_blank" rel="noopener">View <span aria-hidden="true">↗</span></a>';
+      else goHTML = '<a class="go primary js-reg" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + regVerb + ' <span class="arrow" aria-hidden="true">' + (regVerb === "View" ? "↗" : "→") + '</span></a>';
       var endHTML = '<div class="end">' + availHTML + goHTML + '</div>';
 
       html += '<div class="' + cls + '"' + (delay ? ' style="animation-delay:' + delay + 'ms"' : '') + '>' + whenHTML + midHTML + endHTML + '</div>';
@@ -633,6 +739,17 @@
     } else { sp.hidden = true; }
   }
 })();
+</script>
+<script>
+// Count clicks on the per-session Register/Waitlist CTA (.js-reg) as a GoatCounter
+// event, so visit -> register conversion is measurable. Delegated so it catches
+// the CTAs rendered into the list at runtime, and scoped to the real CTA — not the
+// informational "Official store" / footer links — so the metric stays clean. No-op
+// if analytics is blocked or hasn't loaded yet.
+document.addEventListener("click",function(e){
+  var a=e.target.closest&&e.target.closest("a.js-reg");
+  if(a&&window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:"register-click",title:"Register on Amilia",event:true});}
+},true);
 </script>
 </body>
 </html>
