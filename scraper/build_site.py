@@ -272,28 +272,40 @@ def event_jsonld(s, *, name, reg_url, p, pe, avail_cls, organizer_name, store_ur
                 addr[key] = fac[field]
         if len(addr) > 1:
             loc["address"] = addr
-        if fac.get("latitude") and fac.get("longitude"):
+        if fac.get("latitude") is not None and fac.get("longitude") is not None:
             loc["geo"] = {"@type": "GeoCoordinates", "latitude": fac["latitude"], "longitude": fac["longitude"]}
         if fac.get("phone"):
             loc["telephone"] = fmt_phone(fac["phone"])
         data["location"] = loc
 
+    # Only advertise a bookable Offer for sessions you can still act on. A passed
+    # session is over — claiming a scheduled, InStock, priced Offer contradicts the
+    # page UI ("This session has finished") and gets flagged for Event rich results,
+    # so we omit offers entirely for it.
     price = s.get("drop_in_best_price")
     if price is None:
         price = s.get("drop_in_price")
-    if price is not None:
+    if price is not None and avail_cls != "past":
+        availability = {
+            "full": "https://schema.org/SoldOut",   # capacity reached / waitlist
+            "soon": "https://schema.org/PreOrder",   # registration not open yet
+        }.get(avail_cls, "https://schema.org/InStock")
         data["offers"] = {
             "@type": "Offer",
             "price": f"{float(price):.2f}",
             "priceCurrency": "USD",
             "url": reg_url,
-            "availability": "https://schema.org/SoldOut" if avail_cls == "full" else "https://schema.org/InStock",
+            "availability": availability,
         }
 
     if organizer_name:
         data["organizer"] = {"@type": "Organization", "name": organizer_name, "url": store_url}
 
+    # json.dumps escapes quotes/backslashes but NOT < > / & — so an upstream facility
+    # name/address containing "</script>" would terminate the script tag early and
+    # inject markup. Escape those to \uXXXX (still valid JSON, neutralizes any tag).
     body = json.dumps(data, ensure_ascii=False, indent=2)
+    body = body.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
     return f'<script type="application/ld+json">\n{body}\n</script>'
 
 
@@ -386,13 +398,13 @@ def build_session_pages(doc) -> tuple[int, int]:
         if s.get("has_passed"):
             cta = '<span class="btn" aria-disabled="true">This session has finished</span>'
         elif cls == "full":
-            cta = (f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">'
+            cta = (f'<a class="btn btn-primary js-reg" href="{esc(reg_url)}" target="_blank" rel="noopener">'
                    + ("Join the waitlist" if s.get("wait_list_enabled") else "View on Amilia")
                    + ' <span class="arrow" aria-hidden="true">↗</span></a>')
         elif cls == "soon":
-            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">View on Amilia <span class="arrow" aria-hidden="true">↗</span></a>'
+            cta = f'<a class="btn btn-primary js-reg" href="{esc(reg_url)}" target="_blank" rel="noopener">View on Amilia <span class="arrow" aria-hidden="true">↗</span></a>'
         else:
-            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>'
+            cta = f'<a class="btn btn-primary js-reg" href="{esc(reg_url)}" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>'
 
         # OG / meta text — keyed to this specific date, not the recurring slot name
         canonical = f"{SITE_BASE_URL}/s/{sid}/"

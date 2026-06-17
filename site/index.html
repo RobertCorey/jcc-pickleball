@@ -683,9 +683,9 @@
       var availHTML = '<span class="avail ' + a.cls + '">' + (a.dot ? '<span class="pdot"></span>' : '') + a.html + '</span>';
       var goHTML;
       if (s.has_passed) goHTML = '<span class="go disabled">—</span>';
-      else if (a.cls === "full") goHTML = '<a class="go ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + (s.wait_list_enabled ? 'Waitlist <span aria-hidden="true">↗</span>' : 'View <span aria-hidden="true">↗</span>') + '</a>';
-      else if (a.cls === "soon") goHTML = '<a class="go ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">View <span aria-hidden="true">↗</span></a>';
-      else goHTML = '<a class="go primary" href="' + esc(actUrl) + '" target="_blank" rel="noopener">Register <span class="arrow" aria-hidden="true">→</span></a>';
+      else if (a.cls === "full") goHTML = '<a class="go ghost js-reg" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + (s.wait_list_enabled ? 'Waitlist <span aria-hidden="true">↗</span>' : 'View <span aria-hidden="true">↗</span>') + '</a>';
+      else if (a.cls === "soon") goHTML = '<a class="go ghost js-reg" href="' + esc(actUrl) + '" target="_blank" rel="noopener">View <span aria-hidden="true">↗</span></a>';
+      else goHTML = '<a class="go primary js-reg" href="' + esc(actUrl) + '" target="_blank" rel="noopener">Register <span class="arrow" aria-hidden="true">→</span></a>';
       var endHTML = '<div class="end">' + availHTML + goHTML + '</div>';
 
       html += '<div class="' + cls + '"' + (delay ? ' style="animation-delay:' + delay + 'ms"' : '') + '>' + whenHTML + midHTML + endHTML + '</div>';
@@ -701,12 +701,13 @@
 })();
 </script>
 <script>
-// Count outbound clicks to the Amilia registration store as a GoatCounter event,
-// so visit -> register conversion is measurable. Delegated so it also catches the
-// per-session Register/Waitlist links rendered into the list at runtime. No-op if
-// analytics is blocked or hasn't loaded yet.
+// Count clicks on the per-session Register/Waitlist CTA (.js-reg) as a GoatCounter
+// event, so visit -> register conversion is measurable. Delegated so it catches
+// the CTAs rendered into the list at runtime, and scoped to the real CTA — not the
+// informational "Official store" / footer links — so the metric stays clean. No-op
+// if analytics is blocked or hasn't loaded yet.
 document.addEventListener("click",function(e){
-  var a=e.target.closest&&e.target.closest('a[href*="amilia.com"]');
+  var a=e.target.closest&&e.target.closest("a.js-reg");
   if(a&&window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:"register-click",title:"Register on Amilia",event:true});}
 },true);
 </script>

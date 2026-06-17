@@ -169,11 +169,12 @@
   // copy-link
   var btn=document.getElementById("copybtn"), msg=document.getElementById("copied");
   if(btn){btn.addEventListener("click",function(){var url=("{{CANONICAL}}"||location.href);var done=function(){msg.classList.add("show");setTimeout(function(){msg.classList.remove("show");},2200);};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,done);}else{var t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(t);done();}});}
-  // Count outbound clicks to the Amilia registration store as a GoatCounter
-  // event, so visit -> register conversion is measurable. No-op if analytics
-  // is blocked or hasn't loaded yet.
+  // Count clicks on the Register/Waitlist CTA (.js-reg) as a GoatCounter event,
+  // so visit -> register conversion is measurable. Scoped to the real CTA — not
+  // informational store/footer links — so the metric stays clean. No-op if
+  // analytics is blocked or hasn't loaded yet.
   document.addEventListener("click",function(e){
-    var a=e.target.closest&&e.target.closest('a[href*="amilia.com"]');
+    var a=e.target.closest&&e.target.closest("a.js-reg");
     if(a&&window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:"register-click",title:"Register on Amilia",event:true});}
   },true);
 })();
