@@ -24,6 +24,7 @@ import re
 import shutil
 import subprocess
 import sys
+from zoneinfo import ZoneInfo
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -46,6 +47,11 @@ WD_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 MO_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 MO_FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 DAY_COLOR = {0: "#8b5fb0", 1: "#7c8a2e", 2: "#c6f23b", 3: "#2f8f73", 4: "#d99a2b", 5: "#3d6fb0", 6: "#b5562f"}
+
+# Sessions are local Rhode Island times with no offset in the source data; stamp
+# them with the venue's timezone so Event JSON-LD startDate/endDate are unambiguous.
+# (RI venues are all US/Eastern; revisit if a venue outside that zone is ever added.)
+EVENT_TZ = ZoneInfo("America/New_York")
 
 
 def esc(x) -> str:
@@ -227,6 +233,111 @@ def build_glance_lis(doc) -> str:
     return "".join(f'<li><span class="ico" aria-hidden="true">{ico}</span><span>{html_}</span></li>' for ico, html_ in items)
 
 
+def _iso_with_tz(p) -> str | None:
+    """A parse_local() dict -> ISO 8601 string with the venue's UTC offset."""
+    if not p:
+        return None
+    return dt.datetime(p["y"], p["mo"], p["d"], p["h"], p["mi"], tzinfo=EVENT_TZ).isoformat()
+
+
+def event_jsonld(s, *, name, reg_url, p, pe, avail_cls, organizer_name, store_url) -> str:
+    """schema.org/SportsEvent JSON-LD for one session.
+
+    Location/geo/phone/address are read from this session's own ``facility`` block
+    so it stays correct as more venues are added — nothing about the JCC is assumed.
+    """
+    data = {
+        "@context": "https://schema.org",
+        "@type": "SportsEvent",
+        "name": name,
+        "sport": "Pickleball",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "url": f"{SITE_BASE_URL}/s/{s.get('segment_id')}/",
+    }
+    start, end = _iso_with_tz(p), _iso_with_tz(pe)
+    if start:
+        data["startDate"] = start
+    if end:
+        data["endDate"] = end
+
+    fac = s.get("facility")
+    if fac:
+        loc = {"@type": "SportsActivityLocation", "name": fac.get("name") or "Gymnasium"}
+        addr = {"@type": "PostalAddress"}
+        for key, field in (("streetAddress", "address1"), ("addressLocality", "city"),
+                           ("addressRegion", "province"), ("postalCode", "postal_code"),
+                           ("addressCountry", "country")):
+            if fac.get(field):
+                addr[key] = fac[field]
+        if len(addr) > 1:
+            loc["address"] = addr
+        if fac.get("latitude") is not None and fac.get("longitude") is not None:
+            loc["geo"] = {"@type": "GeoCoordinates", "latitude": fac["latitude"], "longitude": fac["longitude"]}
+        if fac.get("phone"):
+            loc["telephone"] = fmt_phone(fac["phone"])
+        data["location"] = loc
+
+    # Only advertise a bookable Offer for sessions you can still act on. A passed
+    # session is over — claiming a scheduled, InStock, priced Offer contradicts the
+    # page UI ("This session has finished") and gets flagged for Event rich results,
+    # so we omit offers entirely for it.
+    price = s.get("drop_in_best_price")
+    if price is None:
+        price = s.get("drop_in_price")
+    if price is not None and avail_cls != "past":
+        availability = {
+            "full": "https://schema.org/SoldOut",   # capacity reached / waitlist
+            "soon": "https://schema.org/PreOrder",   # registration not open yet
+        }.get(avail_cls, "https://schema.org/InStock")
+        data["offers"] = {
+            "@type": "Offer",
+            "price": f"{float(price):.2f}",
+            "priceCurrency": "USD",
+            "url": reg_url,
+            "availability": availability,
+        }
+
+    if organizer_name:
+        data["organizer"] = {"@type": "Organization", "name": organizer_name, "url": store_url}
+
+    # json.dumps escapes quotes/backslashes but NOT < > / & — so an upstream facility
+    # name/address containing "</script>" would terminate the script tag early and
+    # inject markup. Escape those to \uXXXX (still valid JSON, neutralizes any tag).
+    body = json.dumps(data, ensure_ascii=False, indent=2)
+    body = body.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+    return f'<script type="application/ld+json">\n{body}\n</script>'
+
+
+def write_sitemap_and_robots(doc) -> int:
+    """Write site/sitemap.xml (homepage + every session page) and a robots.txt
+    that points at it. Returns the URL count. Both ship in the Pages artifact."""
+    sids = [str(s["segment_id"]) for s in doc.get("sessions", []) if s.get("segment_id")]
+    lastmod = (doc.get("scraped_at_utc") or "")[:10] or dt.date.today().isoformat()
+    entries = [(f"{SITE_BASE_URL}/", "hourly", "1.0")]
+    entries += [(f"{SITE_BASE_URL}/s/{sid}/", "daily", "0.7") for sid in sids]
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for loc, freq, pri in entries:
+        lines.append("  <url>"
+                     f"<loc>{esc(loc)}</loc>"
+                     f"<lastmod>{esc(lastmod)}</lastmod>"
+                     f"<changefreq>{freq}</changefreq>"
+                     f"<priority>{pri}</priority>"
+                     "</url>")
+    lines.append("</urlset>")
+    (SITE / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    (SITE / "robots.txt").write_text(
+        "User-agent: *\n"
+        "Allow: /\n\n"
+        f"Sitemap: {SITE_BASE_URL}/sitemap.xml\n",
+        encoding="utf-8",
+    )
+    return len(entries)
+
+
 def build_session_pages(doc) -> tuple[int, int]:
     """Write site/s/<id>/index.html for every session (+ a per-session og.png if
     Playwright is available). Returns (page_count, image_count)."""
@@ -287,13 +398,13 @@ def build_session_pages(doc) -> tuple[int, int]:
         if s.get("has_passed"):
             cta = '<span class="btn" aria-disabled="true">This session has finished</span>'
         elif cls == "full":
-            cta = (f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">'
+            cta = (f'<a class="btn btn-primary js-reg" href="{esc(reg_url)}" target="_blank" rel="noopener">'
                    + ("Join the waitlist" if s.get("wait_list_enabled") else "View on Amilia")
                    + ' <span class="arrow" aria-hidden="true">↗</span></a>')
         elif cls == "soon":
-            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">View on Amilia <span class="arrow" aria-hidden="true">↗</span></a>'
+            cta = f'<a class="btn btn-primary js-reg" href="{esc(reg_url)}" target="_blank" rel="noopener">View on Amilia <span class="arrow" aria-hidden="true">↗</span></a>'
         else:
-            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>'
+            cta = f'<a class="btn btn-primary js-reg" href="{esc(reg_url)}" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>'
 
         # OG / meta text — keyed to this specific date, not the recurring slot name
         canonical = f"{SITE_BASE_URL}/s/{sid}/"
@@ -312,6 +423,12 @@ def build_session_pages(doc) -> tuple[int, int]:
         page_title = (f"Pickleball · {date_brief}" + (f" at {time_brief}" if time_brief else "") + " · Providence JCC") if date_brief else "Drop-in pickleball · Providence JCC"
 
         price_bit = f' · <span class="price">{esc(pr)}</span> / drop-in' if pr else ""
+
+        jsonld_name = f"Drop-in Pickleball — {date_long}" if date_long else "Drop-in Pickleball"
+        jsonld = event_jsonld(
+            s, name=jsonld_name, reg_url=reg_url, p=p, pe=pe, avail_cls=cls,
+            organizer_name=og_kicker, store_url=store_url,
+        )
 
         fields = {
             "PAGE_TITLE": esc(page_title),
@@ -336,6 +453,7 @@ def build_session_pages(doc) -> tuple[int, int]:
             "CTA_HTML": cta,
             "GLANCE_LIS": glance_lis,
             "SCRAPED_ISO": esc(scraped_iso),
+            "JSONLD": jsonld,
         }
         out = TEMPLATE
         for k, v in fields.items():
@@ -439,6 +557,7 @@ def main(argv: list[str] | None = None) -> int:
 
     n_pages, n_imgs = build_session_pages(doc)
     n_fallbacks = max(0, n_pages - n_imgs)
+    n_urls = write_sitemap_and_robots(doc)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
     _report_og_health(n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
@@ -448,7 +567,8 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f"wrote {DATA_OUT.relative_to(ROOT)} ({t.get('activities')} activities, "
         f"{t.get('sessions')} sessions, {t.get('upcoming_sessions')} upcoming) "
-        f"+ {n_pages} session pages + {img_note} under site/s/  [base={SITE_BASE_URL}]",
+        f"+ {n_pages} session pages + {img_note} under site/s/ "
+        f"+ sitemap.xml/robots.txt ({n_urls} urls)  [base={SITE_BASE_URL}]",
         file=sys.stderr,
     )
     return 0
