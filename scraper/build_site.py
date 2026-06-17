@@ -32,14 +32,17 @@ sys.path.insert(0, str(HERE))
 
 import scrape_open_play as scraper  # noqa: E402
 import sources  # noqa: E402
+import directory as directory_mod  # noqa: E402
 import og_images  # noqa: E402
 
 SITE = ROOT / "site"
 DATA_OUT = SITE / "data" / "sessions.json"
 BUILD_META_OUT = SITE / "data" / "build.json"
 SESSIONS_DIR = SITE / "s"
+VENUES_DIR = SITE / "v"
 GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
+VENUE_TEMPLATE = (HERE / "templates" / "venue.html").read_text(encoding="utf-8")
 
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://robertcorey.github.io/jcc-pickleball").rstrip("/")
 
@@ -229,6 +232,20 @@ def build_glance_lis_for(source: dict, sessions: list) -> str:
     return "".join(f'<li><span class="ico" aria-hidden="true">{ico}</span><span>{html_}</span></li>' for ico, html_ in items)
 
 
+def _jsonld_script(data) -> str:
+    """Serialize ``data`` as a hardened ``<script type="application/ld+json">``.
+
+    json.dumps escapes quotes/backslashes but NOT < > / & — so any upstream
+    string (a Places-sourced venue name/address, a facility name) containing
+    "</script>" would terminate the tag early and inject markup. Escaping those
+    to \\uXXXX stays valid JSON and neutralizes any tag. Single source of truth
+    for every block of structured data the site emits.
+    """
+    body = json.dumps(data, ensure_ascii=False, indent=2)
+    body = body.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+    return f'<script type="application/ld+json">\n{body}\n</script>'
+
+
 def _iso_with_tz(p) -> str | None:
     """A parse_local() dict -> ISO 8601 string with the venue's UTC offset."""
     if not p:
@@ -299,20 +316,20 @@ def event_jsonld(s, *, name, reg_url, p, pe, avail_cls, organizer_name, store_ur
     if organizer_name:
         data["organizer"] = {"@type": "Organization", "name": organizer_name, "url": store_url}
 
-    # json.dumps escapes quotes/backslashes but NOT < > / & — so an upstream facility
-    # name/address containing "</script>" would terminate the script tag early and
-    # inject markup. Escape those to \uXXXX (still valid JSON, neutralizes any tag).
-    body = json.dumps(data, ensure_ascii=False, indent=2)
-    body = body.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
-    return f'<script type="application/ld+json">\n{body}\n</script>'
+    return _jsonld_script(data)
 
 
-def write_sitemap_and_robots(doc) -> int:
-    """Write site/sitemap.xml (homepage + every session page) and a robots.txt
-    that points at it. Returns the URL count. Both ship in the Pages artifact."""
+def write_sitemap_and_robots(doc, directory=None) -> int:
+    """Write site/sitemap.xml (homepage + every venue + every session page) and a
+    robots.txt that points at it. Returns the URL count. Both ship in the Pages
+    artifact."""
     sids = [str(s["segment_id"]) for s in doc.get("sessions", []) if s.get("segment_id")]
+    slugs = [str(v["slug"]) for v in (directory or {}).get("venues", []) if v.get("slug")]
     lastmod = (doc.get("scraped_at_utc") or "")[:10] or dt.date.today().isoformat()
     entries = [(f"{SITE_BASE_URL}/", "hourly", "1.0")]
+    # Venue/directory pages — the durable SEO surface; change rarely but are the
+    # most link-worthy, so a notch below the homepage and above ephemeral sessions.
+    entries += [(f"{SITE_BASE_URL}/v/{slug}/", "weekly", "0.8") for slug in slugs]
     entries += [(f"{SITE_BASE_URL}/s/{sid}/", "daily", "0.7") for sid in sids]
 
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -502,6 +519,255 @@ def build_session_pages(doc) -> tuple[int, int]:
     return count, n_imgs
 
 
+# ---------------------------------------------------------------------------
+# Directory (Places-discovered venues) -> one SEO page per venue at /v/<slug>/
+# ---------------------------------------------------------------------------
+def _venue_addr_line(v: dict) -> str:
+    """Prefer the discrete fields; fall back to the Places formatted address."""
+    parts = _addr_line(v)
+    if parts:
+        return parts
+    return v.get("address") or ""
+
+
+def _venue_map_href(v: dict) -> str:
+    return v.get("maps_uri") or _map_href(v)
+
+
+def _venue_jsonld(v: dict, canonical: str) -> dict:
+    loc: dict = {
+        "@context": "https://schema.org",
+        "@type": "SportsActivityLocation",
+        "name": v.get("name") or "Pickleball venue",
+        "url": canonical,
+        "sport": "Pickleball",
+    }
+    addr = {"@type": "PostalAddress"}
+    for key, field in (("streetAddress", "address1"), ("addressLocality", "city"),
+                       ("addressRegion", "province"), ("postalCode", "postal_code")):
+        if v.get(field):
+            addr[key] = v[field]
+    addr["addressCountry"] = "US"
+    if len(addr) > 2:
+        loc["address"] = addr
+    if v.get("latitude") is not None and v.get("longitude") is not None:
+        loc["geo"] = {"@type": "GeoCoordinates", "latitude": v["latitude"], "longitude": v["longitude"]}
+    if v.get("phone"):
+        loc["telephone"] = fmt_phone(v["phone"])
+    sameas = [u for u in (v.get("website"), v.get("maps_uri")) if u]
+    if sameas:
+        loc["sameAs"] = sameas
+    # Only emit a rating when Google actually has reviews — an aggregateRating
+    # with reviewCount 0 is invalid and gets flagged.
+    if isinstance(v.get("rating"), (int, float)) and (v.get("rating_count") or 0) >= 1:
+        loc["aggregateRating"] = {
+            "@type": "AggregateRating",
+            "ratingValue": v["rating"],
+            "reviewCount": int(v["rating_count"]),
+            "bestRating": 5,
+        }
+    return loc
+
+
+def _breadcrumb_jsonld(crumbs: list[tuple[str, str | None]]) -> dict:
+    items = []
+    for i, (name, url) in enumerate(crumbs, 1):
+        it = {"@type": "ListItem", "position": i, "name": name}
+        if url:
+            it["item"] = url
+        items.append(it)
+    return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
+
+
+def _session_row_html(s: dict) -> str:
+    p = parse_local(s.get("start"))
+    pe = parse_local(s.get("end"))
+    if not p:
+        return ""
+    day = WD_FULL[p["wd"]]
+    date = f"{MO_SHORT[p['mo'] - 1]} {p['d']}"
+    tm = (f"{fmt_time(p['h'], p['mi'])} – {fmt_time(pe['h'], pe['mi'])}" if pe else fmt_time(p["h"], p["mi"]))
+    href = f"../../s/{esc(s.get('segment_id'))}/"
+    return (f'<li><a href="{href}"><span class="day">{esc(day)}'
+            f'<span class="date">{esc(date)}</span></span>'
+            f'<span class="tm">{esc(tm)}</span></a></li>')
+
+
+def build_venue_pages(directory: dict, doc: dict) -> int:
+    """Write site/v/<slug>/index.html for every directory venue. Returns count.
+
+    Each page is an SEO surface for a "pickleball in <town> RI" query: venue
+    facts + SportsActivityLocation/Breadcrumb JSON-LD, the live open-play
+    schedule inlined for the venues we've integrated, and cross-links to other
+    venues in the same town. Directory is additive — absent/empty just means no
+    pages (the rest of the build is unaffected)."""
+    venues = [v for v in directory.get("venues", []) if v.get("slug")]
+    if not venues:
+        return 0
+
+    # Town index for "more places nearby" cross-links.
+    by_city: dict[str, list] = {}
+    for v in venues:
+        by_city.setdefault(v.get("city") or "Rhode Island", []).append(v)
+
+    # Upcoming sessions per source, soonest first — inlined on linked venues.
+    upcoming_by_source: dict[str, list] = {}
+    for s in doc.get("sessions", []):
+        if not s.get("has_passed") and s.get("source_id"):
+            upcoming_by_source.setdefault(s["source_id"], []).append(s)
+    for lst in upcoming_by_source.values():
+        lst.sort(key=lambda s: s.get("start") or "")
+
+    if VENUES_DIR.exists():
+        shutil.rmtree(VENUES_DIR)
+    VENUES_DIR.mkdir(parents=True, exist_ok=True)
+
+    count = 0
+    for v in venues:
+        slug = v["slug"]
+        name = v.get("name") or "Pickleball venue"
+        city = v.get("city") or "Rhode Island"
+        canonical = f"{SITE_BASE_URL}/v/{slug}/"
+        addr = _venue_addr_line(v)
+        map_href = _venue_map_href(v)
+        is_live = bool(v.get("source_id"))
+        n_up = int(v.get("upcoming_sessions") or 0)
+
+        # ---- head / meta ----
+        where = f"in {city}, RI" if city != "Rhode Island" else "in Rhode Island"
+        page_title = f"{name} — Pickleball {where} | Open Play RI"
+        og_title = f"{name} — Pickleball {where}"
+        if is_live and n_up:
+            meta_desc = (f"{name} in {city}, RI — {n_up} upcoming open-play pickleball "
+                         f"session{'s' if n_up != 1 else ''} with times, prices, and live sign-up. "
+                         f"Plus address, map, and how to play.")
+        else:
+            bits = [f"Pickleball at {name}"]
+            if addr:
+                bits.append(addr)
+            meta_desc = (". ".join(bits) + f". One of the places to play pickleball in {city}, "
+                         "Rhode Island — address, map, phone, and links to plan a visit.")
+
+        # ---- structured data ----
+        crumbs_links = [("Open Play RI", f"{SITE_BASE_URL}/"),
+                        (f"Pickleball in {city}" if city != "Rhode Island" else "Rhode Island", None),
+                        (name, canonical)]
+        jsonld = _jsonld_script(_venue_jsonld(v, canonical)) + "\n" + _jsonld_script(_breadcrumb_jsonld(crumbs_links))
+
+        bc = ['<a href="../../">Open Play RI</a>', '<span class="sep">/</span>']
+        if city != "Rhode Island":
+            bc.append(f'<span>{esc(city)}, RI</span>')
+        else:
+            bc.append("<span>Rhode Island</span>")
+        breadcrumb = "".join(bc)
+
+        # ---- badges ----
+        badges = []
+        if is_live:
+            badges.append('<span class="badge live"><span class="dot"></span>Live open-play schedule</span>')
+        if v.get("confidence") == "high":
+            badges.append('<span class="badge">🏓 Dedicated pickleball</span>')
+        if isinstance(v.get("rating"), (int, float)) and (v.get("rating_count") or 0) >= 1:
+            badges.append(f'<span class="badge"><span class="star">★</span> {v["rating"]:.1f} '
+                          f'<span style="color:var(--ink-faint);font-weight:600">({int(v["rating_count"])})</span></span>')
+        elif v.get("primary_type"):
+            badges.append(f'<span class="badge">{esc(v["primary_type"])}</span>')
+        badges_html = f'<div class="badges">{"".join(badges)}</div>' if badges else ""
+
+        # ---- sub line ----
+        if is_live and n_up:
+            sub = (f"Open-play pickleball in {esc(city)}, Rhode Island, with a live schedule below — "
+                   f"see every upcoming session, time, and price, and register in a tap.")
+        else:
+            sub = (f"A place to play pickleball in {esc(city)}, Rhode Island. "
+                   f"Here's how to find it and plan a visit.")
+
+        # ---- info card ----
+        info = []
+        if addr:
+            info.append(("📍", f"<b>{esc(addr)}</b> · <a href=\"{esc(map_href)}\" target=\"_blank\" rel=\"noopener\">Open in Maps ↗</a>"))
+        if v.get("phone"):
+            ph = esc(fmt_phone(v["phone"]))
+            tel = re.sub(r"\D", "", str(v["phone"]))
+            info.append(("📞", f'<a href="tel:{esc(tel)}">{ph}</a>'))
+        if v.get("website"):
+            host = re.sub(r"^https?://(www\.)?", "", v["website"]).rstrip("/")
+            info.append(("🌐", f'<a href="{esc(v["website"])}" target="_blank" rel="noopener">{esc(host)} ↗</a>'))
+        if v.get("hours"):
+            hrs = "<br>".join(esc(h) for h in v["hours"][:7])
+            info.append(("🕑", f"<b>Hours</b><br>{hrs}"))
+        if v.get("maps_uri"):
+            info.append(("🔎", f'<a href="{esc(v["maps_uri"])}" target="_blank" rel="noopener">See reviews &amp; photos on Google ↗</a>'))
+        info_lis = "".join(f'<li><span class="ico" aria-hidden="true">{ico}</span><span>{h}</span></li>' for ico, h in info)
+        info_card = f'<section class="card"><h2>Visiting</h2><ul class="info">{info_lis}</ul>'
+        # primary CTA: website if known, else directions
+        if v.get("website"):
+            info_card += (f'<div class="cta-row"><a class="btn btn-primary" href="{esc(v["website"])}" '
+                          f'target="_blank" rel="noopener">Visit website <span class="arrow">↗</span></a>'
+                          f'<a class="btn btn-ghost" href="{esc(map_href)}" target="_blank" rel="noopener">Directions</a></div>')
+        else:
+            info_card += (f'<div class="cta-row"><a class="btn btn-primary" href="{esc(map_href)}" '
+                          f'target="_blank" rel="noopener">Get directions <span class="arrow">↗</span></a></div>')
+        info_card += "</section>"
+
+        # ---- live schedule block ----
+        sched_html = ""
+        if is_live:
+            sess = upcoming_by_source.get(v["source_id"], [])
+            rows = "".join(r for r in (_session_row_html(s) for s in sess[:8]) if r)
+            reg_url = v.get("registration_url") or map_href
+            cta_label = v.get("cta_label") or "Register"
+            if rows:
+                lead = (f"We track this venue's open-play schedule. Next "
+                        f"{min(len(sess), 8)} session{'s' if min(len(sess), 8) != 1 else ''}:")
+                more = (f'<a class="more" href="../../#sessions">See all {len(sess)} upcoming sessions '
+                        f'<span aria-hidden="true">→</span></a>') if len(sess) > 8 else \
+                       '<a class="more" href="../../#sessions">See the full schedule <span aria-hidden="true">→</span></a>'
+                sched_html = (f'<section class="sched"><h2>Open play schedule</h2>'
+                              f'<p class="lead">{lead}</p><ul class="sessions">{rows}</ul>{more}</section>')
+
+        # ---- nearby ----
+        nearby = []
+        for other in by_city.get(city, []):
+            if other.get("slug") == slug:
+                continue
+            nearby.append(other)
+        nearby_html = ""
+        if nearby:
+            cards = "".join(
+                f'<a class="vlink" href="../{esc(o["slug"])}/"><span class="nm">{esc(o.get("name"))}</span>'
+                f'<span class="ct">{esc(o.get("primary_type") or "Pickleball")}</span></a>'
+                for o in nearby[:6]
+            )
+            head = f"More places to play in {esc(city)}" if city != "Rhode Island" else "More RI venues"
+            nearby_html = f'<section class="nearby"><h2>{head}</h2><div class="vlist">{cards}</div></section>'
+
+        body = (f'<div class="vhead"><div class="eyebrow">Pickleball {esc(where)}</div>'
+                f'<h1>{esc(name)}</h1><p class="sub">{sub}</p>{badges_html}</div>'
+                f'{sched_html}{info_card}{nearby_html}')
+
+        out = VENUE_TEMPLATE
+        for k, val in {
+            "PAGE_TITLE": esc(page_title),
+            "META_DESC": esc(meta_desc),
+            "OG_TITLE": esc(og_title),
+            "CANONICAL": esc(canonical),
+            "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"),
+            "JSONLD": jsonld,
+            "HOME_HREF": "../../",
+            "BREADCRUMB": breadcrumb,
+            "BODY": body,
+        }.items():
+            out = out.replace("{{" + k + "}}", val)
+
+        sdir = VENUES_DIR / slug
+        sdir.mkdir(parents=True, exist_ok=True)
+        (sdir / "index.html").write_text(out, encoding="utf-8")
+        count += 1
+
+    return count
+
+
 def _git_sha() -> str:
     """Best-effort short HEAD sha; used when GITHUB_SHA isn't set (local builds)."""
     try:
@@ -569,14 +835,25 @@ def main(argv: list[str] | None = None) -> int:
     # the default source in the registry.)
     doc = sources.build_merged_document()
 
+    # Directory layer: Places-discovered RI venues (committed JSON; no key needed
+    # at build time). Cross-link the venues that have live schedules to their
+    # source so the directory pages can deep-link the real sessions.
+    directory = directory_mod.load()
+    directory_mod.link_to_sources(directory, doc)
+
     DATA_OUT.parent.mkdir(parents=True, exist_ok=True)
     with DATA_OUT.open("w", encoding="utf-8") as fh:
         json.dump(doc, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
+    # NB: directory.json is the committed source of truth (CI has no Places key),
+    # so we DON'T rewrite it here — the link_to_sources() stamps live only in
+    # memory for the venue pages. The homepage recomputes the live-schedule link
+    # client-side from sessions.json, so the committed file stays stable.
 
     n_pages, n_imgs = build_session_pages(doc)
     n_fallbacks = max(0, n_pages - n_imgs)
-    n_urls = write_sitemap_and_robots(doc)
+    n_venues = build_venue_pages(directory, doc)
+    n_urls = write_sitemap_and_robots(doc, directory)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
     _report_og_health(n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
@@ -587,6 +864,7 @@ def main(argv: list[str] | None = None) -> int:
         f"wrote {DATA_OUT.relative_to(ROOT)} ({t.get('activities')} activities, "
         f"{t.get('sessions')} sessions, {t.get('upcoming_sessions')} upcoming) "
         f"+ {n_pages} session pages + {img_note} under site/s/ "
+        f"+ {n_venues} venue pages under site/v/ "
         f"+ sitemap.xml/robots.txt ({n_urls} urls)  [base={SITE_BASE_URL}]",
         file=sys.stderr,
     )

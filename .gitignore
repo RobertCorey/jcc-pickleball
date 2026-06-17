@@ -3,6 +3,7 @@ __pycache__/
 
 # generated per build (in the Pages artifact, not the repo)
 site/s/
+site/v/
 site/sitemap.xml
 site/robots.txt
 

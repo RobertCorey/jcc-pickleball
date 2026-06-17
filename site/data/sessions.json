@@ -1,11 +1,11 @@
 {
-  "scraped_at_utc": "2026-06-17T20:53:55+00:00",
+  "scraped_at_utc": "2026-06-17T22:06:25+00:00",
   "totals": {
     "sources": 2,
     "venues": 2,
     "activities": 7,
     "sessions": 103,
-    "upcoming_sessions": 56
+    "upcoming_sessions": 55
   },
   "sources": [
     {
@@ -1768,8 +1768,8 @@
                   "start": "2026-06-17T18:00:00.01",
                   "end": "2026-06-17T19:30:00",
                   "all_day": false,
-                  "has_passed": false,
-                  "status": "registration_available",
+                  "has_passed": true,
+                  "status": "passed",
                   "state_code": 0,
                   "capacity": 16,
                   "has_unlimited_spots": false,
@@ -1783,7 +1783,7 @@
                   "fee": null,
                   "wait_list_enabled": true,
                   "wait_list_spots_reserved": 0,
-                  "can_register": true,
+                  "can_register": false,
                   "has_drop_ins": false,
                   "already_in_cart": false,
                   "description": null,
@@ -1864,7 +1864,7 @@
                   "fee": null,
                   "wait_list_enabled": true,
                   "wait_list_spots_reserved": 0,
-                  "can_register": false,
+                  "can_register": true,
                   "has_drop_ins": false,
                   "already_in_cart": false,
                   "description": null,
@@ -2587,7 +2587,8 @@
         "title": "Pickleball",
         "url": "https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731"
       },
-      "session_count": 84
+      "session_count": 84,
+      "directory_slug": "dwares-jcc-providence"
     },
     {
       "id": "bristol",
@@ -2604,8 +2605,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null,
+        "latitude": 41.6705216,
+        "longitude": -71.2712717,
         "registration_url": "https://calendar.google.com/calendar/u/0/embed?src=bristolpickleballclubri@gmail.com&ctz=America/New_York",
         "homepage_url": "https://www.bristolpickleball.com"
       },
@@ -2614,7 +2615,8 @@
         "Open play at the Bristol Town Common courts. Registration is required per session through the club; please don't register and skip."
       ],
       "sub_categories": [],
-      "session_count": 19
+      "session_count": 19,
+      "directory_slug": "bristol-town-common-pickleball-courts-bristol"
     }
   ],
   "sessions": [
@@ -3821,8 +3823,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4024,8 +4026,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4068,8 +4070,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4112,8 +4114,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4156,8 +4158,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4200,8 +4202,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4297,8 +4299,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4341,8 +4343,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4438,8 +4440,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4552,50 +4554,6 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
-      "start": "2026-06-13T10:00:00",
-      "end": "2026-06-13T11:30:00",
-      "all_day": false,
-      "has_passed": true,
-      "status": "passed",
-      "state_code": null,
-      "capacity": 45,
-      "has_unlimited_spots": false,
-      "spots_reserved": null,
-      "spots_remaining": null,
-      "has_place_left": null,
-      "max_attendance": 45,
-      "attendance_string": null,
-      "drop_in_price": null,
-      "drop_in_best_price": null,
-      "fee": null,
-      "wait_list_enabled": false,
-      "wait_list_spots_reserved": null,
-      "can_register": false,
-      "has_drop_ins": true,
-      "already_in_cart": false,
-      "description": null,
-      "extra_information": null,
-      "activity_name": "Open Play",
-      "registration_url": null,
-      "facility": {
-        "name": "Bristol Town Common Courts",
-        "address1": "339 Wood St",
-        "address2": null,
-        "city": "Bristol",
-        "province": "RI",
-        "postal_code": "02809",
-        "country": "US",
-        "phone": null,
-        "phone_ext": null,
-        "latitude": null,
-        "longitude": null
-      },
-      "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
-      "source_id": "bristol",
-      "venue_name": "Bristol Pickleball"
-    },
-    {
       "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260613",
       "start": "2026-06-13T10:00:00",
       "end": "2026-06-13T11:30:00",
@@ -4632,8 +4590,52 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
+      },
+      "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
+      "source_id": "bristol",
+      "venue_name": "Bristol Pickleball"
+    },
+    {
+      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
+      "start": "2026-06-13T10:00:00",
+      "end": "2026-06-13T11:30:00",
+      "all_day": false,
+      "has_passed": true,
+      "status": "passed",
+      "state_code": null,
+      "capacity": 45,
+      "has_unlimited_spots": false,
+      "spots_reserved": null,
+      "spots_remaining": null,
+      "has_place_left": null,
+      "max_attendance": 45,
+      "attendance_string": null,
+      "drop_in_price": null,
+      "drop_in_best_price": null,
+      "fee": null,
+      "wait_list_enabled": false,
+      "wait_list_spots_reserved": null,
+      "can_register": false,
+      "has_drop_ins": true,
+      "already_in_cart": false,
+      "description": null,
+      "extra_information": null,
+      "activity_name": "Open Play",
+      "registration_url": null,
+      "facility": {
+        "name": "Bristol Town Common Courts",
+        "address1": "339 Wood St",
+        "address2": null,
+        "city": "Bristol",
+        "province": "RI",
+        "postal_code": "02809",
+        "country": "US",
+        "phone": null,
+        "phone_ext": null,
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4676,8 +4678,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4720,8 +4722,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4764,8 +4766,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4914,8 +4916,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4958,8 +4960,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -4994,8 +4996,8 @@
       "start": "2026-06-17T18:00:00.01",
       "end": "2026-06-17T19:30:00",
       "all_day": false,
-      "has_passed": false,
-      "status": "registration_available",
+      "has_passed": true,
+      "status": "passed",
       "state_code": 0,
       "capacity": 16,
       "has_unlimited_spots": false,
@@ -5009,7 +5011,7 @@
       "fee": null,
       "wait_list_enabled": true,
       "wait_list_spots_reserved": 0,
-      "can_register": true,
+      "can_register": false,
       "has_drop_ins": false,
       "already_in_cart": false,
       "description": null,
@@ -5161,8 +5163,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -5205,8 +5207,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -5249,8 +5251,8 @@
         "country": "US",
         "phone": null,
         "phone_ext": null,
-        "latitude": null,
-        "longitude": null
+        "latitude": 41.6705216,
+        "longitude": -71.2712717
       },
       "location": "Bristol Town Common Courts | 339 Wood St, Bristol, RI, 02809",
       "source_id": "bristol",
@@ -5936,7 +5938,7 @@
       "fee": null,
       "wait_list_enabled": true,
       "wait_list_spots_reserved": 0,
-      "can_register": false,
+      "can_register": true,
       "has_drop_ins": false,
       "already_in_cart": false,
       "description": null,

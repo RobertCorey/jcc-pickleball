@@ -59,8 +59,10 @@ VENUE = {
     "country": "US",
     "phone": None,
     "phone_ext": None,
-    "latitude": None,   # let the site fall back to an address-based map query
-    "longitude": None,
+    # Geo from the Google Places listing for Bristol Town Common Pickleball
+    # Courts — also lets the directory link this source to its directory page.
+    "latitude": 41.6705216,
+    "longitude": -71.2712717,
     # NEEDS-HUMAN: confirm the official per-session registration link. The club
     # registers via PlayerLineUp; until that URL is confirmed we point at the
     # club's public calendar (a real, viewable page) so the CTA always resolves.

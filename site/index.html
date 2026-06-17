@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Pickleball in Providence, RI — Drop-In Sessions at the JCC</title>
-<meta name="description" content="Where to play pickleball in Providence, RI: open drop-in pickleball at the JCC of Greater Rhode Island, 401 Elmgrove Ave. Every upcoming session, time, and price in one list — no partner or membership needed. Unofficial schedule, refreshed hourly." />
+<title>Pickleball Open Play in Rhode Island — Every Place to Play | Open Play RI</title>
+<meta name="description" content="Where to play pickleball in Rhode Island: a directory of every court, club, and open-play venue across the state — plus live open-play schedules with times, prices, and sign-up counts. Find pickleball near you in Providence, Warwick, Newport, and beyond." />
 <meta name="color-scheme" content="light" />
 <link rel="canonical" href="https://robertcorey.github.io/jcc-pickleball/" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
 <!-- social link previews -->
 <meta property="og:type" content="website" />
-<meta property="og:site_name" content="Providence JCC Pickleball" />
-<meta property="og:title" content="Pickleball in Providence, RI — Drop-In at the JCC" />
-<meta property="og:description" content="Where to play pickleball in Providence: open drop-in sessions at the JCC of Greater Rhode Island (401 Elmgrove Ave) — every upcoming time, price, and live sign-up count, with one tap to register." />
+<meta property="og:site_name" content="Open Play RI" />
+<meta property="og:title" content="Pickleball Open Play in Rhode Island — Every Place to Play" />
+<meta property="og:description" content="A directory of every pickleball court, club, and open-play venue across Rhode Island — plus live open-play schedules with times, prices, and live sign-up counts." />
 <meta property="og:url" content="https://robertcorey.github.io/jcc-pickleball/" />
 <meta property="og:image" content="https://robertcorey.github.io/jcc-pickleball/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Drop-in pickleball at the Providence JCC — schedule. robertcorey.github.io/jcc-pickleball" />
+<meta property="og:image:alt" content="Pickleball open play across Rhode Island — Open Play RI" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Pickleball in Providence, RI — Drop-In at the JCC" />
-<meta name="twitter:description" content="Where to play pickleball in Providence: open drop-in sessions at the JCC of Greater Rhode Island — every upcoming time, price, and live sign-up count, one tap to register." />
+<meta name="twitter:title" content="Pickleball Open Play in Rhode Island — Every Place to Play" />
+<meta name="twitter:description" content="Every pickleball court, club, and open-play venue across Rhode Island — plus live open-play schedules with times, prices, and sign-up counts." />
 <meta name="twitter:image" content="https://robertcorey.github.io/jcc-pickleball/og.png" />
 <meta name="theme-color" content="#f3efe2" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -242,6 +242,53 @@
     .pasttoggle { margin-left: 0; }
     .glance li { font-size: 13.5px; }
   }
+
+  /* ---------------- stats bar ---------------- */
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: clamp(18px, 2.6vw, 24px); }
+  .stat { flex: 1; min-width: 130px; background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: var(--r); padding: 14px 16px; }
+  .stat .n { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 3.4vw, 30px); letter-spacing: -.03em; line-height: 1; color: var(--ink); }
+  .stat .n .accent { color: var(--forest); }
+  .stat .l { margin-top: 5px; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+
+  /* ---------------- section header ---------------- */
+  .sec-head { padding-top: clamp(30px, 5vw, 52px); }
+  .sec-head .eyebrow { font-family: var(--font-body); font-weight: 600; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--forest); display: inline-flex; align-items: center; gap: 10px; }
+  .sec-head .eyebrow::before { content: ""; width: 24px; height: 1.5px; background: var(--forest); display: inline-block; flex: none; }
+  .sec-head h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(23px, 3.8vw, 36px); letter-spacing: -.03em; margin: 11px 0 0; }
+  .sec-head .sub { margin-top: 10px; font-size: clamp(14px, 1.5vw, 16px); color: var(--ink-soft); max-width: 58ch; line-height: 1.55; }
+
+  /* ---------------- directory ---------------- */
+  .directory { padding-bottom: 8px; }
+  .dir-search { margin-top: clamp(16px, 2.4vw, 22px); position: relative; }
+  .dir-search input { width: 100%; font-family: var(--font-body); font-size: 15px; color: var(--ink); background: var(--paper);
+    border: 1.5px solid var(--line-strong); border-radius: var(--r); padding: 13px 16px 13px 42px; transition: border-color .15s; }
+  .dir-search input:focus { outline: none; border-color: var(--forest); }
+  .dir-search input::placeholder { color: var(--ink-faint); }
+  .dir-search svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--ink-faint); pointer-events: none; }
+  .dir-count { margin-top: 10px; font-size: 13px; color: var(--ink-faint); }
+  .dir-count b { color: var(--ink-soft); font-weight: 600; }
+
+  .town-group { margin-top: clamp(20px, 3vw, 28px); }
+  .town-h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1.5px solid var(--line); }
+  .town-h .tn { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -.02em; color: var(--ink); }
+  .town-h .tc { font-size: 12px; color: var(--ink-faint); font-weight: 600; }
+  .vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .vcard { position: relative; display: block; background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: 11px;
+    padding: 14px 15px; text-decoration: none; transition: border-color .14s, transform .14s, box-shadow .14s; }
+  .vcard:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: 0 10px 22px -16px rgba(20,30,15,.5); }
+  .vcard.live { border-color: var(--forest); background: linear-gradient(180deg, rgba(20,72,58,.05), var(--paper) 60%); }
+  .vcard .vn { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; letter-spacing: -.01em; color: var(--ink); line-height: 1.25; }
+  .vcard .vm { margin-top: 5px; font-size: 12px; color: var(--ink-faint); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .vcard .vrate { color: var(--ink-soft); font-weight: 600; }
+  .vcard .vrate .star { color: var(--gold); }
+  .vcard .livetag { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; font-size: 11px; font-weight: 800;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--forest); }
+  .vcard .livetag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime-deep); flex: none;
+    box-shadow: 0 0 0 0 rgba(169,212,35,.6); animation: pulse 2.6s ease-out infinite; }
+  .vcard .arrow2 { position: absolute; top: 13px; right: 14px; color: var(--line-strong); font-size: 14px; transition: transform .14s, color .14s; }
+  .vcard:hover .arrow2 { color: var(--forest); transform: translate(2px,-2px); }
+  .dir-empty { text-align: center; padding: 40px 16px; color: var(--ink-soft); }
+  .dir-empty .big { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--ink); margin-bottom: 6px; }
 </style>
 <!-- FAQ structured data — mirrors the visible Q&A in the .faq section below so
      it's eligible for FAQ rich results. Keep the two in sync if either changes. -->
@@ -252,50 +299,50 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Where can I play pickleball in Providence, RI?",
+      "name": "Where can I play pickleball in Rhode Island?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "One of the easiest options is open drop-in pickleball at the JCC of Greater Rhode Island, on the gymnasium courts at 401 Elmgrove Avenue, Providence, RI 02906. This page lists every upcoming drop-in session so you can see what's on and register."
+        "text": "There are dozens of places to play pickleball across Rhode Island — dedicated clubs, YMCAs, racquet clubs, and public town courts in Providence, Warwick, Cranston, Newport, and most other towns. Open Play RI lists them all in one directory, with an address, map, and details for each, plus live open-play schedules for the venues we track."
       }
     },
     {
       "@type": "Question",
-      "name": "Is drop-in pickleball free?",
+      "name": "What is pickleball open play (drop-in)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It's a low per-session drop-in fee — typically just a few dollars — paid on the official JCC store, and discount passes are often available. The current price for each session is shown next to it in the schedule above."
+        "text": "Open play (also called drop-in) means you can show up on your own without a reservation or a partner — games are arranged on the spot, and all skill levels are usually welcome. It's the easiest way to start playing and to meet other players in your area."
       }
     },
     {
       "@type": "Question",
-      "name": "Do I need a partner or a team?",
+      "name": "Do I need to be a member to play?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. These are open drop-in (sometimes called \"open play\") sessions — you can show up on your own and games are arranged on the spot. It's a friendly way to meet other players around Providence and greater Rhode Island."
+        "text": "It depends on the venue. Public town courts are typically free and open to everyone, while clubs and the JCC charge a small per-session drop-in fee (often just a few dollars) and don't require a membership for open play. Check the venue's page for the specifics."
       }
     },
     {
       "@type": "Question",
-      "name": "What skill level is it for?",
+      "name": "How much does it cost to play pickleball in RI?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Open drop-in is welcoming to all levels, from first-timers to experienced players. Bring your own paddle if you have one; if not, ask the JCC front desk about loaners when you register."
+        "text": "Public courts are usually free. Drop-in sessions at clubs and the JCC generally run a few dollars per session, and many venues offer discount passes. Where we track a live schedule, the current per-session price is shown next to each session."
       }
     },
     {
       "@type": "Question",
-      "name": "How do I register for a session?",
+      "name": "Which Rhode Island venues have a live open-play schedule here?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Registration and payment happen on the official JCC store (powered by Amilia). Tap Register on any session above, or open a session's page, to go straight to the official listing to sign up. This site is just an unofficial, easier-to-scan view of the schedule."
+        "text": "We track real, up-to-date open-play schedules for a growing set of venues — currently the JCC of Greater Rhode Island in Providence and the Bristol Pickleball Club — with times, prices, and live sign-up counts refreshed about once an hour. Every other RI venue is listed in the directory with details and links so you can find and contact it."
       }
     },
     {
       "@type": "Question",
-      "name": "When is open pickleball at the JCC?",
+      "name": "How do I find pickleball near me in Rhode Island?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Days and times vary week to week, and the JCC adds new sessions regularly. The schedule above is refreshed from the official store about once an hour, so check back for the latest open drop-in times — and confirm on the official JCC store before you head over."
+        "text": "Browse the directory below by town to see every pickleball venue in your area, or use the search box to filter by venue or town name. Each venue has its own page with an address, map, phone, hours, and — where available — a live open-play schedule."
       }
     }
   ]
@@ -314,37 +361,51 @@
   <div class="wrap">
     <a class="brand" href="#top">
       <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
-      <span>JCC&nbsp;Pickleball</span>
+      <span>Open&nbsp;Play&nbsp;RI</span>
     </a>
-    <a class="src-link" id="source-link" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">Official store ↗</a>
+    <a class="src-link" href="#directory">All RI venues&nbsp;→</a>
+    <a id="source-link" hidden href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731"></a>
   </div>
 </div>
 
 <header class="hero" id="top">
   <div class="wrap">
-    <span class="kicker">Jewish Alliance of Greater Rhode Island</span>
-    <h1>Drop-in <span class="accent">pickleball</span><br>at the Providence JCC</h1>
-    <p class="lede">Looking for <strong>somewhere to play pickleball in Providence</strong>? The JCC of Greater Rhode Island runs open drop-in pickleball at 401 Elmgrove Avenue — no membership or partner needed, all levels welcome. Here's every upcoming session in one tidy list, with one tap to register on the JCC store.</p>
+    <span class="kicker">Rhode Island · Pickleball</span>
+    <h1>Where to play <span class="accent">pickleball</span> in Rhode&nbsp;Island</h1>
+    <p class="lede">Every <strong>place to play pickleball</strong> across the Ocean State, in one directory — dedicated clubs, YMCAs, racquet clubs, and public town courts from Providence to Newport. For the venues we track, you also get the <strong>live open-play schedule</strong>: times, prices, and how many have signed up, refreshed hourly.</p>
+
+    <div class="stats" id="stats">
+      <div class="stat"><div class="n" id="stat-venues">—</div><div class="l">RI venues</div></div>
+      <div class="stat"><div class="n" id="stat-towns">—</div><div class="l">towns &amp; cities</div></div>
+      <div class="stat"><div class="n"><span class="accent" id="stat-live">—</span></div><div class="l">with live schedules</div></div>
+    </div>
 
     <div class="freshnote">
       <span class="fc-pill"><span class="dot-live"></span><span id="fc-when">Updated just now</span></span>
       <p>
-        Heads up — this isn't the official site, and it isn't always up to the minute. It re-checks the JCC's schedule
-        roughly <strong>once an hour</strong>, so headcounts and open spots can run a little behind what's actually there.
-        The <a id="fc-link" href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">official JCC store&nbsp;↗</a>
-        is the real source of truth: that's where you register, and where you should double-check before you count on a spot.
-        This page just exists to make the schedule quicker to scan.
+        <strong>Open Play RI</strong> is an independent, community directory — not an official venue site. Venue details come from
+        public listings, and the live schedules we track re-check roughly <strong>once an hour</strong>, so headcounts and open spots can
+        run a little behind. Always confirm open-play times and prices with the venue
+        (<a id="fc-link" href="#directory">find it in the directory&nbsp;↓</a>) before you head over.
       </p>
     </div>
 
     <section class="glance" aria-label="Good to know">
-      <h2>Good to know</h2>
+      <h2>Venues with a live schedule</h2>
       <ul id="glance-list">
         <li><span class="ico">⏳</span><span>Loading…</span></li>
       </ul>
     </section>
   </div>
 </header>
+
+<div class="wrap" id="sessions">
+  <div class="sec-head" style="padding-top:clamp(24px,4vw,40px)">
+    <span class="eyebrow">Live open-play schedule</span>
+    <h2>Upcoming open-play sessions</h2>
+    <p class="sub">Real schedules for the venues we track — every upcoming drop-in session with its time, price, and live sign-up count. Filter by venue or day, and tap any session to share or register.</p>
+  </div>
+</div>
 
 <div class="filters">
   <div class="wrap" id="venuerow" hidden>
@@ -368,34 +429,53 @@
   </div>
 </main>
 
+<section class="directory" id="directory" aria-labelledby="dir-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">The full directory</span>
+      <h2 id="dir-h">Every place to play in Rhode Island</h2>
+      <p class="sub">A directory of pickleball courts, clubs, and open-play venues across the state, grouped by town. Tap any venue for its address, map, phone, hours, and — where we have it — a live open-play schedule.</p>
+    </div>
+
+    <div class="dir-search">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" id="dir-q" placeholder="Search by venue or town — e.g. Warwick, Newport, YMCA" autocomplete="off" aria-label="Search venues and towns" />
+    </div>
+    <div class="dir-count" id="dir-count"></div>
+    <div id="dir-list">
+      <div class="skel" style="height:120px;border:none"></div>
+    </div>
+  </div>
+</section>
+
 <section class="faq" aria-labelledby="faq-h">
   <div class="wrap">
     <span class="eyebrow">Good to know</span>
-    <h2 id="faq-h">Pickleball in Providence — common questions</h2>
+    <h2 id="faq-h">Pickleball in Rhode Island — common questions</h2>
     <div class="qa">
       <details>
-        <summary>Where can I play pickleball in Providence, RI?</summary>
-        <div class="ans">One of the easiest options is open drop-in pickleball at the JCC of Greater Rhode Island, on the gymnasium courts at 401 Elmgrove Avenue, Providence, RI 02906. This page lists every upcoming drop-in session so you can see what's on and register.</div>
+        <summary>Where can I play pickleball in Rhode Island?</summary>
+        <div class="ans">There are dozens of places to play across Rhode Island — dedicated clubs, YMCAs, racquet clubs, and public town courts in Providence, Warwick, Cranston, Newport, and most other towns. The <a href="#directory">directory above</a> lists them all, with an address, map, and details for each, plus live open-play schedules for the venues we track.</div>
       </details>
       <details>
-        <summary>Is drop-in pickleball free?</summary>
-        <div class="ans">It's a low per-session drop-in fee — typically just a few dollars — paid on the official JCC store, and discount passes are often available. The current price for each session is shown next to it in the schedule above.</div>
+        <summary>What is pickleball open play (drop-in)?</summary>
+        <div class="ans">Open play (also called drop-in) means you can show up on your own without a reservation or a partner — games are arranged on the spot, and all skill levels are usually welcome. It's the easiest way to start playing and to meet other players in your area.</div>
       </details>
       <details>
-        <summary>Do I need a partner or a team?</summary>
-        <div class="ans">No. These are open drop-in (sometimes called "open play") sessions — you can show up on your own and games are arranged on the spot. It's a friendly way to meet other players around Providence and greater Rhode Island.</div>
+        <summary>Do I need to be a member to play?</summary>
+        <div class="ans">It depends on the venue. Public town courts are typically free and open to everyone, while clubs and the JCC charge a small per-session drop-in fee (often just a few dollars) and don't require a membership for open play. Check the venue's page for the specifics.</div>
       </details>
       <details>
-        <summary>What skill level is it for?</summary>
-        <div class="ans">Open drop-in is welcoming to all levels, from first-timers to experienced players. Bring your own paddle if you have one; if not, ask the JCC front desk about loaners when you register.</div>
+        <summary>How much does it cost to play pickleball in RI?</summary>
+        <div class="ans">Public courts are usually free. Drop-in sessions at clubs and the JCC generally run a few dollars per session, and many venues offer discount passes. Where we track a live schedule, the current per-session price is shown next to each session.</div>
       </details>
       <details>
-        <summary>How do I register for a session?</summary>
-        <div class="ans">Registration and payment happen on the official JCC store (powered by Amilia). Tap <strong>Register</strong> on any session above, or open a session's page, to go straight to the official listing to sign up. This site is just an unofficial, easier-to-scan view of the schedule.</div>
+        <summary>Which RI venues have a live open-play schedule here?</summary>
+        <div class="ans">We track real, up-to-date open-play schedules for a growing set of venues — currently the JCC of Greater Rhode Island in Providence and the Bristol Pickleball Club — with times, prices, and live sign-up counts refreshed about once an hour. Every other RI venue is listed in the directory with details and links so you can find and contact it.</div>
       </details>
       <details>
-        <summary>When is open pickleball at the JCC?</summary>
-        <div class="ans">Days and times vary week to week, and the JCC adds new sessions regularly. The schedule above is refreshed from the official store about once an hour, so check back for the latest open drop-in times — and confirm on the official JCC store before you head over.</div>
+        <summary>How do I find pickleball near me in Rhode Island?</summary>
+        <div class="ans">Browse the <a href="#directory">directory</a> by town to see every pickleball venue in your area, or use the search box to filter by venue or town name. Each venue has its own page with an address, map, phone, hours, and — where available — a live open-play schedule.</div>
       </details>
     </div>
   </div>
@@ -405,22 +485,22 @@
   <div class="wrap">
     <div class="row2">
       <div class="blurb">
-        <span class="lg">JCC <span class="accent">Pickleball</span></span>
-        An independent, friendlier view of the Jewish Alliance of Greater Rhode Island JCC's open drop-in pickleball schedule. Data is scraped from the JCC's Amilia store and refreshed hourly — registration and payment still happen on the official site.
+        <span class="lg">Open Play <span class="accent">RI</span></span>
+        A community directory of every place to play pickleball in Rhode Island, with live open-play schedules for the venues we track. Venue details come from public listings; schedules refresh hourly. Always confirm times and prices with the venue before you go.
       </div>
       <div class="links">
-        <h3>Links</h3>
+        <h3>Explore</h3>
         <ul>
-          <li><a href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731" target="_blank" rel="noopener">Pickleball program ↗</a></li>
-          <li><a href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland" target="_blank" rel="noopener">JCC store home ↗</a></li>
-          <li><a href="https://www.jewishallianceri.org/" target="_blank" rel="noopener">Jewish Alliance of RI ↗</a></li>
-          <li><a id="map-link" href="https://maps.google.com/?q=401+Elmgrove+Avenue+Providence+RI+02906" target="_blank" rel="noopener">Open venue in Maps ↗</a></li>
+          <li><a href="#directory">All RI venues ↓</a></li>
+          <li><a href="#sessions">Live open-play schedule ↓</a></li>
+          <li><a href="#faq-h">Common questions ↓</a></li>
+          <li><a id="map-link" href="https://maps.google.com/?q=pickleball+Rhode+Island" target="_blank" rel="noopener">Pickleball near me ↗</a></li>
         </ul>
       </div>
     </div>
     <div class="legal">
       <span id="foot-updated">Refreshes hourly</span>
-      <span>Unofficial · not affiliated with the JCC or Amilia · schedule &amp; pricing subject to change on the official site.</span>
+      <span>Independent &amp; unofficial · venue data from public sources · schedules &amp; pricing subject to change — confirm with the venue.</span>
     </div>
   </div>
 </footer>
@@ -524,7 +604,7 @@
     STATE.venues = {};
     STATE.sources.forEach(function (m) { STATE.venues[m.id] = m; });
     var firstReg = STATE.sources.length && STATE.sources[0].venue && STATE.sources[0].venue.registration_url;
-    if (firstReg) { $("#source-link").setAttribute("href", firstReg); var fl = $("#fc-link"); if (fl) fl.setAttribute("href", firstReg); }
+    if (firstReg) { $("#source-link").setAttribute("href", firstReg); }
 
     // Venue filter chips — only shown when more than one venue is present.
     if (STATE.sources.length > 1) {
@@ -551,7 +631,16 @@
     STATE.all = rows;
 
     buildGlance(data, rows);
-    buildFooter(data);
+
+    // Hand the directory module the live-schedule venues (matched by geo) +
+    // each source's upcoming-session count, so directory cards can show a
+    // "live schedule" badge. No-op if the directory hasn't loaded yet — it
+    // stashes the data and applies it on render.
+    var upcomingBySource = {};
+    rows.forEach(function (r) {
+      if (!r.s.has_passed && r.s.source_id) upcomingBySource[r.s.source_id] = (upcomingBySource[r.s.source_id] || 0) + 1;
+    });
+    if (window.OPRI_directory) window.OPRI_directory.setLive(STATE.sources, upcomingBySource);
 
     // freshness — prominent "updated …" pill near the top + footer line
     var scraped = data.scraped_at_utc ? new Date(data.scraped_at_utc) : null;
@@ -637,15 +726,6 @@
     $("#glance-list").innerHTML = items.map(function (it) {
       return '<li><span class="ico" aria-hidden="true">' + it.ico + '</span><span>' + it.html + '</span></li>';
     }).join("");
-  }
-
-  function buildFooter(data) {
-    var v = STATE.sources.length && STATE.sources[0].venue;
-    if (v) {
-      var href = (v.latitude && v.longitude) ? "https://maps.google.com/?q=" + v.latitude + "," + v.longitude
-        : "https://maps.google.com/?q=" + encodeURIComponent([v.address1, v.city, v.province, v.postal_code].filter(Boolean).join(" "));
-      $("#map-link").setAttribute("href", href);
-    }
   }
 
   function render(firstPaint) {
@@ -738,6 +818,134 @@
       sp.textContent = "Show " + pastCount + " past session" + (pastCount === 1 ? "" : "s") + " ↓";
     } else { sp.hidden = true; }
   }
+})();
+</script>
+<script>
+// ---- Directory: render every RI venue (data/directory.json), grouped by town,
+// with a "live schedule" badge on the venues we also track in real time. Lives
+// in its own IIFE; the session script hands it the live-venue match via
+// window.OPRI_directory.setLive() once sessions.json loads.
+(function () {
+  "use strict";
+  function $(s, r) { return (r || document).querySelector(s); }
+  function esc(x) { return String(x == null ? "" : x).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
+
+  var VENUES = null, LIVE = null, Q = "";
+
+  function haversine(la1, lo1, la2, lo2) {
+    var R = 6371000, rad = Math.PI / 180;
+    var dLa = (la2 - la1) * rad, dLo = (lo2 - lo1) * rad;
+    var a = Math.sin(dLa / 2) * Math.sin(dLa / 2) +
+            Math.cos(la1 * rad) * Math.cos(la2 * rad) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+
+  // slug -> {upcoming}: directory venues matched (by geo, <=400m) to a live source.
+  function computeLive() {
+    var map = {};
+    if (!VENUES || !LIVE) return map;
+    (LIVE.sources || []).forEach(function (src) {
+      if (!src || !src.ok) return;
+      var v = src.venue || {};
+      if (v.latitude == null || v.longitude == null) return;
+      var best = null, bestD = 400;
+      VENUES.forEach(function (ven) {
+        if (ven.latitude == null || ven.longitude == null) return;
+        var d = haversine(+v.latitude, +v.longitude, +ven.latitude, +ven.longitude);
+        if (d <= bestD) { best = ven; bestD = d; }
+      });
+      if (best) map[best.slug] = { upcoming: (LIVE.upcomingBySource || {})[src.id] || 0 };
+    });
+    return map;
+  }
+
+  function cardHTML(v, live) {
+    var meta = [];
+    if (v.primary_type) meta.push(esc(v.primary_type));
+    if (typeof v.rating === "number" && (v.rating_count || 0) >= 1)
+      meta.push('<span class="vrate"><span class="star">★</span> ' + v.rating.toFixed(1) + ' (' + (v.rating_count | 0) + ')</span>');
+    var liveTag = live
+      ? '<div class="livetag"><span class="dot"></span>Live schedule' + (live.upcoming ? ' · ' + live.upcoming + ' upcoming' : '') + '</div>'
+      : '';
+    return '<a class="vcard' + (live ? ' live' : '') + '" href="v/' + esc(v.slug) + '/">' +
+      '<span class="arrow2" aria-hidden="true">↗</span>' +
+      '<div class="vn">' + esc(v.name) + '</div>' +
+      (meta.length ? '<div class="vm">' + meta.join(' · ') + '</div>' : '') +
+      liveTag + '</a>';
+  }
+
+  function render() {
+    var listEl = $("#dir-list"); if (!listEl) return;
+    if (!VENUES) return;
+    var liveMap = computeLive();
+
+    // stats (computed from the full set, not the current filter)
+    var townSet = {}, liveCount = 0;
+    VENUES.forEach(function (v) { townSet[v.city || "Other"] = 1; if (liveMap[v.slug]) liveCount++; });
+    var nTowns = Object.keys(townSet).length;
+    if ($("#stat-venues")) $("#stat-venues").textContent = VENUES.length;
+    if ($("#stat-towns")) $("#stat-towns").textContent = nTowns;
+    if ($("#stat-live")) $("#stat-live").textContent = liveCount;
+
+    // filter
+    var q = Q.trim().toLowerCase();
+    var vis = VENUES.filter(function (v) {
+      if (!q) return true;
+      return (v.name || "").toLowerCase().indexOf(q) >= 0 || (v.city || "").toLowerCase().indexOf(q) >= 0;
+    });
+
+    // count line
+    var cc = $("#dir-count");
+    if (cc) cc.innerHTML = q
+      ? "Showing <b>" + vis.length + "</b> of " + VENUES.length + " venues"
+      : "<b>" + VENUES.length + "</b> venues across <b>" + nTowns + "</b> Rhode Island towns";
+
+    if (!vis.length) {
+      listEl.innerHTML = '<div class="dir-empty"><div class="big">No matches</div><p>No venues match “' + esc(Q) + '”. Try a town name like Warwick or Newport.</p></div>';
+      return;
+    }
+
+    // group by town
+    var groups = {};
+    vis.forEach(function (v) { var c = v.city || "Other"; (groups[c] = groups[c] || []).push(v); });
+    var townHasLive = {};
+    Object.keys(groups).forEach(function (c) { townHasLive[c] = groups[c].some(function (v) { return !!liveMap[v.slug]; }); });
+    // towns: live towns first, then by venue count desc, then name
+    var towns = Object.keys(groups).sort(function (a, b) {
+      if (townHasLive[a] !== townHasLive[b]) return townHasLive[a] ? -1 : 1;
+      if (groups[b].length !== groups[a].length) return groups[b].length - groups[a].length;
+      return a.localeCompare(b);
+    });
+    // within a town: live first, then dedicated (high confidence), then rating desc, then name
+    function rank(v) { return (liveMap[v.slug] ? 0 : 1); }
+    var html = towns.map(function (c) {
+      var vs = groups[c].slice().sort(function (a, b) {
+        if (rank(a) !== rank(b)) return rank(a) - rank(b);
+        var ha = a.confidence === "high" ? 0 : 1, hb = b.confidence === "high" ? 0 : 1;
+        if (ha !== hb) return ha - hb;
+        var ra = a.rating || 0, rb = b.rating || 0;
+        if (rb !== ra) return rb - ra;
+        return (a.name || "").localeCompare(b.name || "");
+      });
+      return '<div class="town-group"><div class="town-h"><span class="tn">' + esc(c) + ', RI</span>' +
+        '<span class="tc">' + vs.length + ' venue' + (vs.length === 1 ? '' : 's') + '</span></div>' +
+        '<div class="vgrid">' + vs.map(function (v) { return cardHTML(v, liveMap[v.slug]); }).join("") + '</div></div>';
+    }).join("");
+    listEl.innerHTML = html;
+  }
+
+  window.OPRI_directory = { setLive: function (sources, ubs) { LIVE = { sources: sources, upcomingBySource: ubs }; render(); } };
+
+  var qel = $("#dir-q");
+  if (qel) qel.addEventListener("input", function () { Q = this.value || ""; render(); });
+
+  fetch("data/directory.json?v=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function (d) { VENUES = (d.venues || []); render(); })
+    .catch(function () {
+      var el = $("#dir-list");
+      if (el) el.innerHTML = '<div class="dir-empty"><div class="big">Directory unavailable</div><p>Couldn’t load the venue list right now — please try again later.</p></div>';
+    });
 })();
 </script>
 <script>
