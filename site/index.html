@@ -594,5 +594,15 @@
   }
 })();
 </script>
+<script>
+// Count outbound clicks to the Amilia registration store as a GoatCounter event,
+// so visit -> register conversion is measurable. Delegated so it also catches the
+// per-session Register/Waitlist links rendered into the list at runtime. No-op if
+// analytics is blocked or hasn't loaded yet.
+document.addEventListener("click",function(e){
+  var a=e.target.closest&&e.target.closest('a[href*="amilia.com"]');
+  if(a&&window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:"register-click",title:"Register on Amilia",event:true});}
+},true);
+</script>
 </body>
 </html>
