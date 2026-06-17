@@ -148,29 +148,48 @@ def _slugify(name: str, city: str | None) -> str:
     return s[:60] or "venue"
 
 
-# A place counts as "pickleball" if its name says so, or it's a pickleball/sports
-# place type. We err toward inclusion (parks/rec areas with courts) but tag each
-# row with a confidence so the site can foreground the dedicated clubs.
-_PB = re.compile(r"pickle\s*ball|pickle-?ball", re.I)
-_COURTY = re.compile(r"\b(court|courts|tennis|racquet|rec(reation)?|athletic|ymca|club|gym)\b", re.I)
+# Classification. Every result already came from a pickleball-intent query, but
+# Google still drags in weak matches. We remove the clear non-pickleball noise by
+# the *sport in the name* (basketball/bocce/skate/golf courts are not ours) and
+# tier the rest by signal strength into "high" (dedicated pickleball) vs "maybe"
+# (a park/Y/rec center Google associates with pickleball). We deliberately do NOT
+# gate parks on Places relevance rank: rank carries a geographic bias (a real but
+# peripheral destination like Ninigret Park in Charlestown ranks low in statewide
+# queries), so it drops genuine venues. Instead, "maybe" venues get honest,
+# non-asserting copy on their pages ("comes up in pickleball searches — confirm
+# open play"), so a borderline park is never a false claim.
+_PB = re.compile(r"pickle\s*-?\s*ball", re.I)
+# Racquet-sport signal in a NAME — tennis/racquet courts commonly add pickleball
+# lines, so these are plausible play venues.
+_RACQUET = re.compile(r"\b(pickle\s*-?\s*ball|tennis|racquet|racket)\b", re.I)
+# Other-sport signal: a name that's about basketball/bocce/skate/etc. (and NOT
+# also racquet) is the wrong kind of court — drop it.
+_OTHER_SPORT = re.compile(r"\b(basketball|bocce|skate|skatepark|playground|bowling|baseball|soccer|hockey|golf|swim|aquatic|pool)\b", re.I)
+# Indoor / programmed venues that realistically host pickleball when a pickleball
+# query surfaces them (YMCAs, rec centers, sports clubs/complexes).
+_PLAY_TYPES = {"sports_complex", "sports_activity_location", "athletic_field",
+               "gym", "fitness_center", "recreation_center", "sports_club",
+               "community_center", "country_club"}
+# Open-space / outdoor-court types that plausibly host pickleball when a
+# pickleball query surfaces them.
+_PARK_TYPES = {"park", "city_park", "state_park", "national_park",
+               "tourist_attraction", "playground", "stadium"}
 
 
-def _pickleball_confidence(place: dict) -> str | None:
+def _pickleball_confidence(place: dict, best_rank: int = 999) -> str | None:
     name = (place.get("displayName") or {}).get("text") or ""
-    types = place.get("types") or []
-    ptype = place.get("primaryType") or ""
-    type_blob = " ".join(types + [ptype])
-    if _PB.search(name) or _PB.search(type_blob):
-        return "high"           # explicitly pickleball
-    if "pickleball" in type_blob.lower():
-        return "high"
-    if _COURTY.search(name) or any(
-        t in types for t in ("sports_complex", "sports_activity_location",
-                              "athletic_field", "gym", "fitness_center",
-                              "recreation_center", "park")
-    ):
-        return "maybe"          # plausible venue surfaced by the pickleball query
-    return None                 # unrelated business; drop
+    types = set(place.get("types") or []) | {place.get("primaryType") or ""}
+    type_blob = " ".join(types).lower()
+
+    if _PB.search(name) or "pickleball" in type_blob:
+        return "high"                       # explicitly pickleball
+    if _OTHER_SPORT.search(name) and not _RACQUET.search(name):
+        return None                         # basketball/bocce/skate/golf court → not ours
+    if _RACQUET.search(name):
+        return "maybe"                      # tennis/racquet venue → likely pickleball lines
+    if types & (_PLAY_TYPES | _PARK_TYPES):
+        return "maybe"                       # rec center / YMCA / sports complex / park
+    return None                              # unrelated business; drop
 
 
 # Place types that are never public open-play venues even when "pickleball" is in
@@ -181,7 +200,7 @@ _EXCLUDE_TYPES = {
 }
 
 
-def _normalize(place: dict) -> dict | None:
+def _normalize(place: dict, best_rank: int = 999) -> dict | None:
     if place.get("businessStatus") == "CLOSED_PERMANENTLY":
         return None
     raw_types = set(place.get("types") or []) | {place.get("primaryType") or ""}
@@ -190,7 +209,7 @@ def _normalize(place: dict) -> dict | None:
     province = _province(place)
     if province not in ("RI", "Rhode Island"):
         return None
-    conf = _pickleball_confidence(place)
+    conf = _pickleball_confidence(place, best_rank)
     if conf is None:
         return None
 
@@ -221,32 +240,51 @@ def _normalize(place: dict) -> dict | None:
         if isinstance(place.get("primaryTypeDisplayName"), dict) else place.get("primaryType"),
         "hours": hours,
         "confidence": conf,
+        "rank": best_rank,
     }
 
 
 def discover(api_key: str) -> dict:
-    raw: dict[str, dict] = {}  # place_id -> best raw place
+    raw: dict[str, dict] = {}             # place_id -> richest raw place
+    best_rank: dict[str, int] = {}        # place_id -> best (lowest) relevance rank seen
     queries = list(QUERIES)
     for q in queries:
-        for place in _search(api_key, q):
+        for rank, place in enumerate(_search(api_key, q)):
             pid = place.get("id")
             if not pid:
                 continue
+            best_rank[pid] = min(best_rank.get(pid, 999), rank)
             # keep the richest copy (one with more fields populated)
             if pid not in raw or len(place) > len(raw[pid]):
                 raw[pid] = place
         print(f"  query {q!r}: cumulative {len(raw)} unique places", file=sys.stderr)
 
-    venues = [v for v in (_normalize(p) for p in raw.values()) if v]
-    # Dedupe again on (name, city) in case Places returns two ids for one spot.
+    venues = [v for v in (_normalize(p, best_rank.get(p.get("id"), 999)) for p in raw.values()) if v]
+    # Dedupe on (name, city) in case Places returns two ids for one spot. Sort key
+    # has a deterministic tiebreak (most-reviewed, then place_id) so re-runs are
+    # reproducible and the richest of any duplicate pair survives.
     seen: set[tuple] = set()
     deduped: list[dict] = []
-    for v in sorted(venues, key=lambda x: (x["confidence"] != "high", x.get("city") or "", x["name"])):
+    for v in sorted(venues, key=lambda x: (x["confidence"] != "high", x.get("city") or "",
+                                           x["name"], -(x.get("rating_count") or 0), x.get("place_id") or "")):
         key = (v["name"].lower().strip(), (v.get("city") or "").lower().strip())
         if key in seen:
             continue
         seen.add(key)
         deduped.append(v)
+
+    # Guarantee slug uniqueness — distinct venues whose names share a 60-char
+    # prefix would otherwise collide and overwrite each other's /v/<slug>/ page.
+    slug_seen: dict[str, int] = {}
+    for v in deduped:
+        base = v["slug"]
+        if base in slug_seen:
+            slug_seen[base] += 1
+            tail = (v.get("place_id") or str(slug_seen[base]))[-6:].lower()
+            tail = re.sub(r"[^a-z0-9]", "", tail) or str(slug_seen[base])
+            v["slug"] = f"{base[:53]}-{tail}"
+        else:
+            slug_seen[base] = 0
 
     by_city: dict[str, int] = {}
     for v in deduped:

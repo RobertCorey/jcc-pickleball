@@ -885,7 +885,10 @@
     var nTowns = Object.keys(townSet).length;
     if ($("#stat-venues")) $("#stat-venues").textContent = VENUES.length;
     if ($("#stat-towns")) $("#stat-towns").textContent = nTowns;
-    if ($("#stat-live")) $("#stat-live").textContent = liveCount;
+    // only fill the live count once the session data has arrived (LIVE set), so
+    // it shows the "—" placeholder rather than a misleading 0 if directory.json
+    // wins the race with sessions.json.
+    if ($("#stat-live") && LIVE) $("#stat-live").textContent = liveCount;
 
     // filter
     var q = Q.trim().toLowerCase();
@@ -943,6 +946,8 @@
     .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function (d) { VENUES = (d.venues || []); render(); })
     .catch(function () {
+      // hide the hero stat bar so it doesn't sit permanently at "— / — / —"
+      var st = document.getElementById("stats"); if (st) st.hidden = true;
       var el = $("#dir-list");
       if (el) el.innerHTML = '<div class="dir-empty"><div class="big">Directory unavailable</div><p>Couldn’t load the venue list right now — please try again later.</p></div>';
     });

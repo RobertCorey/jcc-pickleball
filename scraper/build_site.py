@@ -632,6 +632,11 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
         map_href = _venue_map_href(v)
         is_live = bool(v.get("source_id"))
         n_up = int(v.get("upcoming_sessions") or 0)
+        # "high" = the name/type says pickleball (a dedicated venue), so we can
+        # speak in plain "play pickleball here" terms. "maybe" = Google surfaced
+        # it for a pickleball query (a park/Y/rec center that may have courts) —
+        # we DON'T assert it; we frame it honestly and tell people to confirm.
+        is_dedicated = v.get("confidence") == "high" or is_live
 
         # ---- head / meta ----
         where = f"in {city}, RI" if city != "Rhode Island" else "in Rhode Island"
@@ -641,12 +646,16 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
             meta_desc = (f"{name} in {city}, RI — {n_up} upcoming open-play pickleball "
                          f"session{'s' if n_up != 1 else ''} with times, prices, and live sign-up. "
                          f"Plus address, map, and how to play.")
-        else:
+        elif is_dedicated:
             bits = [f"Pickleball at {name}"]
             if addr:
                 bits.append(addr)
             meta_desc = (". ".join(bits) + f". One of the places to play pickleball in {city}, "
                          "Rhode Island — address, map, phone, and links to plan a visit.")
+        else:
+            meta_desc = (f"{name}{' — ' + addr if addr else ''}. A {city}, Rhode Island spot that "
+                         "comes up when searching for pickleball — find its location, hours, and "
+                         "contact info, and confirm open-play times before you visit.")
 
         # ---- structured data ----
         crumbs_links = [("Open Play RI", f"{SITE_BASE_URL}/"),
@@ -678,9 +687,12 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
         if is_live and n_up:
             sub = (f"Open-play pickleball in {esc(city)}, Rhode Island, with a live schedule below — "
                    f"see every upcoming session, time, and price, and register in a tap.")
-        else:
+        elif is_dedicated:
             sub = (f"A place to play pickleball in {esc(city)}, Rhode Island. "
                    f"Here's how to find it and plan a visit.")
+        else:
+            sub = (f"{esc(name)} comes up in pickleball searches around {esc(city)}, Rhode Island. "
+                   f"Here's how to find it — and check whether it has open play before you go.")
 
         # ---- info card ----
         info = []

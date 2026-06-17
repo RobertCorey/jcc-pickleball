@@ -1,30 +1,30 @@
 {
-  "generated_at_utc": "2026-06-17T21:54:11+00:00",
+  "generated_at_utc": "2026-06-17T22:23:31+00:00",
   "source": "google-places-api",
   "totals": {
-    "venues": 88,
+    "venues": 85,
     "high_confidence": 15,
-    "cities": 29,
+    "cities": 28,
     "queries_run": 8
   },
   "by_city": {
-    "Providence": 15,
-    "East Providence": 6,
+    "Providence": 14,
+    "East Providence": 7,
     "Newport": 6,
     "Warwick": 6,
-    "Cranston": 5,
-    "North Kingstown": 5,
     "Pawtucket": 5,
     "Barrington": 4,
-    "Smithfield": 4,
+    "Cranston": 4,
+    "North Kingstown": 4,
     "South Kingstown": 4,
     "Lincoln": 3,
     "Middletown": 3,
     "Narragansett": 3,
+    "Smithfield": 3,
+    "Bristol": 2,
     "Tiverton": 2,
     "Warren": 2,
     "West Warwick": 2,
-    "Bristol": 1,
     "Burrillville": 1,
     "Charlestown": 1,
     "Coventry": 1,
@@ -33,7 +33,6 @@
     "Hopkinton": 1,
     "Johnston": 1,
     "Little Compton": 1,
-    "New Shoreham": 1,
     "North Providence": 1,
     "Scituate": 1,
     "Westerly": 1
@@ -65,7 +64,8 @@
         "Saturday: Closed",
         "Sunday: Closed"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 20
     },
     {
       "place_id": "ChIJfUFqUkdV5IkRk9RvZeki1-g",
@@ -85,7 +85,8 @@
       "rating_count": 6,
       "primary_type": "Park",
       "hours": [],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 10
     },
     {
       "place_id": "ChIJf0kNV7FP5IkRCoP7PtPCc5I",
@@ -113,7 +114,8 @@
         "Saturday: 8:00 AM – 8:00 PM",
         "Sunday: 8:00 AM – 8:00 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 0
     },
     {
       "place_id": "ChIJP1ctFAAB5YkRq8X_mRzU15E",
@@ -133,7 +135,8 @@
       "rating_count": 1,
       "primary_type": "Athletic Field",
       "hours": [],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 27
     },
     {
       "place_id": "ChIJD5Gx5lOv5YkR9ZN6lR4cwmM",
@@ -161,7 +164,8 @@
         "Saturday: 7:00 AM – 10:00 PM",
         "Sunday: 7:00 AM – 5:00 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 1
     },
     {
       "place_id": "ChIJ5V2_dNu55YkRsokxdvJe7ZM",
@@ -189,7 +193,8 @@
         "Saturday: 6:30 AM – 9:30 PM",
         "Sunday: 6:30 AM – 9:30 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 4
     },
     {
       "place_id": "ChIJrWrJD5Kz5YkRtNoxkZr8v1g",
@@ -217,7 +222,8 @@
         "Saturday: 7:00 AM – 6:00 PM",
         "Sunday: 7:00 AM – 6:00 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 3
     },
     {
       "place_id": "ChIJh57xOJVF5IkR7TJ0fhOXgDE",
@@ -237,7 +243,8 @@
       "rating_count": 3,
       "primary_type": "Park",
       "hours": [],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 7
     },
     {
       "place_id": "ChIJwUcpUgBH5IkRSONDEk-kCaY",
@@ -257,7 +264,8 @@
       "rating_count": 1,
       "primary_type": "Sports Club",
       "hours": [],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 8
     },
     {
       "place_id": "ChIJOc1bQABX5IkR3MJoGaqIAVw",
@@ -285,7 +293,8 @@
         "Saturday: 7:00 AM – 10:00 PM",
         "Sunday: 7:00 AM – 9:00 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 2
     },
     {
       "place_id": "ChIJEUZ7y3dX5IkRPwaPxlcEq8U",
@@ -313,7 +322,8 @@
         "Saturday: 7:00 AM – 10:00 PM",
         "Sunday: 7:00 AM – 9:00 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 9
     },
     {
       "place_id": "ChIJIcVY53lL5IkRpyVhpT5i89M",
@@ -341,7 +351,8 @@
         "Saturday: 7:00 AM – 7:00 PM",
         "Sunday: 7:00 AM – 7:00 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 0
     },
     {
       "place_id": "ChIJPQkHAQBN5IkRpkFCsBxf9Os",
@@ -361,7 +372,8 @@
       "rating_count": null,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 25
     },
     {
       "place_id": "ChIJhy5RLc5N5IkRudny0VF85Iw",
@@ -389,7 +401,8 @@
         "Saturday: 10:00 AM – 5:00 PM",
         "Sunday: 10:00 AM – 5:00 PM"
       ],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 2
     },
     {
       "place_id": "ChIJgfyhBwBL5IkRX-US7AsNRLk",
@@ -409,7 +422,8 @@
       "rating_count": null,
       "primary_type": "Sports Complex",
       "hours": [],
-      "confidence": "high"
+      "confidence": "high",
+      "rank": 34
     },
     {
       "place_id": "ChIJlaoRbCFR5IkRVB1Rpixl9wk",
@@ -437,7 +451,8 @@
         "Saturday: Closed",
         "Sunday: Closed"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 43
     },
     {
       "place_id": "ChIJXWdvChhR5IkRlfSsJ_KCDU0",
@@ -465,7 +480,8 @@
         "Saturday: 7:00 AM – 2:00 PM",
         "Sunday: 7:00 AM – 2:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 58
     },
     {
       "place_id": "ChIJAQAAVBlR5IkRhJZ7fhltYC4",
@@ -485,7 +501,37 @@
       "rating_count": 5,
       "primary_type": "Sports Activity Location",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 57
+    },
+    {
+      "place_id": "ChIJ25QHiglU5IkRL9qUUkXoNaQ",
+      "name": "Quinta Gamelin Community Center",
+      "slug": "quinta-gamelin-community-center-bristol",
+      "address": "101 Asylum Rd, Bristol, RI 02809, USA",
+      "address1": "101 Asylum Rd",
+      "city": "Bristol",
+      "province": "RI",
+      "postal_code": "02809",
+      "latitude": 41.6877485,
+      "longitude": -71.2856458,
+      "phone": "(401) 253-1611",
+      "website": "https://bristolri.gov/253/Parks-Recreation",
+      "maps_uri": "https://maps.google.com/?cid=11832618980421720623&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "rating": 4.8,
+      "rating_count": 35,
+      "primary_type": "Community Center",
+      "hours": [
+        "Monday: 8:30 AM – 4:00 PM",
+        "Tuesday: 8:30 AM – 4:00 PM",
+        "Wednesday: 8:30 AM – 4:00 PM",
+        "Thursday: 8:30 AM – 4:00 PM",
+        "Friday: 8:30 AM – 4:00 PM",
+        "Saturday: Closed",
+        "Sunday: Closed"
+      ],
+      "confidence": "maybe",
+      "rank": 27
     },
     {
       "place_id": "ChIJAycgPnA_5IkRLPpQUuXM4B0",
@@ -505,7 +551,8 @@
       "rating_count": 10,
       "primary_type": "Park",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 31
     },
     {
       "place_id": "ChIJ6RSFRAPq5YkRkDBVw0PjHhY",
@@ -533,7 +580,8 @@
         "Saturday: 8:00 AM – 9:30 PM",
         "Sunday: 8:00 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 47
     },
     {
       "place_id": "ChIJ2a6vjJ9K5IkRUkXyTPbwTfA",
@@ -553,7 +601,8 @@
       "rating_count": 87,
       "primary_type": "Community Center",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 22
     },
     {
       "place_id": "ChIJV3uc17NO5IkRTbR2oO4wIi4",
@@ -581,27 +630,8 @@
         "Saturday: 6:00 AM – 8:30 PM",
         "Sunday: 6:00 AM – 8:30 PM"
       ],
-      "confidence": "maybe"
-    },
-    {
-      "place_id": "ChIJeXITKKBP5IkRk4-HOi4hBno",
-      "name": "Carberry Basketball Court",
-      "slug": "carberry-basketball-court-cranston",
-      "address": "12 Ashmont St, Cranston, RI 02905, USA",
-      "address1": "12 Ashmont St",
-      "city": "Cranston",
-      "province": "RI",
-      "postal_code": "02905",
-      "latitude": 41.7748896,
-      "longitude": -71.407027,
-      "phone": null,
-      "website": null,
-      "maps_uri": "https://maps.google.com/?cid=8792751804921646995&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
-      "rating": 3.9,
-      "rating_count": 10,
-      "primary_type": "Athletic Field",
-      "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 35
     },
     {
       "place_id": "ChIJ99w2kRVP5IkRRALE6cv2Vag",
@@ -629,7 +659,8 @@
         "Saturday: 5:00 AM – 6:00 PM",
         "Sunday: 6:00 AM – 3:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 38
     },
     {
       "place_id": "ChIJIWrIzm9J5IkRzLCL1_Gs2V8",
@@ -649,7 +680,8 @@
       "rating_count": 163,
       "primary_type": "Athletic Field",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 25
     },
     {
       "place_id": "ChIJL8K7hfBC5IkR1h7jeSUAs3s",
@@ -677,7 +709,8 @@
         "Saturday: 6:30 AM – 4:00 PM",
         "Sunday: 6:30 AM – 7:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 9
     },
     {
       "place_id": "ChIJmTQaLshM5IkRLoArA3d4wyU",
@@ -697,7 +730,37 @@
       "rating_count": 34,
       "primary_type": "Park",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 27
+    },
+    {
+      "place_id": "ChIJYR19zR5b5IkRWXfiOF9gh8s",
+      "name": "Agawam Hunt",
+      "slug": "agawam-hunt-east-providence",
+      "address": "15 Roger Williams Ave, Rumford, RI 02916, USA",
+      "address1": "15 Roger Williams Ave",
+      "city": "East Providence",
+      "province": "RI",
+      "postal_code": "02916",
+      "latitude": 41.8342844,
+      "longitude": -71.3605589,
+      "phone": "(401) 434-0980",
+      "website": "http://www.agawamhunt.com/",
+      "maps_uri": "https://maps.google.com/?cid=14665796673647834969&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "rating": 4.5,
+      "rating_count": 106,
+      "primary_type": "Association / Organization",
+      "hours": [
+        "Monday: 8:00 AM – 9:00 PM",
+        "Tuesday: 8:00 AM – 9:00 PM",
+        "Wednesday: 8:00 AM – 9:00 PM",
+        "Thursday: 8:00 AM – 9:00 PM",
+        "Friday: 8:00 AM – 9:00 PM",
+        "Saturday: 8:00 AM – 9:00 PM",
+        "Sunday: 8:00 AM – 9:00 PM"
+      ],
+      "confidence": "maybe",
+      "rank": 33
     },
     {
       "place_id": "ChIJadTcvGNQ5IkRnQ3sV6hce8c",
@@ -725,7 +788,8 @@
         "Saturday: 7:30 AM – 10:00 PM",
         "Sunday: 7:30 AM – 10:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 31
     },
     {
       "place_id": "ChIJqSqhuBNQ5IkR_ghg_HQOHkg",
@@ -753,7 +817,8 @@
         "Saturday: 9:00 AM – 1:00 PM",
         "Sunday: Closed"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 10
     },
     {
       "place_id": "ChIJGdv7yYpQ5IkRLND_4gOlZJQ",
@@ -781,7 +846,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 19
     },
     {
       "place_id": "ChIJPfRnrNFa5IkRGaYOVeJFS_M",
@@ -809,7 +875,8 @@
         "Saturday: 6:00 AM – 11:00 PM",
         "Sunday: 6:00 AM – 11:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 6
     },
     {
       "place_id": "ChIJB21jhJZa5IkRySRYAG-DRuI",
@@ -837,7 +904,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 0
     },
     {
       "place_id": "ChIJIS5_TJJa5IkRqrMzbmI5Ytw",
@@ -865,7 +933,8 @@
         "Saturday: 8:00 AM – 7:00 PM",
         "Sunday: 8:00 AM – 7:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 22
     },
     {
       "place_id": "ChIJOf4AKKrF5YkR4_mu2N-krMM",
@@ -893,7 +962,8 @@
         "Saturday: 7:00 AM – 10:00 PM",
         "Sunday: 7:00 AM – 10:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 45
     },
     {
       "place_id": "ChIJPYqBoz9G5IkRXTk-bRFjWZ0",
@@ -921,7 +991,8 @@
         "Saturday: 11:00 AM – 4:00 PM",
         "Sunday: 11:00 AM – 9:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 5
     },
     {
       "place_id": "ChIJRxawbHdD5IkR4J-PgavyzUI",
@@ -949,7 +1020,8 @@
         "Saturday: Closed",
         "Sunday: Closed"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 30
     },
     {
       "place_id": "ChIJsWtbBdxD5IkRDQEEATGFdNg",
@@ -977,7 +1049,8 @@
         "Saturday: 6:00 AM – 8:00 PM",
         "Sunday: 6:00 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 6
     },
     {
       "place_id": "ChIJndcMG71D5IkRD8cGvG2x3RU",
@@ -1005,7 +1078,8 @@
         "Saturday: 7:00 AM – 5:00 PM",
         "Sunday: 7:00 AM – 5:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 28
     },
     {
       "place_id": "ChIJQze4cxqp5YkR-S3FXyJBrFg",
@@ -1033,7 +1107,8 @@
         "Saturday: 6:00 AM – 8:30 PM",
         "Sunday: 6:00 AM – 8:30 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 32
     },
     {
       "place_id": "ChIJlRquwSev5YkRN8PopkcsCPo",
@@ -1061,7 +1136,8 @@
         "Saturday: 6:00 AM – 9:00 PM",
         "Sunday: 6:00 AM – 9:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 59
     },
     {
       "place_id": "ChIJSxT2jXq65YkRhcSV9r4DQkA",
@@ -1089,7 +1165,8 @@
         "Saturday: 8:00 AM – 8:00 PM",
         "Sunday: 8:00 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 36
     },
     {
       "place_id": "ChIJhWBuJeW75YkRMMjhWoTds8U",
@@ -1109,27 +1186,8 @@
       "rating_count": 8,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
-    },
-    {
-      "place_id": "ChIJ0cFpExfz5YkRtjcedf4dr-E",
-      "name": "Skatepark, Playground, Courts",
-      "slug": "skatepark-playground-courts-new-shoreham",
-      "address": "914 Coast Guard Rd, New Shoreham, RI 02807, USA",
-      "address1": "914 Coast Guard Rd",
-      "city": "New Shoreham",
-      "province": "RI",
-      "postal_code": "02807",
-      "latitude": 41.1808683,
-      "longitude": -71.5806997,
-      "phone": null,
-      "website": null,
-      "maps_uri": "https://maps.google.com/?cid=16262249758181963702&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
-      "rating": 4.8,
-      "rating_count": 8,
-      "primary_type": "Park",
-      "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 38
     },
     {
       "place_id": "ChIJgbyjeGev5YkR8XTo8PZMWcs",
@@ -1157,7 +1215,8 @@
         "Saturday: 6:00 AM – 11:00 PM",
         "Sunday: 6:00 AM – 11:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 17
     },
     {
       "place_id": "ChIJ32B6AKKv5YkRvMM5WTY9d1o",
@@ -1177,7 +1236,8 @@
       "rating_count": 9,
       "primary_type": "Park",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 30
     },
     {
       "place_id": "ChIJ24NNj2ev5YkRt44MrROZ_nA",
@@ -1205,7 +1265,8 @@
         "Saturday: Closed",
         "Sunday: Closed"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 30
     },
     {
       "place_id": "ChIJxcvu4Aiv5YkRqRsMSUhVUyU",
@@ -1225,7 +1286,8 @@
       "rating_count": 4,
       "primary_type": "Sports Activity Location",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 39
     },
     {
       "place_id": "ChIJ4aew3luv5YkRWNGR6isDn7c",
@@ -1253,7 +1315,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 35
     },
     {
       "place_id": "ChIJ5y21SlWv5YkROgPSM3yg5Oc",
@@ -1273,7 +1336,8 @@
       "rating_count": 3,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 34
     },
     {
       "place_id": "ChIJf3mWkjq15YkRtRzGKcYb6aI",
@@ -1301,27 +1365,8 @@
         "Saturday: 8:00 AM – 5:00 PM",
         "Sunday: 8:00 AM – 5:00 PM"
       ],
-      "confidence": "maybe"
-    },
-    {
-      "place_id": "ChIJBVJi_Qy05YkRhfF2T8HpuNM",
-      "name": "Kings Crossing Golf Club",
-      "slug": "kings-crossing-golf-club-north-kingstown",
-      "address": "655 Old Baptist Rd, North Kingstown, RI 02852, USA",
-      "address1": "655 Old Baptist Rd",
-      "city": "North Kingstown",
-      "province": "RI",
-      "postal_code": "02852",
-      "latitude": 41.5989305,
-      "longitude": -71.48633780000002,
-      "phone": "(401) 294-2872",
-      "website": "https://kingscrossinggolfclub.com/",
-      "maps_uri": "https://maps.google.com/?cid=15256200754188710277&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
-      "rating": 4,
-      "rating_count": 177,
-      "primary_type": "Golf Course",
-      "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 11
     },
     {
       "place_id": "ChIJmW-ShwCz5YkRy9EbOuJour4",
@@ -1349,7 +1394,8 @@
         "Saturday: 7:00 AM – 11:00 PM",
         "Sunday: 7:00 AM – 11:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 22
     },
     {
       "place_id": "ChIJGYZddl-x5YkRmjaAiEfZneU",
@@ -1377,7 +1423,8 @@
         "Saturday: 8:30 AM – 7:30 PM",
         "Sunday: 8:30 AM – 7:30 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 31
     },
     {
       "place_id": "ChIJW0AW9zdE5IkRzSafnhyAiqI",
@@ -1405,7 +1452,8 @@
         "Saturday: 6:00 AM – 8:00 PM",
         "Sunday: 6:00 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 16
     },
     {
       "place_id": "ChIJS3NrBVhF5IkRKOs4ly5iVmI",
@@ -1425,7 +1473,8 @@
       "rating_count": 1,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 51
     },
     {
       "place_id": "ChIJ3eocX6Nd5IkR1VO9vsUN_5U",
@@ -1445,7 +1494,8 @@
       "rating_count": 6,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 41
     },
     {
       "place_id": "ChIJRUKtdVND5IkR8Emo-syBhHU",
@@ -1473,7 +1523,8 @@
         "Saturday: 7:00 AM – 3:00 PM",
         "Sunday: 7:00 AM – 3:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 46
     },
     {
       "place_id": "ChIJV60WzZxc5IkR7Trt_xQnT44",
@@ -1501,7 +1552,8 @@
         "Saturday: 7:00 AM – 8:00 PM",
         "Sunday: 7:00 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 1
     },
     {
       "place_id": "ChIJt1AtspVF5IkRBkdWXMpWCHc",
@@ -1521,7 +1573,8 @@
       "rating_count": 17,
       "primary_type": "Park",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 3
     },
     {
       "place_id": "ChIJi1wj1apF5IkRhVhVX44K1oQ",
@@ -1549,7 +1602,8 @@
         "Saturday: 8:00 AM – 9:00 PM",
         "Sunday: 8:00 AM – 9:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 10
     },
     {
       "place_id": "ChIJ1wijGyZF5IkRpq9wmRNrFaM",
@@ -1569,7 +1623,8 @@
       "rating_count": 13,
       "primary_type": "Stadium",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 42
     },
     {
       "place_id": "ChIJazML-UtP5IkR13JAieSWd_w",
@@ -1597,7 +1652,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 9
     },
     {
       "place_id": "ChIJr3J3-4NF5IkRlfjhrEYzSb8",
@@ -1625,7 +1681,8 @@
         "Saturday: 6:00 AM – 9:00 PM",
         "Sunday: 6:00 AM – 9:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 10
     },
     {
       "place_id": "ChIJr_6-7tBE5IkRgidv_URTOYU",
@@ -1653,7 +1710,8 @@
         "Saturday: 7:00 AM – 2:00 PM",
         "Sunday: 7:00 AM – 2:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 20
     },
     {
       "place_id": "ChIJQcep3yVF5IkRk435hez79kc",
@@ -1673,35 +1731,8 @@
       "rating_count": 74,
       "primary_type": "Sports Complex",
       "hours": [],
-      "confidence": "maybe"
-    },
-    {
-      "place_id": "ChIJxfc7Lv5F5IkRy3i4dHyobK0",
-      "name": "Federal Hill’s Bocce Ball Court and Park",
-      "slug": "federal-hill-s-bocce-ball-court-and-park-providence",
-      "address": "82 Spruce St, Providence, RI 02903, USA",
-      "address1": "82 Spruce St",
-      "city": "Providence",
-      "province": "RI",
-      "postal_code": "02903",
-      "latitude": 41.8244245,
-      "longitude": -71.4260482,
-      "phone": "(401) 286-5134",
-      "website": "http://www.lightsandsirensinternational.org/",
-      "maps_uri": "https://maps.google.com/?cid=12496548318533941451&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
-      "rating": 5,
-      "rating_count": 1,
-      "primary_type": "Park",
-      "hours": [
-        "Monday: Open 24 hours",
-        "Tuesday: Open 24 hours",
-        "Wednesday: Open 24 hours",
-        "Thursday: Open 24 hours",
-        "Friday: Open 24 hours",
-        "Saturday: Open 24 hours",
-        "Sunday: Open 24 hours"
-      ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 4
     },
     {
       "place_id": "ChIJFdwOYDxF5IkRSFvkCEti0vc",
@@ -1729,7 +1760,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 4
     },
     {
       "place_id": "ChIJKc2nCPFF5IkRg0jUitZzyMQ",
@@ -1749,7 +1781,8 @@
       "rating_count": 11,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 5
     },
     {
       "place_id": "ChIJB54LSyRF5IkRMPg6oWz2fM8",
@@ -1777,7 +1810,8 @@
         "Saturday: 1:30 – 6:00 PM",
         "Sunday: 1:30 – 6:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 18
     },
     {
       "place_id": "ChIJn5cIT3dF5IkRsilpZu0UlRA",
@@ -1797,7 +1831,8 @@
       "rating_count": 12,
       "primary_type": "Gym",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 14
     },
     {
       "place_id": "ChIJcWQ4HJJP5IkRZr1u43wV2Z8",
@@ -1825,7 +1860,8 @@
         "Saturday: 8:00 AM – 5:00 PM",
         "Sunday: 8:00 AM – 5:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 32
     },
     {
       "place_id": "ChIJgZ8YbMxF5IkRtpOTPZiZeOQ",
@@ -1845,7 +1881,8 @@
       "rating_count": 5,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 58
     },
     {
       "place_id": "ChIJ5TV-L8xP5IkRfJSh5GOOBsk",
@@ -1873,7 +1910,8 @@
         "Saturday: 7:00 AM – 9:00 PM",
         "Sunday: 7:00 AM – 9:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 11
     },
     {
       "place_id": "ChIJ46meXBdK5IkRYGsNek8cKVA",
@@ -1901,35 +1939,8 @@
         "Saturday: 6:00 AM – 9:00 PM",
         "Sunday: 6:00 AM – 9:00 PM"
       ],
-      "confidence": "maybe"
-    },
-    {
-      "place_id": "ChIJk0jYTEBH5IkRIlIizbAe3SU",
-      "name": "Deerfield Park Basketball Courts",
-      "slug": "deerfield-park-basketball-courts-smithfield",
-      "address": "Black Hawk Trail, Greenville, RI 02828, USA",
-      "address1": "Black Hawk Trail",
-      "city": "Smithfield",
-      "province": "RI",
-      "postal_code": "02828",
-      "latitude": 41.8829177,
-      "longitude": -71.55157059999999,
-      "phone": null,
-      "website": "http://smithfieldri.com/deerfield/",
-      "maps_uri": "https://maps.google.com/?cid=2728370693961044514&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
-      "rating": 4.4,
-      "rating_count": 27,
-      "primary_type": "Athletic Field",
-      "hours": [
-        "Monday: 6:00 AM – 6:30 PM",
-        "Tuesday: 6:00 AM – 6:30 PM",
-        "Wednesday: 6:00 AM – 6:30 PM",
-        "Thursday: 6:00 AM – 6:30 PM",
-        "Friday: 6:00 AM – 6:30 PM",
-        "Saturday: 6:00 AM – 6:30 PM",
-        "Sunday: 6:00 AM – 6:30 PM"
-      ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 24
     },
     {
       "place_id": "ChIJkV8nsUFH5IkRnhOIlUEoybg",
@@ -1949,7 +1960,8 @@
       "rating_count": 4,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 21
     },
     {
       "place_id": "ChIJ-6PYgHFH5IkReCw0YP1fNEk",
@@ -1977,7 +1989,8 @@
         "Saturday: 7:00 AM – 8:00 PM",
         "Sunday: 7:00 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 12
     },
     {
       "place_id": "ChIJp-qusiTA5YkR3YrxI2fWJsc",
@@ -2005,7 +2018,8 @@
         "Saturday: 6:30 AM – 8:00 PM",
         "Sunday: 6:30 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 45
     },
     {
       "place_id": "ChIJ3SIZVl255YkRGp2sEVhxWNs",
@@ -2033,7 +2047,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 34
     },
     {
       "place_id": "ChIJv5nmYGS55YkRbco9orwEDOg",
@@ -2061,7 +2076,8 @@
         "Saturday: 8:00 AM – 4:00 PM",
         "Sunday: Closed"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 13
     },
     {
       "place_id": "ChIJV2Gi3nm45YkRwVz1J8rTNo4",
@@ -2089,7 +2105,8 @@
         "Saturday: 7:00 AM – 8:00 PM",
         "Sunday: 7:00 AM – 8:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 12
     },
     {
       "place_id": "ChIJNTZNqTL_5IkRRdDQH6Mb4-Y",
@@ -2117,7 +2134,8 @@
         "Saturday: 5:00 AM – 11:00 PM",
         "Sunday: 5:00 AM – 9:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 15
     },
     {
       "place_id": "ChIJda2uiJ2q5YkRQlgwL-RQqL8",
@@ -2145,7 +2163,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 11
     },
     {
       "place_id": "ChIJz7BwZJxN5IkRjnu3zs9ebSc",
@@ -2173,7 +2192,8 @@
         "Saturday: 6:00 AM – 8:30 PM",
         "Sunday: 6:00 AM – 8:30 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 15
     },
     {
       "place_id": "ChIJa3lPT3ZL5IkRq6i-EUnpPD8",
@@ -2201,7 +2221,8 @@
         "Saturday: 6:00 AM – 5:00 PM",
         "Sunday: 6:00 AM – 2:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 35
     },
     {
       "place_id": "ChIJcZpUUH9L5IkRBclZKOqAftA",
@@ -2229,7 +2250,8 @@
         "Saturday: 7:00 AM – 6:00 PM",
         "Sunday: 7:00 AM – 6:00 PM"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 41
     },
     {
       "place_id": "ChIJwRcbI7FL5IkRpJtmDWOklcg",
@@ -2249,7 +2271,8 @@
       "rating_count": 8,
       "primary_type": "Tennis Court",
       "hours": [],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 26
     },
     {
       "place_id": "ChIJt0VqsPTm5YkRNfSuMdnUKNY",
@@ -2277,7 +2300,8 @@
         "Saturday: Open 24 hours",
         "Sunday: Open 24 hours"
       ],
-      "confidence": "maybe"
+      "confidence": "maybe",
+      "rank": 37
     }
   ]
 }
