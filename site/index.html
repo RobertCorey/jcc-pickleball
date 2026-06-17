@@ -169,6 +169,7 @@
   .row:hover .mid a.name { text-decoration: underline; text-decoration-color: var(--line-strong); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
   .row .mid .sub { font-size: 12.5px; color: var(--ink-faint); margin-top: 1px; font-variant-numeric: tabular-nums; }
   .row .mid .sub .price { color: var(--ink-soft); font-weight: 600; }
+  .row .mid .sub .venue-tag { color: var(--ink-soft); font-weight: 600; }
   .row .end { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
   .avail { font-size: 12px; font-weight: 600; letter-spacing: .01em; display: inline-flex; align-items: center; gap: 6px; }
   .avail b { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -273,6 +274,10 @@
 </header>
 
 <div class="filters">
+  <div class="wrap" id="venuerow" hidden>
+    <span class="lab">Venue</span>
+    <div class="chips" id="venuechips" role="group" aria-label="Filter by venue"></div>
+  </div>
   <div class="wrap">
     <span class="lab">Day</span>
     <div class="chips" id="daychips" role="group" aria-label="Filter by day of week"></div>
@@ -393,7 +398,7 @@
     return { cls: "good", dot: true, html: "Open" };
   }
 
-  var STATE = { all: [], day: "", showPast: false, tk: todayKeyNow() };
+  var STATE = { all: [], day: "", venue: "", showPast: false, tk: todayKeyNow(), sources: [], venues: {} };
 
   // ---- load ----
   fetch("data/sessions.json?v=" + Date.now(), { cache: "no-store" })
@@ -408,7 +413,29 @@
     });
 
   function init(data) {
-    if (data.program && data.program.url) $("#source-link").setAttribute("href", data.program.url);
+    // sources[] carries each venue + its notices/promos. Build a quick lookup.
+    STATE.sources = (data.sources || []).filter(function (m) { return m && m.ok; });
+    STATE.venues = {};
+    STATE.sources.forEach(function (m) { STATE.venues[m.id] = m; });
+    var firstReg = STATE.sources.length && STATE.sources[0].venue && STATE.sources[0].venue.registration_url;
+    if (firstReg) { $("#source-link").setAttribute("href", firstReg); var fl = $("#fc-link"); if (fl) fl.setAttribute("href", firstReg); }
+
+    // Venue filter chips — only shown when more than one venue is present.
+    if (STATE.sources.length > 1) {
+      var vc = '<button class="chip" data-venue="" aria-pressed="true">All</button>';
+      STATE.sources.forEach(function (m) {
+        var nm = (m.venue && (m.venue.short_name || m.venue.name)) || m.id;
+        vc += '<button class="chip" data-venue="' + esc(m.id) + '" aria-pressed="false">' + esc(nm) + '</button>';
+      });
+      $("#venuechips").innerHTML = vc;
+      $("#venuerow").hidden = false;
+      $("#venuechips").addEventListener("click", function (e) {
+        var b = e.target.closest(".chip"); if (!b) return;
+        STATE.venue = b.getAttribute("data-venue");
+        Array.prototype.forEach.call(this.querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
+        render();
+      });
+    }
 
     var rows = (data.sessions || []).map(function (s) {
       var p = parseLocal(s.start), pe = parseLocal(s.end);
@@ -453,23 +480,11 @@
   }
 
   function buildGlance(data, rows) {
-    var promos = [];
-    (data.sub_categories || []).forEach(function (sc) { (sc.activities || []).forEach(function (a) {
-      (a.promotions || []).forEach(function (pr) {
-        var key = (pr.title || "") + "|" + (pr.discount || "");
-        if (promos.some(function (x) { return x.key === key; })) return;
-        var detail = (pr.details && pr.details.length) ? pr.details.join(" · ") : (pr.notes && pr.notes.length ? pr.notes.join(" · ") : (pr.text || ""));
-        promos.push({ key: key, title: pr.title || "Discount", discount: pr.discount || "", detail: detail });
-      });
-    }); });
-    var notices = (data.notices || []).filter(Boolean);
+    var items = [];
+    var sources = STATE.sources;
+    var multi = sources.length > 1;
 
-    // facility (always the same venue) → "Where"
-    var fac = null;
-    (rows || []).some(function (r) { if (r.s.facility) { fac = r.s.facility; return true; } return false; });
-    if (!fac) (data.sub_categories || []).some(function (sc) { return (sc.activities || []).some(function (a) { if (a.facility) { fac = a.facility; return true; } return false; }); });
-
-    // price range across all sessions
+    // price range across all sessions (combined headline)
     var lo = null, hi = null;
     (rows || []).forEach(function (r) {
       var b = r.s.drop_in_best_price, f = r.s.drop_in_price;
@@ -478,24 +493,40 @@
       if (b != null && (hi == null || b > hi) && f == null) hi = b;
     });
     var pr = priceRange(lo, hi);
-
-    var items = [];
-    if (pr) items.push({ ico: "💵", html: "<b>Drop-in</b> — " + esc(pr) + " per session. Pay on the JCC store, or use a Multipass." });
-    promos.forEach(function (p) {
-      var pct = p.discount ? p.discount.replace(/^Discount of\s*/i, "").trim() : "";
-      items.push({ ico: "🏷️", html: "<b>" + esc(p.title.replace(/^Pickleball:\s*/i, "").trim() || p.title) + "</b> — " + (pct ? esc(pct) + " off" : "Discount") + (p.detail ? " · " + esc(p.detail) : "") });
-    });
-    notices.forEach(function (n) { items.push({ ico: "⚠️", html: esc(n) }); });
-    if (fac) {
-      var addr = [fac.address1, [fac.city, fac.province].filter(Boolean).join(", ") + (fac.postal_code ? " " + fac.postal_code : "")].filter(Boolean).join(", ");
-      var mapHref = (fac.latitude && fac.longitude) ? "https://maps.google.com/?q=" + fac.latitude + "," + fac.longitude
-        : "https://maps.google.com/?q=" + encodeURIComponent([fac.address1, fac.city, fac.province, fac.postal_code].filter(Boolean).join(" "));
-      items.push({ ico: "📍", html: "<b>Where</b> — " + esc(fac.name || "JCC") + (addr ? ", " + esc(addr) : "")
-        + (fac.phone ? " · " + esc(fmtPhone(fac.phone)) : "")
-        + ' · <a href="' + esc(mapHref) + '" target="_blank" rel="noopener">Map ↗</a>' });
-    } else {
-      items.push({ ico: "📍", html: "<b>Where</b> — JCC Gymnasium, 401 Elmgrove Ave, Providence, RI 02906" });
+    if (pr) {
+      var hasAmilia = sources.some(function (m) { return m.booking_system === "amilia"; });
+      items.push({ ico: "💵", html: "<b>Drop-in</b> — " + esc(pr) + " per session." + (hasAmilia ? " Pay on the store, or use a Multipass." : "") });
     }
+
+    // promotions (Amilia sources)
+    sources.forEach(function (m) {
+      (m.sub_categories || []).forEach(function (sc) { (sc.activities || []).forEach(function (a) {
+        (a.promotions || []).forEach(function (pr2) {
+          var pct = pr2.discount ? pr2.discount.replace(/^Discount of\s*/i, "").trim() : "";
+          var detail = (pr2.details && pr2.details.length) ? pr2.details.join(" · ") : (pr2.notes && pr2.notes.length ? pr2.notes.join(" · ") : (pr2.text || ""));
+          items.push({ ico: "🏷️", html: "<b>" + esc((pr2.title || "Discount").replace(/^Pickleball:\s*/i, "").trim() || pr2.title) + "</b> — " + (pct ? esc(pct) + " off" : "Discount") + (detail ? " · " + esc(detail) : "") });
+        });
+      }); });
+    });
+
+    // notices, prefixed with the venue name when there's more than one
+    sources.forEach(function (m) {
+      var nm = (m.venue && (m.venue.short_name || m.venue.name)) || m.id;
+      (m.notices || []).filter(Boolean).forEach(function (n) {
+        items.push({ ico: "⚠️", html: (multi ? "<b>" + esc(nm) + "</b> — " : "") + esc(n) });
+      });
+    });
+
+    // one "Where" line per venue
+    sources.forEach(function (m) {
+      var v = m.venue; if (!v) return;
+      var addr = [v.address1, [v.city, v.province].filter(Boolean).join(", ") + (v.postal_code ? " " + v.postal_code : "")].filter(Boolean).join(", ");
+      var mapHref = (v.latitude && v.longitude) ? "https://maps.google.com/?q=" + v.latitude + "," + v.longitude
+        : "https://maps.google.com/?q=" + encodeURIComponent([v.address1, v.city, v.province, v.postal_code].filter(Boolean).join(" "));
+      items.push({ ico: "📍", html: "<b>" + (multi ? esc(v.short_name || v.name) : "Where") + "</b> — " + esc(v.name || "Venue") + (addr ? ", " + esc(addr) : "")
+        + (v.phone ? " · " + esc(fmtPhone(v.phone)) : "")
+        + ' · <a href="' + esc(mapHref) + '" target="_blank" rel="noopener">Map ↗</a>' });
+    });
 
     $("#glance-list").innerHTML = items.map(function (it) {
       return '<li><span class="ico" aria-hidden="true">' + it.ico + '</span><span>' + it.html + '</span></li>';
@@ -503,11 +534,10 @@
   }
 
   function buildFooter(data) {
-    var fac = null;
-    (data.sessions || []).some(function (s) { if (s.facility) { fac = s.facility; return true; } return false; });
-    if (fac) {
-      var href = (fac.latitude && fac.longitude) ? "https://maps.google.com/?q=" + fac.latitude + "," + fac.longitude
-        : "https://maps.google.com/?q=" + encodeURIComponent([fac.address1, fac.city, fac.province, fac.postal_code].filter(Boolean).join(" "));
+    var v = STATE.sources.length && STATE.sources[0].venue;
+    if (v) {
+      var href = (v.latitude && v.longitude) ? "https://maps.google.com/?q=" + v.latitude + "," + v.longitude
+        : "https://maps.google.com/?q=" + encodeURIComponent([v.address1, v.city, v.province, v.postal_code].filter(Boolean).join(" "));
       $("#map-link").setAttribute("href", href);
     }
   }
@@ -516,11 +546,14 @@
     var rows = STATE.all.filter(function (r) {
       if (!STATE.showPast && r.s.has_passed) return false;
       if (STATE.day !== "" && String(r.wd) !== String(STATE.day)) return false;
+      if (STATE.venue !== "" && r.s.source_id !== STATE.venue) return false;
       return true;
     });
 
-    var pastCount = STATE.all.filter(function (r) { return r.s.has_passed; }).length;
-    var upcomingCount = STATE.all.length - pastCount;
+    // counts respect the active venue filter (but not the day filter)
+    var venueBase = STATE.all.filter(function (r) { return STATE.venue === "" || r.s.source_id === STATE.venue; });
+    var pastCount = venueBase.filter(function (r) { return r.s.has_passed; }).length;
+    var upcomingCount = venueBase.length - pastCount;
 
     // count line
     var cl;
@@ -549,7 +582,8 @@
       var isToday = p && dateKey(p) === STATE.tk;
       var delay = stagger ? Math.min(i, 16) * 26 : 0;
       var cls = "row" + (isToday ? " today" : "") + (s.has_passed ? " past" : "");
-      var actUrl = s.registration_url || s.details_url || $("#source-link").getAttribute("href");
+      var srcVenue = (STATE.venues[s.source_id] || {}).venue || {};
+      var actUrl = s.registration_url || s.details_url || srcVenue.registration_url || $("#source-link").getAttribute("href");
 
       // when block
       var rel = relWhen(p, STATE.tk);
@@ -565,21 +599,27 @@
       // Register button opens that page).
       var timeStr = p ? (pe ? fmtTime(p.h, p.mi) + " – " + fmtTime(pe.h, pe.mi) : fmtTime(p.h, p.mi)) : "";
       var price = priceRange(s.drop_in_best_price, s.drop_in_price);
-      var detailHref = s.segment_id ? "s/" + encodeURIComponent(s.segment_id) + "/" : null;
+      // segment_id is namespaced "<source>:<localid>" — keep the ':' literal so
+      // the path matches the on-disk s/<source>:<id>/ dir, encoding each part.
+      var detailHref = s.segment_id ? "s/" + String(s.segment_id).split(":").map(encodeURIComponent).join(":") + "/" : null;
       var nameHTML = detailHref
         ? '<a class="name" href="' + detailHref + '">' + esc(shortName(s.activity_name)) + '</a>'
         : '<span class="name">' + esc(shortName(s.activity_name)) + '</span>';
+      var venueBit = (STATE.sources.length > 1 && s.venue_name) ? ' · <span class="venue-tag">' + esc(s.venue_name) + '</span>' : '';
       var midHTML = '<div class="mid">' + nameHTML +
-        '<div class="sub">' + esc(timeStr) + (price ? ' · <span class="price">' + esc(price) + '</span> / drop-in' : '') + '</div>' +
+        '<div class="sub">' + esc(timeStr) + (price ? ' · <span class="price">' + esc(price) + '</span> / drop-in' : '') + venueBit + '</div>' +
       '</div>';
 
       // end: availability + action
       var availHTML = '<span class="avail ' + a.cls + '">' + (a.dot ? '<span class="pdot"></span>' : '') + a.html + '</span>';
       var goHTML;
+      // CTA verb is venue-aware: Amilia venues "Register", others (e.g. Bristol's
+      // calendar) "View", since you can't check out a drop-in on a calendar feed.
+      var regVerb = ((STATE.venues[s.source_id] || {}).booking_system === "amilia") ? "Register" : "View";
       if (s.has_passed) goHTML = '<span class="go disabled">—</span>';
       else if (a.cls === "full") goHTML = '<a class="go ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + (s.wait_list_enabled ? 'Waitlist <span aria-hidden="true">↗</span>' : 'View <span aria-hidden="true">↗</span>') + '</a>';
       else if (a.cls === "soon") goHTML = '<a class="go ghost" href="' + esc(actUrl) + '" target="_blank" rel="noopener">View <span aria-hidden="true">↗</span></a>';
-      else goHTML = '<a class="go primary" href="' + esc(actUrl) + '" target="_blank" rel="noopener">Register <span class="arrow" aria-hidden="true">→</span></a>';
+      else goHTML = '<a class="go primary" href="' + esc(actUrl) + '" target="_blank" rel="noopener">' + regVerb + ' <span class="arrow" aria-hidden="true">' + (regVerb === "View" ? "↗" : "→") + '</span></a>';
       var endHTML = '<div class="end">' + availHTML + goHTML + '</div>';
 
       html += '<div class="' + cls + '"' + (delay ? ' style="animation-delay:' + delay + 'ms"' : '') + '>' + whenHTML + midHTML + endHTML + '</div>';

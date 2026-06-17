@@ -30,6 +30,7 @@ ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 
 import scrape_open_play as scraper  # noqa: E402
+import sources  # noqa: E402
 import og_images  # noqa: E402
 
 SITE = ROOT / "site"
@@ -142,42 +143,43 @@ def avail(s):
 
 
 # ---------------------------------------------------------------------------
-def _facility(doc) -> dict | None:
-    for s in doc.get("sessions", []):
-        if s.get("facility"):
-            return s["facility"]
-    for sc in doc.get("sub_categories", []):
-        for a in sc.get("activities", []):
-            if a.get("facility"):
-                return a["facility"]
-    return None
+def _addr_line(v: dict) -> str:
+    return ", ".join(x for x in [
+        v.get("address1"),
+        ", ".join(y for y in [v.get("city"), v.get("province")] if y)
+        + (" " + v["postal_code"] if v.get("postal_code") else ""),
+    ] if x)
 
 
-def venue_line(doc) -> str:
-    """One-line venue, e.g. 'Gynmasium · 401 Elmgrove Avenue, Providence, RI 02906'."""
-    fac = _facility(doc)
-    if not fac:
-        return "JCC Gymnasium · 401 Elmgrove Ave, Providence, RI 02906"
-    addr = ", ".join(x for x in [fac.get("address1"), ", ".join(y for y in [fac.get("city"), fac.get("province")] if y) + (" " + fac["postal_code"] if fac.get("postal_code") else "")] if x)
-    name = fac.get("name") or "JCC Gymnasium"
+def _map_href(v: dict) -> str:
+    if v.get("latitude") and v.get("longitude"):
+        return f"https://maps.google.com/?q={v['latitude']},{v['longitude']}"
+    return "https://maps.google.com/?q=" + "+".join(
+        x for x in [v.get("address1"), v.get("city"), v.get("province"), v.get("postal_code")] if x
+    ).replace(" ", "+")
+
+
+def venue_line_for(v: dict) -> str:
+    """One-line venue, e.g. 'JCC of Greater Rhode Island · 401 Elmgrove Ave, Providence, RI 02906'."""
+    name = v.get("name") or v.get("short_name") or "Venue"
+    addr = _addr_line(v)
     return f"{name} · {addr}" if addr else name
 
 
-def venue_parts(doc) -> tuple[str, str]:
-    """Two lines for the OG card: ('Gynmasium · 401 Elmgrove Ave', 'Providence, RI')."""
-    fac = _facility(doc)
-    if not fac:
-        return ("JCC Gymnasium · 401 Elmgrove Ave", "Providence, RI")
-    top = (fac.get("name") or "JCC Gymnasium") + (f" · {fac['address1']}" if fac.get("address1") else "")
-    bottom = ", ".join(x for x in [fac.get("city"), fac.get("province")] if x) or "Providence, RI"
+def venue_parts_for(v: dict) -> tuple[str, str]:
+    """Two lines for the OG card: ('Venue · 401 Elmgrove Ave', 'Providence, RI')."""
+    name = v.get("name") or v.get("short_name") or "Venue"
+    top = name + (f" · {v['address1']}" if v.get("address1") else "")
+    bottom = ", ".join(x for x in [v.get("city"), v.get("province")] if x)
     return (top, bottom)
 
 
-def build_glance_lis(doc) -> str:
-    """The shared 'Good to know' <li> list (HTML), same content for every page."""
+def build_glance_lis_for(source: dict, sessions: list) -> str:
+    """The 'Good to know' <li> list (HTML) for ONE venue/source."""
+    v = source.get("venue") or {}
     promos = []
     seen = set()
-    for sc in doc.get("sub_categories", []):
+    for sc in source.get("sub_categories", []):
         for a in sc.get("activities", []):
             for pr in a.get("promotions", []):
                 key = (pr.get("title") or "") + "|" + (pr.get("discount") or "")
@@ -186,12 +188,11 @@ def build_glance_lis(doc) -> str:
                 seen.add(key)
                 detail = " · ".join(pr.get("details") or pr.get("notes") or ([pr["text"]] if pr.get("text") else []))
                 promos.append((pr.get("title") or "Discount", pr.get("discount") or "", detail))
-    notices = [n for n in (doc.get("notices") or []) if n]
-    fac = _facility(doc)
+    notices = [n for n in (source.get("notices") or []) if n]
 
-    # price range across all sessions
+    # price range across this venue's sessions
     lo = hi = None
-    for s in doc.get("sessions", []):
+    for s in sessions:
         b, f = s.get("drop_in_best_price"), s.get("drop_in_price")
         if b is not None:
             lo = b if lo is None else min(lo, b)
@@ -203,26 +204,21 @@ def build_glance_lis(doc) -> str:
 
     items = []
     if pr:
-        items.append(("\U0001F4B5", f"<b>Drop-in</b> — {esc(pr)} per session. Pay on the JCC store, or use a Multipass."))
+        note = " Pay on the store, or use a Multipass." if source.get("booking_system") == "amilia" else ""
+        items.append(("\U0001F4B5", f"<b>Drop-in</b> — {esc(pr)} per session.{note}"))
     for title, disc, detail in promos:
         pct = re.sub(r"^Discount of\s*", "", disc, flags=re.I).strip()
         t = re.sub(r"^Pickleball:\s*", "", title, flags=re.I).strip() or title
         items.append(("\U0001F3F7️", f"<b>{esc(t)}</b> — {esc(pct) + ' off' if pct else 'Discount'}" + (f" · {esc(detail)}" if detail else "")))
     for n in notices:
         items.append(("⚠️", esc(n)))
-    if fac:
-        addr = ", ".join(x for x in [fac.get("address1"), ", ".join(y for y in [fac.get("city"), fac.get("province")] if y) + (" " + fac["postal_code"] if fac.get("postal_code") else "")] if x)
-        if fac.get("latitude") and fac.get("longitude"):
-            map_href = f"https://maps.google.com/?q={fac['latitude']},{fac['longitude']}"
-        else:
-            map_href = "https://maps.google.com/?q=" + "+".join(x for x in [fac.get("address1"), fac.get("city"), fac.get("province"), fac.get("postal_code")] if x).replace(" ", "+")
-        where = f"<b>Where</b> — {esc(fac.get('name') or 'JCC')}" + (f", {esc(addr)}" if addr else "")
-        if fac.get("phone"):
-            where += f" · {esc(fmt_phone(fac['phone']))}"
-        where += f' · <a href="{esc(map_href)}" target="_blank" rel="noopener">Map ↗</a>'
+    if v:
+        addr = _addr_line(v)
+        where = f"<b>Where</b> — {esc(v.get('name') or 'Venue')}" + (f", {esc(addr)}" if addr else "")
+        if v.get("phone"):
+            where += f" · {esc(fmt_phone(v['phone']))}"
+        where += f' · <a href="{esc(_map_href(v))}" target="_blank" rel="noopener">Map ↗</a>'
         items.append(("\U0001F4CD", where))
-    else:
-        items.append(("\U0001F4CD", "<b>Where</b> — JCC Gymnasium, 401 Elmgrove Ave, Providence, RI 02906"))
 
     return "".join(f'<li><span class="ico" aria-hidden="true">{ico}</span><span>{html_}</span></li>' for ico, html_ in items)
 
@@ -233,13 +229,16 @@ def build_session_pages(doc) -> tuple[int, int]:
     sessions = doc.get("sessions", [])
     if not sessions:
         return (0, 0)
-    glance_lis = build_glance_lis(doc)
-    venue = venue_line(doc)
-    venue_short = venue.split("·")[0].strip()
-    og_venue_top, og_venue_bottom = venue_parts(doc)
-    og_kicker = "Jewish Alliance of Greater Rhode Island"
+    # Per-source lookups: each session is rendered with ITS OWN venue/glance.
+    sources_by_id = {m["id"]: m for m in doc.get("sources", []) if m.get("ok")}
+    sessions_by_source: dict[str, list] = {}
+    for s in sessions:
+        sessions_by_source.setdefault(s.get("source_id"), []).append(s)
+    glance_by_source = {
+        sid: build_glance_lis_for(m, sessions_by_source.get(sid, []))
+        for sid, m in sources_by_id.items()
+    }
     og_url_text = re.sub(r"^https?://", "", SITE_BASE_URL).rstrip("/")
-    store_url = (doc.get("program") or {}).get("url") or scraper.DEFAULT_URL
     scraped_iso = doc.get("scraped_at_utc") or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     today = dt.date.today()
 
@@ -254,13 +253,26 @@ def build_session_pages(doc) -> tuple[int, int]:
         sid = s.get("segment_id")
         if not sid:
             continue
+        # this session's venue / source
+        src = sources_by_id.get(s.get("source_id")) or {}
+        venue_v = src.get("venue") or {}
+        glance_lis = glance_by_source.get(s.get("source_id"), "")
+        venue = venue_line_for(venue_v)
+        venue_short = s.get("venue_name") or venue_v.get("short_name") or venue.split("·")[0].strip()
+        og_venue_top, og_venue_bottom = venue_parts_for(venue_v)
+        og_kicker = venue_v.get("name") or venue_short
+        is_amilia = src.get("booking_system") == "amilia"
+        cta_primary = src.get("cta_label") or "Register"
+        cta_view = "View on Amilia" if is_amilia else cta_primary
+        store_url = (src.get("program") or {}).get("url") or venue_v.get("registration_url") or scraper.DEFAULT_URL
+
         p = parse_local(s.get("start"))
         pe = parse_local(s.get("end"))
         act = short_name(s.get("activity_name"))
         cls, dot, label_html, label_plain = avail(s)
         cap, left, going = spots_info(s)
         pr = price_range(s.get("drop_in_best_price"), s.get("drop_in_price"))
-        reg_url = s.get("registration_url") or s.get("details_url") or store_url
+        reg_url = s.get("registration_url") or s.get("details_url") or venue_v.get("registration_url") or store_url
 
         # the "when" ribbon above the date — only relative labels (Today / Tomorrow /
         # This Friday / Next Friday); for far-out dates it stays empty so it isn't
@@ -288,28 +300,28 @@ def build_session_pages(doc) -> tuple[int, int]:
             cta = '<span class="btn" aria-disabled="true">This session has finished</span>'
         elif cls == "full":
             cta = (f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">'
-                   + ("Join the waitlist" if s.get("wait_list_enabled") else "View on Amilia")
+                   + ("Join the waitlist" if s.get("wait_list_enabled") else esc(cta_view))
                    + ' <span class="arrow" aria-hidden="true">↗</span></a>')
         elif cls == "soon":
-            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">View on Amilia <span class="arrow" aria-hidden="true">↗</span></a>'
+            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">{esc(cta_view)} <span class="arrow" aria-hidden="true">↗</span></a>'
         else:
-            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">Register on Amilia <span class="arrow" aria-hidden="true">→</span></a>'
+            cta = f'<a class="btn btn-primary" href="{esc(reg_url)}" target="_blank" rel="noopener">{esc(cta_primary)} <span class="arrow" aria-hidden="true">→</span></a>'
 
         # OG / meta text — keyed to this specific date, not the recurring slot name
         canonical = f"{SITE_BASE_URL}/s/{sid}/"
         date_brief = f"{WD_SHORT[p['wd']]}, {MO_SHORT[p['mo'] - 1]} {p['d']}" if p else ""
         date_long = f"{WD_FULL[p['wd']]}, {MO_FULL[p['mo'] - 1]} {p['d']}" if p else ""
         time_brief = fmt_time(p["h"], p["mi"]) if p else ""
-        og_title = f"Drop-in pickleball · {date_brief}" + (f" at {time_brief}" if time_brief else "") + " · Providence JCC"
+        og_title = f"Drop-in pickleball · {date_brief}" + (f" at {time_brief}" if time_brief else "") + f" · {venue_short}"
         if s.get("has_passed"):
-            og_desc = f"Drop-in pickleball at the Providence JCC — {date_long}, {when_time}. This session has already happened; see the upcoming schedule."
+            og_desc = f"Drop-in pickleball at {venue_short} — {date_long}, {when_time}. This session has already happened; see the upcoming schedule."
         else:
-            head = f"Drop-in pickleball at the Providence JCC — {date_long}" + (f", {when_time}" if when_time else "") + "."
-            og_desc = f"{head} {venue_short}. {label_plain[:1].upper() + label_plain[1:]}"
+            head = f"Drop-in pickleball at {venue_short} — {date_long}" + (f", {when_time}" if when_time else "") + "."
+            og_desc = f"{head} {venue}. {label_plain[:1].upper() + label_plain[1:]}"
             if pr:
                 og_desc += f" · {pr} per drop-in"
-            og_desc += ". Tap to register on the official JCC site."
-        page_title = (f"Pickleball · {date_brief}" + (f" at {time_brief}" if time_brief else "") + " · Providence JCC") if date_brief else "Drop-in pickleball · Providence JCC"
+            og_desc += ". Tap through to the official schedule."
+        page_title = (f"Pickleball · {date_brief}" + (f" at {time_brief}" if time_brief else "") + f" · {venue_short}") if date_brief else f"Drop-in pickleball · {venue_short}"
 
         price_bit = f' · <span class="price">{esc(pr)}</span> / drop-in' if pr else ""
 
@@ -428,9 +440,10 @@ def _report_og_health(*, n_pages: int, n_imgs: int, n_fallbacks: int) -> None:
 
 # ---------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
-    args = argv if argv is not None else sys.argv[1:]
-    url = args[0] if args else scraper.DEFAULT_URL
-    doc = scraper.build_document(url)
+    # The pipeline is now multi-source; sources + venues live in sources.py.
+    # (A CLI arg is still accepted for back-compat but ignored — the JCC URL is
+    # the default source in the registry.)
+    doc = sources.build_merged_document()
 
     DATA_OUT.parent.mkdir(parents=True, exist_ok=True)
     with DATA_OUT.open("w", encoding="utf-8") as fh:
