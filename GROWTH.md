@@ -82,8 +82,12 @@ register-clicks** (no ad budget). Tracked KPIs:
   live schedules. Tuned volume to keep it sane: WINDOW_FWD_DAYS 45→21 (684 sessions vs 1248),
   OG_RENDER_CAP=220 (CI renders ≤220 cards, not 1248 → no build timeout), sitemap = upcoming sessions
   only (719 urls). Centerline (5th club) needs its org id — in NEEDS-HUMAN.
-  ⚠ Post-deploy: smoke-check that CI's IP can fetch CourtReserve (Cloudflare); sources are isolated
-  so a block degrades gracefully to JCC+Bristol, but verify the 4 clubs actually have live data on prod.
+  ✅ Post-deploy VERIFIED: CI's runner fetched CourtReserve fine (no Cloudflare block) — prod
+  sessions.json has all 6 sources with live data (citi 135, ocean 134, eastbay 152, lilrhody 161).
+  4 club venue pages live (200) w/ schedule blocks; submitted to IndexNow. Hourly cron keeps it fresh.
+  Watch item: if CourtReserve/Cloudflare tightens, those sources fail isolated (build emits
+  ::warning::source failed) → site degrades to JCC+Bristol, not broken. Consider a post-deploy alert
+  if live-source count drops (backlog).
 
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
