@@ -33,7 +33,7 @@
     --paper: #faf7ee;
     --ink: #1a1b13;
     --ink-soft: #4a4b3e;
-    --ink-faint: #84846f;
+    --ink-faint: #686854; /* darkened from #84846f to pass WCAG AA contrast on cream bg */
     --line: #ddd7c4;
     --line-strong: #c8c1aa;
     --lime: #c6f23b;
@@ -189,9 +189,9 @@
   .avail { font-size: 12px; font-weight: 600; letter-spacing: .01em; display: inline-flex; align-items: center; gap: 6px; }
   .avail b { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
   .avail .pdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
-  .avail.good { color: #5b7a17; }
-  .avail.low  { color: var(--amber); }
-  .avail.full { color: var(--clay); }
+  .avail.good { color: #52701a; }       /* darkened for WCAG AA contrast on cream */
+  .avail.low  { color: #8a5e10; }
+  .avail.full { color: #a8481f; }
   .avail.soon, .avail.past { color: var(--ink-faint); }
 
   .go {
