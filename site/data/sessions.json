@@ -1,5 +1,5 @@
 {
-  "scraped_at_utc": "2026-06-18T20:11:49+00:00",
+  "scraped_at_utc": "2026-06-18T20:23:58+00:00",
   "totals": {
     "sources": 6,
     "venues": 6,
@@ -4331,7 +4331,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
+      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
@@ -4375,7 +4375,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
+      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
@@ -4622,7 +4622,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
+      "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260613",
       "start": "2026-06-13T10:00:00",
       "end": "2026-06-13T11:30:00",
       "all_day": false,
@@ -4666,7 +4666,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260613",
+      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
       "start": "2026-06-13T10:00:00",
       "end": "2026-06-13T11:30:00",
       "all_day": false,
@@ -6902,21 +6902,21 @@
       "end": "2026-06-18T19:00:00",
       "all_day": false,
       "has_passed": false,
-      "status": "registration_available",
+      "status": "full",
       "state_code": null,
       "capacity": 20,
       "has_unlimited_spots": false,
-      "spots_reserved": 19,
-      "spots_remaining": 1,
-      "has_place_left": true,
+      "spots_reserved": 20,
+      "spots_remaining": 0,
+      "has_place_left": false,
       "max_attendance": 20,
-      "attendance_string": "1 of 20 spots remaining",
+      "attendance_string": "0 of 20 spots remaining",
       "drop_in_price": null,
       "drop_in_best_price": null,
       "fee": null,
       "wait_list_enabled": true,
       "wait_list_spots_reserved": 0,
-      "can_register": true,
+      "can_register": false,
       "has_drop_ins": true,
       "already_in_cart": false,
       "description": null,
