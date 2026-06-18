@@ -50,6 +50,13 @@ register-clicks** (no ad budget). Tracked KPIs:
   surfaces them (guide chips above directory + footer). Config-driven COLLECTIONS in build_site.py.
   Sitemap → 219 URLs. Used the streamlined commit (discard sessions.json → no merge conflict ✓).
 
+- (iter 4, 2026-06-18) ✅ **Fixed blocked deploys (CI reliability).** Iter 3's guides wouldn't go
+  live: the "Install Playwright + Chromium" step HUNG ~10min on Chromium download, stalling every
+  deploy (and silently risking stale schedule data). `continue-on-error` doesn't catch a hang —
+  added `timeout-minutes: 4` to that step + `12` to the scrape step. Redeployed clean; all 3 guides
+  now live (200), sitemap 219. Re-submitted guides to IndexNow (HTTP 200). Lesson: best-effort
+  steps need timeouts, not just continue-on-error.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
