@@ -1332,6 +1332,15 @@ def _write_build_manifest(*, doc: dict, n_pages: int, n_imgs: int, n_fallbacks: 
         "n_session_pages": int(n_pages),
         "n_og_images": int(n_imgs),
         "n_og_fallbacks": int(n_fallbacks),
+        # Per-source health so the deployed manifest can be polled (by a post-deploy
+        # check, an external uptime pinger, or me) to detect a source silently
+        # going dark — e.g. CourtReserve rotating its token format.
+        "sources": [
+            {"id": m.get("id"), "ok": bool(m.get("ok")),
+             "session_count": int(m.get("session_count") or 0)}
+            for m in (doc.get("sources") or [])
+        ],
+        "n_ok_sources": sum(1 for m in (doc.get("sources") or []) if m.get("ok")),
         "site_base_url": SITE_BASE_URL,
     }
     BUILD_META_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -1362,6 +1371,48 @@ def _report_og_health(*, n_pages: int, n_imgs: int, n_fallbacks: int) -> None:
             )
     except Exception as exc:
         print(f"  (could not append to GITHUB_STEP_SUMMARY: {exc})", file=sys.stderr)
+
+
+# Sources we EXPECT to contribute live sessions on every build. A failed source,
+# or one of these dropping to zero sessions, means the site's core value (live
+# schedules) silently degraded — surface it loudly even though the build still
+# succeeds (the merge layer isolates failures so JCC+Bristol still publish).
+EXPECTED_LIVE_SOURCES = {"jcc-ri", "bristol", "pickleball-citi",
+                         "ocean-state-pickleball", "east-bay-pickleball", "lil-rhody-pickleball"}
+
+
+def _report_source_health(doc: dict) -> None:
+    srcs = doc.get("sources") or []
+    failed = [m for m in srcs if not m.get("ok")]
+    empty = [m for m in srcs if m.get("ok") and m.get("id") in EXPECTED_LIVE_SOURCES
+             and not (m.get("session_count") or 0)]
+    missing = EXPECTED_LIVE_SOURCES - {m.get("id") for m in srcs}
+    if not (failed or empty or missing):
+        print(f"  source health OK — {len(srcs)} sources live", file=sys.stderr)
+        return
+    for m in failed:
+        print(f"::warning::source {m.get('id')!r} FAILED: {str(m.get('error'))[:120]}", file=sys.stderr)
+    for m in empty:
+        print(f"::warning::source {m.get('id')!r} returned 0 sessions (expected live data)", file=sys.stderr)
+    for mid in missing:
+        print(f"::warning::expected source {mid!r} missing from the build", file=sys.stderr)
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+    try:
+        with open(summary_path, "a", encoding="utf-8") as fh:
+            fh.write("\n### ⚠️ Live-source health degraded\n\n")
+            for m in failed:
+                fh.write(f"- **{m.get('id')}** failed: `{str(m.get('error'))[:160]}`\n")
+            for m in empty:
+                fh.write(f"- **{m.get('id')}** returned 0 sessions\n")
+            for mid in missing:
+                fh.write(f"- **{mid}** missing from the build\n")
+            fh.write("\nThe build still deployed with the remaining sources. If a CourtReserve "
+                     "club failed, its public token/endpoint likely changed — check "
+                     "`scraper/courtreserve.py`.\n")
+    except Exception as exc:
+        print(f"  (could not append source health to GITHUB_STEP_SUMMARY: {exc})", file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------
@@ -1399,6 +1450,7 @@ def main(argv: list[str] | None = None) -> int:
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
     _report_og_health(n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
+    _report_source_health(doc)
 
     t = doc.get("totals", {})
     img_note = f"{n_imgs} session OG images" if n_imgs else "(per-session OG images: generic fallback — Playwright not available)"

@@ -120,6 +120,14 @@ register-clicks** (no ad budget). Tracked KPIs:
   pickleball keywords. GitHub repo pages are indexed → this gives Google a crawlable path to the site
   without Search Console (still weak vs SC, but it's a real inbound link I control).
 
+- (iter 13, 2026-06-18) ✅ **Health check + source-health guard.** Live system audit: build fresh
+  (11 min), **all 6 sources OK** (84/18/134/134/152/161), no broken pages (sampled all page types →
+  200). Bing index check inconclusive (CAPTCHA-blocked; still early). Shipped a guard so the core
+  asset (live data) can't fail silently: build.json now advertises per-source health
+  (`n_ok_sources` + `sources[]`) — pollable by an external monitor or by THIS loop each cycle — and
+  any failed/empty/missing expected-live source emits a loud `::warning::` + step-summary on the
+  Action. Going forward: poll build.json's source health each iteration (cheap asset protection).
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
