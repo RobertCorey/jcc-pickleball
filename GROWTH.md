@@ -112,6 +112,14 @@ register-clicks** (no ad budget). Tracked KPIs:
   to their phone/Google calendar and get auto-updates = reason to return. (Process fix adopted: batch
   growth-log into the feature commit, one push/iteration, to avoid concurrency deploy-cancels.)
 
+- (iter 12, 2026-06-18) ✅ **GitHub-as-discovery + perf check.** (a) Verified the homepage payload is
+  fine: sessions.json 1.2MB raw but **53KB gzipped** (Pages gzips) — no perf issue, no action. (b) Real
+  autonomous Google-discovery lever: the repo is PUBLIC (Google crawls github.com), but its homepageUrl
+  + description were EMPTY and the README was stale ("CourtTime/JCC"). Set repo homepageUrl → live site,
+  added a keyworded description, and rewrote README to lead with the live link + "Open Play RI" + RI
+  pickleball keywords. GitHub repo pages are indexed → this gives Google a crawlable path to the site
+  without Search Console (still weak vs SC, but it's a real inbound link I control).
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
