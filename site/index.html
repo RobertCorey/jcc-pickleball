@@ -348,6 +348,41 @@
   ]
 }
 </script>
+<!-- Brand entity: Organization + WebSite (with a SearchAction that maps to the
+     directory's ?q= search) so search engines model Open Play RI as the RI
+     pickleball directory and can offer a sitelinks search box. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://robertcorey.github.io/jcc-pickleball/#org",
+      "name": "Open Play RI",
+      "alternateName": "Open Play Rhode Island",
+      "url": "https://robertcorey.github.io/jcc-pickleball/",
+      "description": "A community directory of every place to play pickleball in Rhode Island, with live open-play schedules for the venues it tracks.",
+      "areaServed": { "@type": "State", "name": "Rhode Island" },
+      "knowsAbout": ["Pickleball", "Open play pickleball", "Pickleball courts in Rhode Island", "Drop-in pickleball"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://robertcorey.github.io/jcc-pickleball/#website",
+      "name": "Open Play RI",
+      "url": "https://robertcorey.github.io/jcc-pickleball/",
+      "publisher": { "@id": "https://robertcorey.github.io/jcc-pickleball/#org" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://robertcorey.github.io/jcc-pickleball/?q={search_term_string}#directory"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
+}
+</script>
 <!-- Privacy-friendly analytics (GoatCounter): no cookies, no consent banner.
      count.js is vendored (site/count.js) and served first-party so ad/tracker
      blockers don't drop the script host. Register the code at goatcounter.com
@@ -943,7 +978,21 @@
   window.OPRI_directory = { setLive: function (sources, ubs) { LIVE = { sources: sources, upcomingBySource: ubs }; render(); } };
 
   var qel = $("#dir-q");
-  if (qel) qel.addEventListener("input", function () { Q = this.value || ""; render(); });
+  // seed the search from ?q= (shareable searches + valid WebSite SearchAction)
+  try {
+    var qp = new URLSearchParams(location.search).get("q");
+    if (qp) { Q = qp; if (qel) qel.value = qp; }
+  } catch (e) {}
+  if (qel) qel.addEventListener("input", function () {
+    Q = this.value || "";
+    // keep the URL in sync without reloading, so a search is shareable
+    try {
+      var u = new URL(location.href);
+      if (Q) u.searchParams.set("q", Q); else u.searchParams.delete("q");
+      history.replaceState(null, "", u.pathname + u.search + "#directory");
+    } catch (e) {}
+    render();
+  });
 
   fetch("data/directory.json?v=" + Date.now(), { cache: "no-store" })
     .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
