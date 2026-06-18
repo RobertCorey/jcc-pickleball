@@ -89,6 +89,10 @@ register-clicks** (no ad budget). Tracked KPIs:
   ::warning::source failed) → site degrades to JCC+Bristol, not broken. Consider a post-deploy alert
   if live-source count drops (backlog).
 
+- (iter 8, 2026-06-18) ✅ **Homepage session-list cap.** The 6-venue jump pushed the upcoming-session
+  list to ~600 rows (overwhelming/slow). Now shows soonest 60 + "Show all N" button; venue/day filters
+  reset the cap. index.html only. Verified in-browser (60→602 on expand, resets on filter).
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
