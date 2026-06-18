@@ -760,8 +760,11 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
                 more = (f'<a class="more" href="../../#sessions">See all {len(sess)} upcoming sessions '
                         f'<span aria-hidden="true">→</span></a>') if len(sess) > 8 else \
                        '<a class="more" href="../../#sessions">See the full schedule <span aria-hidden="true">→</span></a>'
+                webcal = SITE_BASE_URL.replace("https://", "webcal://").replace("http://", "webcal://") + f"/v/{slug}/open-play.ics"
+                cal = (f'<a class="more" href="{esc(webcal)}" style="margin-left:18px">'
+                       f'<span aria-hidden="true">📅</span> Subscribe in your calendar</a>')
                 sched_html = (f'<section class="sched"><h2>Open play schedule</h2>'
-                              f'<p class="lead">{lead}</p><ul class="sessions">{rows}</ul>{more}</section>')
+                              f'<p class="lead">{lead}</p><ul class="sessions">{rows}</ul>{more}{cal}</section>')
 
         # ---- nearby ----
         nearby = []
@@ -1065,6 +1068,100 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
     return count
 
 
+_ICS_TZ = (
+    "BEGIN:VTIMEZONE\r\nTZID:America/New_York\r\n"
+    "BEGIN:DAYLIGHT\r\nTZOFFSETFROM:-0500\r\nTZOFFSETTO:-0400\r\nTZNAME:EDT\r\n"
+    "DTSTART:19700308T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU\r\nEND:DAYLIGHT\r\n"
+    "BEGIN:STANDARD\r\nTZOFFSETFROM:-0400\r\nTZOFFSETTO:-0500\r\nTZNAME:EST\r\n"
+    "DTSTART:19701101T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU\r\nEND:STANDARD\r\n"
+    "END:VTIMEZONE\r\n"
+)
+
+
+def _ics_esc(s: str) -> str:
+    return (str(s or "").replace("\\", "\\\\").replace(";", "\\;")
+            .replace(",", "\\,").replace("\n", "\\n").replace("\r", ""))
+
+
+def _ics_dt(iso: str) -> str | None:
+    """A local 'YYYY-MM-DDTHH:MM:SS' string -> ICS local datetime 'YYYYMMDDTHHMMSS'."""
+    p = parse_local(iso)
+    if not p:
+        return None
+    return f"{p['y']:04d}{p['mo']:02d}{p['d']:02d}T{p['h']:02d}{p['mi']:02d}00"
+
+
+def _write_ics(path: pathlib.Path, name: str, sessions: list, sources_by_id: dict, stamp: str) -> int:
+    """Write an iCalendar feed of upcoming open-play sessions. Returns event count."""
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Open Play RI//Pickleball//EN",
+             "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+             f"X-WR-CALNAME:{_ics_esc(name)}", "X-WR-TIMEZONE:America/New_York"]
+    out = "\r\n".join(lines) + "\r\n" + _ICS_TZ
+    n = 0
+    for s in sessions:
+        if s.get("has_passed"):
+            continue
+        ds = _ics_dt(s.get("start"))
+        if not ds:
+            continue
+        de = _ics_dt(s.get("end")) or ds
+        src = sources_by_id.get(s.get("source_id"), {})
+        venue = (src.get("venue") or {})
+        vname = s.get("venue_name") or venue.get("short_name") or venue.get("name") or "Open Play RI"
+        act = short_name(s.get("activity_name"))
+        url = f"{SITE_BASE_URL}/s/{s.get('segment_id')}/"
+        loc = venue_line_for(venue) if venue else vname
+        ev = [
+            "BEGIN:VEVENT",
+            f"UID:{_ics_esc(str(s.get('segment_id')))}@openplayri",
+            f"DTSTAMP:{stamp}",
+            f"DTSTART;TZID=America/New_York:{ds}",
+            f"DTEND;TZID=America/New_York:{de}",
+            f"SUMMARY:{_ics_esc(act + ' — ' + vname)}",
+            f"LOCATION:{_ics_esc(loc)}",
+            f"URL:{_ics_esc(url)}",
+            f"DESCRIPTION:{_ics_esc('Open-play pickleball at ' + vname + '. Details & registration: ' + url)}",
+            "END:VEVENT",
+        ]
+        out += "\r\n".join(ev) + "\r\n"
+        n += 1
+    out += "END:VCALENDAR\r\n"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(out, encoding="utf-8")
+    return n
+
+
+def build_calendars(directory: dict, doc: dict) -> int:
+    """Write .ics calendar feeds (all-RI + per live venue) so users can subscribe to
+    open play in their phone/Google calendar — a retention hook + a useful, distinct
+    feature. Returns the number of feeds written."""
+    sessions = [s for s in doc.get("sessions", []) if not s.get("has_passed")]
+    sources_by_id = {m["id"]: m for m in doc.get("sources", []) if m.get("ok")}
+    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    feeds = 0
+    # combined all-RI feed
+    _write_ics(SITE / "open-play-rhode-island.ics", "RI Pickleball Open Play — Open Play RI",
+               sessions, sources_by_id, stamp)
+    feeds += 1
+    # per-venue feeds, written into the venue page dir (keyed by directory slug)
+    slug_by_source = {}
+    for v in directory.get("venues", []):
+        if v.get("source_id") and v.get("slug"):
+            slug_by_source[v["source_id"]] = v["slug"]
+    by_source: dict[str, list] = {}
+    for s in sessions:
+        by_source.setdefault(s.get("source_id"), []).append(s)
+    for sid, slug in slug_by_source.items():
+        vs = by_source.get(sid, [])
+        if not vs:
+            continue
+        vname = (sources_by_id.get(sid, {}).get("venue") or {}).get("short_name") or "Open Play"
+        _write_ics(VENUES_DIR / slug / "open-play.ics", f"{vname} Open Play — Open Play RI",
+                   vs, sources_by_id, stamp)
+        feeds += 1
+    return feeds
+
+
 def _bar_row(label: str, n: int, total: int, sub: str = "") -> str:
     pct = round(n / total * 100) if total else 0
     return (
@@ -1297,6 +1394,7 @@ def main(argv: list[str] | None = None) -> int:
     n_towns = build_town_pages(directory, doc)
     n_guides = build_collection_pages(directory, doc)
     n_report = build_report_page(directory, doc)
+    n_feeds = build_calendars(directory, doc)  # after venue pages — writes into /v/<slug>/
     n_urls = write_sitemap_and_robots(doc, directory)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)

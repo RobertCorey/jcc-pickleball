@@ -104,6 +104,14 @@ register-clicks** (no ad budget). Tracked KPIs:
   asset (the main link-earning lever without account access) that ranks for informational RI pickleball
   queries. Linked from homepage footer + sitemap. Stats refresh every build.
 
+- (iter 11, 2026-06-18) ✅ **Calendar subscriptions (.ics).** Verified site still NOT indexed (Google
+  `site:` empty — normal for a ~1-day-old site hrs after IndexNow; acquisition stays gated on
+  Search Console). Built retention feature instead: an all-RI `open-play-rhode-island.ics` (599 events)
+  + per-live-venue `/v/<slug>/open-play.ics` (6 feeds), proper VTIMEZONE/CRLF, escaped. "📅 Subscribe
+  in your calendar" links (webcal://) on the homepage + each live venue page → users add RI open play
+  to their phone/Google calendar and get auto-updates = reason to return. (Process fix adopted: batch
+  growth-log into the feature commit, one push/iteration, to avoid concurrency deploy-cancels.)
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
