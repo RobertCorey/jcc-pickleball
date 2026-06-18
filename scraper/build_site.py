@@ -40,6 +40,7 @@ DATA_OUT = SITE / "data" / "sessions.json"
 BUILD_META_OUT = SITE / "data" / "build.json"
 SESSIONS_DIR = SITE / "s"
 VENUES_DIR = SITE / "v"
+TOWNS_DIR = SITE / "t"
 GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
 VENUE_TEMPLATE = (HERE / "templates" / "venue.html").read_text(encoding="utf-8")
@@ -324,9 +325,13 @@ def write_sitemap_and_robots(doc, directory=None) -> int:
     robots.txt that points at it. Returns the URL count. Both ship in the Pages
     artifact."""
     sids = [str(s["segment_id"]) for s in doc.get("sessions", []) if s.get("segment_id")]
-    slugs = [str(v["slug"]) for v in (directory or {}).get("venues", []) if v.get("slug")]
+    dvenues = [v for v in (directory or {}).get("venues", []) if v.get("slug")]
+    slugs = [str(v["slug"]) for v in dvenues]
+    towns = sorted({town_slug(v.get("city")) for v in dvenues if v.get("city") and v.get("city") != "Rhode Island"})
     lastmod = (doc.get("scraped_at_utc") or "")[:10] or dt.date.today().isoformat()
     entries = [(f"{SITE_BASE_URL}/", "hourly", "1.0")]
+    # Town landing pages — top local-intent SEO surface ("pickleball in <town> RI").
+    entries += [(f"{SITE_BASE_URL}/t/{t}/", "weekly", "0.9") for t in towns]
     # Venue/directory pages — the durable SEO surface; change rarely but are the
     # most link-worthy, so a notch below the homepage and above ephemeral sessions.
     entries += [(f"{SITE_BASE_URL}/v/{slug}/", "weekly", "0.8") for slug in slugs]
@@ -659,13 +664,15 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
 
         # ---- structured data ----
         crumbs_links = [("Open Play RI", f"{SITE_BASE_URL}/"),
-                        (f"Pickleball in {city}" if city != "Rhode Island" else "Rhode Island", None),
+                        (f"Pickleball in {city}", f"{SITE_BASE_URL}/t/{town_slug(city)}/") if city != "Rhode Island"
+                        else ("Rhode Island", None),
                         (name, canonical)]
         jsonld = _jsonld_script(_venue_jsonld(v, canonical)) + "\n" + _jsonld_script(_breadcrumb_jsonld(crumbs_links))
 
         bc = ['<a href="../../">Open Play RI</a>', '<span class="sep">/</span>']
         if city != "Rhode Island":
-            bc.append(f'<span>{esc(city)}, RI</span>')
+            # link the town so crawlers (and users) walk venue → town landing page
+            bc.append(f'<a href="../../t/{esc(town_slug(city))}/">{esc(city)}, RI</a>')
         else:
             bc.append("<span>Rhode Island</span>")
         breadcrumb = "".join(bc)
@@ -780,6 +787,128 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
     return count
 
 
+# ---------------------------------------------------------------------------
+# Town landing pages -> /t/<town-slug>/  (programmatic local SEO: one strong
+# page per town targeting "pickleball in <town>, RI", aggregating its venues)
+# ---------------------------------------------------------------------------
+def town_slug(city: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", (city or "").lower()).strip("-")
+    return s or "rhode-island"
+
+
+def _venue_vlink(v: dict, href: str, live: bool) -> str:
+    bits = []
+    if v.get("primary_type"):
+        bits.append(esc(v["primary_type"]))
+    if isinstance(v.get("rating"), (int, float)) and (v.get("rating_count") or 0) >= 1:
+        bits.append(f'★ {v["rating"]:.1f}')
+    if live:
+        bits.insert(0, '<span style="color:var(--forest);font-weight:700">● Live schedule</span>')
+    meta = " · ".join(bits)
+    return (f'<a class="vlink" href="{esc(href)}"><span class="nm">{esc(v.get("name"))}</span>'
+            f'<span class="ct">{meta}</span></a>')
+
+
+def build_town_pages(directory: dict, doc: dict) -> int:
+    """Write site/t/<town-slug>/index.html for every town with venues. Returns count."""
+    venues = [v for v in directory.get("venues", []) if v.get("slug")]
+    if not venues:
+        return 0
+    by_city: dict[str, list] = {}
+    for v in venues:
+        by_city.setdefault(v.get("city") or "Rhode Island", []).append(v)
+
+    # rank within town: live first, then dedicated, then rating, then name
+    def vkey(v):
+        return (0 if v.get("source_id") else 1,
+                0 if v.get("confidence") == "high" else 1,
+                -(v.get("rating") or 0), v.get("name") or "")
+
+    towns_sorted = sorted(by_city.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+    town_slugs = {c: town_slug(c) for c in by_city}
+
+    if TOWNS_DIR.exists():
+        shutil.rmtree(TOWNS_DIR)
+    TOWNS_DIR.mkdir(parents=True, exist_ok=True)
+
+    count = 0
+    for city, vs in by_city.items():
+        if city == "Rhode Island":
+            continue
+        slug = town_slugs[city]
+        vs = sorted(vs, key=vkey)
+        n = len(vs)
+        live = [v for v in vs if v.get("source_id")]
+        canonical = f"{SITE_BASE_URL}/t/{slug}/"
+
+        page_title = f"Pickleball in {city}, RI — Courts, Clubs & Open Play | Open Play RI"
+        og_title = f"Pickleball in {city}, Rhode Island — {n} place{'s' if n != 1 else ''} to play"
+        meta_desc = (f"Where to play pickleball in {city}, Rhode Island: {n} court"
+                     f"{'s' if n != 1 else ''}, club{'s' if n != 1 else ''}, and open-play venue"
+                     f"{'s' if n != 1 else ''} with addresses, maps, and details"
+                     + (f" — including {len(live)} with a live open-play schedule." if live else ".")
+                     + " Find pickleball near you.")
+
+        # structured data: CollectionPage + ItemList of venues + breadcrumb
+        item_list = {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": f"Pickleball venues in {city}, RI",
+            "numberOfItems": n,
+            "itemListElement": [
+                {"@type": "ListItem", "position": i + 1, "name": v.get("name"),
+                 "url": f"{SITE_BASE_URL}/v/{v['slug']}/"}
+                for i, v in enumerate(vs)
+            ],
+        }
+        crumbs = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Open Play RI", "item": f"{SITE_BASE_URL}/"},
+            {"@type": "ListItem", "position": 2, "name": f"Pickleball in {city}", "item": canonical},
+        ]}
+        jsonld = _jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
+        breadcrumb = '<a href="../../">Open Play RI</a><span class="sep">/</span>' + f'<span>{esc(city)}, RI</span>'
+
+        # body
+        live_note = ""
+        if live:
+            names = ", ".join(esc(v.get("name")) for v in live)
+            live_note = (f'<div class="badges"><span class="badge live"><span class="dot"></span>'
+                         f'Live open-play schedule · {names}</span></div>')
+        intro = (f"Looking for somewhere to play pickleball in {esc(city)}, Rhode Island? "
+                 f"Here {'is' if n == 1 else 'are'} {n} place{'s' if n != 1 else ''} to play — "
+                 f"dedicated clubs, racquet and tennis clubs, YMCAs, rec centers, and public courts. "
+                 f"Tap any venue for its address, map, phone, hours"
+                 + (", and live open-play schedule" if live else "") + ".")
+        cards = "".join(_venue_vlink(v, f"../../v/{v['slug']}/", bool(v.get("source_id"))) for v in vs)
+        # nearby towns (by venue count)
+        others = [c for c, _ in towns_sorted if c != city and c != "Rhode Island"][:8]
+        nearby = "".join(
+            f'<a class="vlink" href="../{town_slugs[c]}/"><span class="nm">Pickleball in {esc(c)}</span>'
+            f'<span class="ct">{len(by_city[c])} venue{"s" if len(by_city[c]) != 1 else ""}</span></a>'
+            for c in others
+        )
+        body = (f'<div class="vhead"><div class="eyebrow">Rhode Island · {esc(city)}</div>'
+                f'<h1>Pickleball in {esc(city)}, Rhode Island</h1>'
+                f'<p class="sub">{intro}</p>{live_note}</div>'
+                f'<section class="nearby" style="margin-top:22px"><h2>{n} place{"s" if n != 1 else ""} to play in {esc(city)}</h2>'
+                f'<div class="vlist">{cards}</div></section>'
+                + (f'<section class="nearby"><h2>Other Rhode Island towns</h2><div class="vlist">{nearby}</div></section>' if nearby else ""))
+
+        out = VENUE_TEMPLATE
+        for k, val in {
+            "PAGE_TITLE": esc(page_title), "META_DESC": esc(meta_desc), "OG_TITLE": esc(og_title),
+            "CANONICAL": esc(canonical), "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"),
+            "JSONLD": jsonld, "HOME_HREF": "../../", "BREADCRUMB": breadcrumb, "BODY": body,
+        }.items():
+            out = out.replace("{{" + k + "}}", val)
+        sdir = TOWNS_DIR / slug
+        sdir.mkdir(parents=True, exist_ok=True)
+        (sdir / "index.html").write_text(out, encoding="utf-8")
+        count += 1
+
+    return count
+
+
 def _git_sha() -> str:
     """Best-effort short HEAD sha; used when GITHUB_SHA isn't set (local builds)."""
     try:
@@ -865,6 +994,7 @@ def main(argv: list[str] | None = None) -> int:
     n_pages, n_imgs = build_session_pages(doc)
     n_fallbacks = max(0, n_pages - n_imgs)
     n_venues = build_venue_pages(directory, doc)
+    n_towns = build_town_pages(directory, doc)
     n_urls = write_sitemap_and_robots(doc, directory)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
@@ -877,6 +1007,7 @@ def main(argv: list[str] | None = None) -> int:
         f"{t.get('sessions')} sessions, {t.get('upcoming_sessions')} upcoming) "
         f"+ {n_pages} session pages + {img_note} under site/s/ "
         f"+ {n_venues} venue pages under site/v/ "
+        f"+ {n_towns} town pages under site/t/ "
         f"+ sitemap.xml/robots.txt ({n_urls} urls)  [base={SITE_BASE_URL}]",
         file=sys.stderr,
     )

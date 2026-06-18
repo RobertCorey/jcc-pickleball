@@ -859,6 +859,8 @@
     return map;
   }
 
+  function townSlug(city) { return String(city || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "rhode-island"; }
+
   function cardHTML(v, live) {
     var meta = [];
     if (v.primary_type) meta.push(esc(v.primary_type));
@@ -930,7 +932,8 @@
         if (rb !== ra) return rb - ra;
         return (a.name || "").localeCompare(b.name || "");
       });
-      return '<div class="town-group"><div class="town-h"><span class="tn">' + esc(c) + ', RI</span>' +
+      return '<div class="town-group"><div class="town-h">' +
+        '<a class="tn" href="t/' + townSlug(c) + '/" style="text-decoration:none">' + esc(c) + ', RI →</a>' +
         '<span class="tc">' + vs.length + ' venue' + (vs.length === 1 ? '' : 's') + '</span></div>' +
         '<div class="vgrid">' + vs.map(function (v) { return cardHTML(v, liveMap[v.slug]); }).join("") + '</div></div>';
     }).join("");
