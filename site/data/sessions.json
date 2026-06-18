@@ -1,5 +1,5 @@
 {
-  "scraped_at_utc": "2026-06-18T15:17:30+00:00",
+  "scraped_at_utc": "2026-06-18T17:20:37+00:00",
   "totals": {
     "sources": 2,
     "venues": 2,
@@ -4078,7 +4078,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:5e4i38mmsd4cjb2pnd66fvg4-20260608",
+      "segment_id": "bristol:h93t1hpaph0240e442m17bf1-20260608",
       "start": "2026-06-08T10:00:00",
       "end": "2026-06-08T12:00:00",
       "all_day": false,
@@ -4122,7 +4122,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:h93t1hpaph0240e442m17bf1-20260608",
+      "segment_id": "bristol:5e4i38mmsd4cjb2pnd66fvg4-20260608",
       "start": "2026-06-08T10:00:00",
       "end": "2026-06-08T12:00:00",
       "all_day": false,
@@ -4219,7 +4219,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
+      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
@@ -4263,7 +4263,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
+      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
