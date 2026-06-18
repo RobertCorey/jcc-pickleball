@@ -332,6 +332,8 @@ def write_sitemap_and_robots(doc, directory=None) -> int:
     entries = [(f"{SITE_BASE_URL}/", "hourly", "1.0")]
     # Town landing pages — top local-intent SEO surface ("pickleball in <town> RI").
     entries += [(f"{SITE_BASE_URL}/t/{t}/", "weekly", "0.9") for t in towns]
+    # Intent/collection guides ("indoor pickleball RI", "free public courts", "clubs").
+    entries += [(f"{SITE_BASE_URL}/guide/{c['slug']}/", "weekly", "0.9") for c in COLLECTIONS]
     # Venue/directory pages — the durable SEO surface; change rarely but are the
     # most link-worthy, so a notch below the homepage and above ephemeral sessions.
     entries += [(f"{SITE_BASE_URL}/v/{slug}/", "weekly", "0.8") for slug in slugs]
@@ -909,6 +911,144 @@ def build_town_pages(directory: dict, doc: dict) -> int:
     return count
 
 
+# ---------------------------------------------------------------------------
+# Collection / intent pages -> /guide/<slug>/ — target high-intent searches that
+# the town pages don't ("indoor pickleball RI", "free public courts", "clubs").
+# ---------------------------------------------------------------------------
+def _vt(v):  # normalized primary type
+    return (v.get("primary_type") or "").lower()
+
+
+COLLECTIONS = [
+    {
+        "slug": "indoor-pickleball-rhode-island",
+        "h1": "Indoor Pickleball in Rhode Island",
+        "title": "Indoor Pickleball in Rhode Island — Where to Play Year-Round",
+        "intent": "indoor pickleball",
+        "blurb": ("Rain, snow, or summer heat — these Rhode Island venues offer indoor pickleball, "
+                  "from dedicated clubs to YMCAs, rec centers, and sports complexes. Great for "
+                  "year-round and winter play."),
+        "match": lambda v: ("indoor" in (v.get("name") or "").lower()
+                            or _vt(v) in {"gym", "fitness center", "sports complex",
+                                          "sports activity location", "community center",
+                                          "recreation center"}),
+    },
+    {
+        "slug": "free-public-pickleball-courts-rhode-island",
+        "h1": "Free & Public Pickleball Courts in Rhode Island",
+        "title": "Free Public Pickleball Courts in Rhode Island — Town & Park Courts",
+        "intent": "free public pickleball courts",
+        "blurb": ("Want to play for free? These Rhode Island public parks and town courts have "
+                  "pickleball — usually no fee and open to everyone. Bring your own paddle and net "
+                  "where needed, and check the town's rules for open-play times."),
+        "match": lambda v: (v.get("confidence") != "high"
+                            and _vt(v) in {"park", "city park", "state park", "athletic field",
+                                           "tennis court", "playground"}),
+    },
+    {
+        "slug": "pickleball-clubs-rhode-island",
+        "h1": "Pickleball Clubs in Rhode Island",
+        "title": "Pickleball Clubs in Rhode Island — Dedicated Courts & Open Play",
+        "intent": "pickleball clubs",
+        "blurb": ("Rhode Island's dedicated pickleball clubs and racquet clubs — the spots built for "
+                  "the sport, with the most courts, organized open play, lessons, and leagues."),
+        "match": lambda v: (v.get("confidence") == "high"
+                            or _vt(v) in {"sports club", "country club"}),
+    },
+]
+
+
+def build_collection_pages(directory: dict, doc: dict) -> int:
+    """Write site/guide/<slug>/index.html for each curated collection. Returns count."""
+    venues = [v for v in directory.get("venues", []) if v.get("slug")]
+    if not venues:
+        return 0
+    cdir = SITE / "guide"
+    if cdir.exists():
+        shutil.rmtree(cdir)
+    cdir.mkdir(parents=True, exist_ok=True)
+
+    def vkey(v):
+        return (0 if v.get("source_id") else 1, 0 if v.get("confidence") == "high" else 1,
+                -(v.get("rating") or 0), v.get("name") or "")
+
+    count = 0
+    for col in COLLECTIONS:
+        matched = sorted([v for v in venues if col["match"](v)], key=vkey)
+        if len(matched) < 3:
+            continue  # too thin to be a useful page
+        n = len(matched)
+        canonical = f"{SITE_BASE_URL}/guide/{col['slug']}/"
+        live = [v for v in matched if v.get("source_id")]
+        meta_desc = (f"{col['blurb']} {n} venues across Rhode Island"
+                     + (f", {len(live)} with a live open-play schedule." if live else ".")
+                     + " Addresses, maps, and details for each.")
+
+        item_list = {
+            "@context": "https://schema.org", "@type": "ItemList",
+            "name": col["h1"], "numberOfItems": n,
+            "itemListElement": [
+                {"@type": "ListItem", "position": i + 1, "name": v.get("name"),
+                 "url": f"{SITE_BASE_URL}/v/{v['slug']}/"}
+                for i, v in enumerate(matched)
+            ],
+        }
+        crumbs = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Open Play RI", "item": f"{SITE_BASE_URL}/"},
+            {"@type": "ListItem", "position": 2, "name": col["h1"], "item": canonical},
+        ]}
+        jsonld = _jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
+        breadcrumb = ('<a href="../../">Open Play RI</a><span class="sep">/</span>'
+                      f'<span>{esc(col["h1"])}</span>')
+
+        live_note = ""
+        if live:
+            names = ", ".join(esc(v.get("name")) for v in live[:4])
+            live_note = (f'<div class="badges"><span class="badge live"><span class="dot"></span>'
+                         f'Live open-play schedule · {names}</span></div>')
+
+        # group matched venues by town for scannability
+        by_city: dict[str, list] = {}
+        for v in matched:
+            by_city.setdefault(v.get("city") or "Rhode Island", []).append(v)
+        towns = sorted(by_city, key=lambda c: (-len(by_city[c]), c))
+        sections = []
+        for c in towns:
+            cards = "".join(_venue_vlink(v, f"../../v/{v['slug']}/", bool(v.get("source_id")))
+                            for v in by_city[c])
+            tslug = town_slug(c)
+            head = (f'<a href="../../t/{esc(tslug)}/" style="text-decoration:none">{esc(c)}, RI →</a>'
+                    if c != "Rhode Island" else "Rhode Island")
+            sections.append(f'<section class="nearby"><h2>{head}</h2><div class="vlist">{cards}</div></section>')
+
+        # cross-links to the other guides
+        others = [c for c in COLLECTIONS if c["slug"] != col["slug"]]
+        guide_links = "".join(
+            f'<a class="vlink" href="../{esc(o["slug"])}/"><span class="nm">{esc(o["h1"])}</span>'
+            f'<span class="ct">guide</span></a>' for o in others
+        )
+        guide_sec = f'<section class="nearby"><h2>More guides</h2><div class="vlist">{guide_links}</div></section>'
+
+        body = (f'<div class="vhead"><div class="eyebrow">Rhode Island · Guide</div>'
+                f'<h1>{esc(col["h1"])}</h1><p class="sub">{esc(col["blurb"])}</p>{live_note}</div>'
+                f'{"".join(sections)}{guide_sec}')
+
+        out = VENUE_TEMPLATE
+        for k, val in {
+            "PAGE_TITLE": esc(col["title"]), "META_DESC": esc(meta_desc),
+            "OG_TITLE": esc(col["h1"]), "CANONICAL": esc(canonical),
+            "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"), "JSONLD": jsonld,
+            "HOME_HREF": "../../", "BREADCRUMB": breadcrumb, "BODY": body,
+        }.items():
+            out = out.replace("{{" + k + "}}", val)
+        sdir = cdir / col["slug"]
+        sdir.mkdir(parents=True, exist_ok=True)
+        (sdir / "index.html").write_text(out, encoding="utf-8")
+        count += 1
+
+    return count
+
+
 def _git_sha() -> str:
     """Best-effort short HEAD sha; used when GITHUB_SHA isn't set (local builds)."""
     try:
@@ -995,6 +1135,7 @@ def main(argv: list[str] | None = None) -> int:
     n_fallbacks = max(0, n_pages - n_imgs)
     n_venues = build_venue_pages(directory, doc)
     n_towns = build_town_pages(directory, doc)
+    n_guides = build_collection_pages(directory, doc)
     n_urls = write_sitemap_and_robots(doc, directory)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
@@ -1007,7 +1148,7 @@ def main(argv: list[str] | None = None) -> int:
         f"{t.get('sessions')} sessions, {t.get('upcoming_sessions')} upcoming) "
         f"+ {n_pages} session pages + {img_note} under site/s/ "
         f"+ {n_venues} venue pages under site/v/ "
-        f"+ {n_towns} town pages under site/t/ "
+        f"+ {n_towns} town pages under site/t/ + {n_guides} guides under site/guide/ "
         f"+ sitemap.xml/robots.txt ({n_urls} urls)  [base={SITE_BASE_URL}]",
         file=sys.stderr,
     )

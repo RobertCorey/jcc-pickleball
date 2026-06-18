@@ -259,6 +259,11 @@
 
   /* ---------------- directory ---------------- */
   .directory { padding-bottom: 8px; }
+  .guidechips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+  .gchip { font-family: var(--font-body); font-size: 13.5px; font-weight: 600; text-decoration: none;
+    padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line-strong); background: var(--paper);
+    color: var(--ink-soft); transition: border-color .14s, color .14s, transform .14s; }
+  .gchip:hover { border-color: var(--forest); color: var(--ink); transform: translateY(-1px); }
   .dir-search { margin-top: clamp(16px, 2.4vw, 22px); position: relative; }
   .dir-search input { width: 100%; font-family: var(--font-body); font-size: 15px; color: var(--ink); background: var(--paper);
     border: 1.5px solid var(--line-strong); border-radius: var(--r); padding: 13px 16px 13px 42px; transition: border-color .15s; }
@@ -472,6 +477,12 @@
       <p class="sub">A directory of pickleball courts, clubs, and open-play venues across the state, grouped by town. Tap any venue for its address, map, phone, hours, and — where we have it — a live open-play schedule.</p>
     </div>
 
+    <div class="guidechips" aria-label="Browse by type">
+      <a class="gchip" href="guide/indoor-pickleball-rhode-island/">🏠 Indoor pickleball</a>
+      <a class="gchip" href="guide/free-public-pickleball-courts-rhode-island/">🆓 Free public courts</a>
+      <a class="gchip" href="guide/pickleball-clubs-rhode-island/">🏓 Pickleball clubs</a>
+    </div>
+
     <div class="dir-search">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       <input type="search" id="dir-q" placeholder="Search by venue or town — e.g. Warwick, Newport, YMCA" autocomplete="off" aria-label="Search venues and towns" />
@@ -528,8 +539,10 @@
         <ul>
           <li><a href="#directory">All RI venues ↓</a></li>
           <li><a href="#sessions">Live open-play schedule ↓</a></li>
+          <li><a href="guide/indoor-pickleball-rhode-island/">Indoor pickleball in RI →</a></li>
+          <li><a href="guide/free-public-pickleball-courts-rhode-island/">Free public courts →</a></li>
+          <li><a href="guide/pickleball-clubs-rhode-island/">Pickleball clubs in RI →</a></li>
           <li><a href="#faq-h">Common questions ↓</a></li>
-          <li><a id="map-link" href="https://maps.google.com/?q=pickleball+Rhode+Island" target="_blank" rel="noopener">Pickleball near me ↗</a></li>
         </ul>
       </div>
     </div>
