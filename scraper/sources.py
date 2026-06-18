@@ -42,6 +42,7 @@ import sys
 
 import scrape_open_play
 import bristol_ics
+import courtreserve
 
 
 # --------------------------------------------------------------------------- #
@@ -100,11 +101,116 @@ def _bristol() -> dict:
     return bristol_ics.build_source()
 
 
+# --------------------------------------------------------------------------- #
+# CourtReserve sources — RI clubs that publish a public CourtReserve calendar.
+#
+# Each entry is one organization whose public calendar we VERIFIED returns real
+# upcoming open-play / drop-in events with no login. Venue facts (name / address
+# / geo / phone / website) mirror the club's ``directory.json`` entry so the
+# directory layer geo-matches and deep-links the live schedule to its venue page.
+# (Centerline Pickleball Club uses CourtReserve too, but its public site never
+# exposes an org id, so it is intentionally omitted until one is confirmed.)
+# --------------------------------------------------------------------------- #
+COURTRESERVE_ORGS = [
+    {
+        "source_id": "pickleball-citi",
+        "org_id": 11577,
+        "venue": {
+            "name": "Pickleball Citi",
+            "short_name": "Pickleball Citi",
+            "address1": "60 Walnut Grove Ave",
+            "address2": None,
+            "city": "Cranston",
+            "province": "RI",
+            "postal_code": "02920",
+            "country": "US",
+            "phone": "4019999065",
+            "phone_ext": None,
+            "latitude": 41.789127799999996,
+            "longitude": -71.4747972,
+            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/11577/month",
+            "homepage_url": "https://www.pickleballciti.com/",
+        },
+    },
+    {
+        "source_id": "ocean-state-pickleball",
+        "org_id": 7726,
+        "venue": {
+            "name": "Ocean State Pickleball",
+            "short_name": "Ocean State Pickleball",
+            "address1": "360 S Pier Rd",
+            "address2": None,
+            "city": "Narragansett",
+            "province": "RI",
+            "postal_code": "02882",
+            "country": "US",
+            "phone": "4017863329",
+            "phone_ext": None,
+            "latitude": 41.428961,
+            "longitude": -71.479182,
+            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/7726/month",
+            "homepage_url": "http://oceanstatepickleball.com/",
+        },
+    },
+    {
+        "source_id": "east-bay-pickleball",
+        "org_id": 16386,
+        "venue": {
+            "name": "East Bay Pickleball Club",
+            "short_name": "East Bay Pickleball",
+            "address1": "317 Market St",
+            "address2": None,
+            "city": "Warren",
+            "province": "RI",
+            "postal_code": "02885",
+            "country": "US",
+            "phone": "4012524021",
+            "phone_ext": None,
+            "latitude": 41.7400143,
+            "longitude": -71.27291989999999,
+            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/16386/month",
+            "homepage_url": "https://eastbaypickleballclub.com/",
+        },
+    },
+    {
+        "source_id": "lil-rhody-pickleball",
+        "org_id": 9068,
+        "venue": {
+            "name": "LIL Rhody PICKLEBALL",
+            "short_name": "Lil Rhody Pickleball",
+            "address1": "6615 Post Rd",
+            "address2": None,
+            "city": "North Kingstown",
+            "province": "RI",
+            "postal_code": "02852",
+            "country": "US",
+            "phone": "4013722272",
+            "phone_ext": None,
+            "latitude": 41.61624390000001,
+            "longitude": -71.4591135,
+            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/9068/month",
+            "homepage_url": "http://lilrhodypickleball.club/",
+        },
+    },
+]
+
+
+def _make_courtreserve_source(org: dict):
+    """Bind one COURTRESERVE_ORGS entry into a zero-arg source callable."""
+    def _fn() -> dict:
+        return courtreserve.build_source(
+            org["org_id"], org["venue"], source_id=org["source_id"],
+            cta_label="Reserve on CourtReserve",
+        )
+    return _fn
+
+
 # Registry. Order here is the order venues appear on the site.
 SOURCES = [
     ("jcc-ri", _jcc_amilia),
     ("bristol", _bristol),
 ]
+SOURCES += [(o["source_id"], _make_courtreserve_source(o)) for o in COURTRESERVE_ORGS]
 
 # Keys copied verbatim from each source result into the per-source metadata.
 _SOURCE_META_KEYS = (
