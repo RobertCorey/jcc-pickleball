@@ -93,6 +93,11 @@ register-clicks** (no ad budget). Tracked KPIs:
   list to ~600 rows (overwhelming/slow). Now shows soonest 60 + "Show all N" button; venue/day filters
   reset the cap. index.html only. Verified in-browser (60→602 on expand, resets on filter).
 
+- (iter 9, 2026-06-18) ✅ **Lighthouse audit + a11y fixes.** Ran Lighthouse (mobile) on the live site:
+  SEO 100, Best Practices 96, Accessibility 96. Fixed the 2 contrast failures (--ink-faint + .avail
+  status colors below 4.5:1 AA) → **Accessibility 100**. Sole remaining item is the ad-blockable
+  analytics beacon (environmental). Baseline scores now: SEO 100 / A11y 100 / BP 96 / Agentic 100.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
