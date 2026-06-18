@@ -342,6 +342,8 @@ def write_sitemap_and_robots(doc, directory=None) -> int:
     entries += [(f"{SITE_BASE_URL}/t/{t}/", "weekly", "0.9") for t in towns]
     # Intent/collection guides ("indoor pickleball RI", "free public courts", "clubs").
     entries += [(f"{SITE_BASE_URL}/guide/{c['slug']}/", "weekly", "0.9") for c in COLLECTIONS]
+    # Data report — a linkable insights asset, refreshed each build.
+    entries.append((f"{SITE_BASE_URL}/rhode-island-pickleball-report/", "weekly", "0.8"))
     # Venue/directory pages — the durable SEO surface; change rarely but are the
     # most link-worthy, so a notch below the homepage and above ephemeral sessions.
     entries += [(f"{SITE_BASE_URL}/v/{slug}/", "weekly", "0.8") for slug in slugs]
@@ -1063,6 +1065,148 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
     return count
 
 
+def _bar_row(label: str, n: int, total: int, sub: str = "") -> str:
+    pct = round(n / total * 100) if total else 0
+    return (
+        f'<div class="barrow"><div class="barlab">{esc(label)}'
+        f'<span class="barn">{n}{(" · " + esc(sub)) if sub else ""}</span></div>'
+        f'<div class="bartrack"><i style="width:{max(pct,2)}%"></i></div></div>'
+    )
+
+
+def build_report_page(directory: dict, doc: dict) -> int:
+    """Write site/rhode-island-pickleball-report/ — an auto-updating data/insights
+    page derived from the aggregated directory + live schedules. A distinctive,
+    linkable content asset (ranks for "rhode island pickleball" informational
+    queries) that only an aggregator sitting on this data can produce."""
+    import collections
+    venues = [v for v in directory.get("venues", []) if v.get("slug")]
+    if len(venues) < 5:
+        return 0
+    sessions = [s for s in doc.get("sessions", []) if not s.get("has_passed")]
+
+    towns = collections.Counter(v.get("city") for v in venues if v.get("city"))
+    n_towns = len(towns)
+    n_clubs = sum(1 for v in venues if v.get("confidence") == "high")
+    live_venues = len({s.get("source_id") for s in sessions if s.get("source_id")})
+
+    WD = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    wd = collections.Counter()
+    hr = collections.Counter()
+    for s in sessions:
+        p = parse_local(s.get("start"))
+        if not p:
+            continue
+        wd[(p["wd"] + 6) % 7] += 1  # Sun=0..Sat=6 → Mon=0..Sun=6
+        hr[p["h"]] += 1
+    busiest_day = WD[max(wd, key=wd.get)] if wd else "—"
+
+    def hour_label(h):
+        ap = "am" if h < 12 else "pm"
+        hh = h % 12 or 12
+        return f"{hh}{ap}"
+    tod = {"Morning (6–11am)": sum(hr[h] for h in range(6, 12)),
+           "Midday (11am–2pm)": sum(hr[h] for h in range(11, 14)),
+           "Afternoon (2–5pm)": sum(hr[h] for h in range(14, 17)),
+           "Evening (5–9pm)": sum(hr[h] for h in range(17, 21))}
+
+    updated = (doc.get("scraped_at_utc") or dt.datetime.now(dt.timezone.utc).isoformat())[:10]
+    canonical = f"{SITE_BASE_URL}/rhode-island-pickleball-report/"
+
+    title = "The State of Pickleball in Rhode Island — A Data Report | Open Play RI"
+    h1 = "The State of Pickleball in Rhode Island"
+    meta_desc = (f"A data report on pickleball in Rhode Island: {len(venues)} places to play across "
+                 f"{n_towns} towns, {len(sessions)} upcoming open-play sessions tracked, and when & "
+                 f"where Rhode Islanders play. Updated continuously by Open Play RI.")
+
+    article = {
+        "@context": "https://schema.org", "@type": "Article",
+        "headline": h1, "datePublished": "2026-06-18", "dateModified": updated,
+        "author": {"@type": "Organization", "name": "Open Play RI"},
+        "publisher": {"@type": "Organization", "name": "Open Play RI"},
+        "mainEntityOfPage": canonical, "url": canonical, "description": meta_desc,
+        "about": "Pickleball in Rhode Island",
+    }
+    crumbs = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Open Play RI", "item": f"{SITE_BASE_URL}/"},
+        {"@type": "ListItem", "position": 2, "name": "RI Pickleball Report", "item": canonical}]}
+    jsonld = _jsonld_script(article) + "\n" + _jsonld_script(crumbs)
+    breadcrumb = '<a href="../">Open Play RI</a><span class="sep">/</span><span>RI Pickleball Report</span>'
+
+    # ---- body ----
+    stat = lambda n, l: f'<div class="rstat"><div class="rn">{n}</div><div class="rl">{esc(l)}</div></div>'
+    big = ('<div class="rstats">'
+           + stat(len(venues), "places to play")
+           + stat(n_towns, "towns & cities")
+           + stat(f'<span class="accent">{live_venues}</span>', "live schedules")
+           + stat(len(sessions), "upcoming sessions")
+           + "</div>")
+
+    top_towns = "".join(_bar_row(f"{t}, RI", c, towns.most_common(1)[0][1]) for t, c in towns.most_common(10))
+    wd_bars = "".join(_bar_row(WD[i], wd[i], max(wd.values()) if wd else 1) for i in range(7))
+    tod_bars = "".join(_bar_row(k, v, max(tod.values()) if tod else 1) for k, v in tod.items())
+
+    intro = (f"Rhode Island may be the smallest state, but it punches above its weight on pickleball. "
+             f"Open Play RI tracks <b>{len(venues)} places to play</b> across <b>{n_towns}</b> cities and "
+             f"towns — from dedicated clubs to YMCAs, racquet clubs, and public park courts — and pulls "
+             f"<b>live open-play schedules</b> from {live_venues} of them. Here's what the data says about "
+             f"where and when the Ocean State plays. <span class='rfresh'>Updated {esc(updated)}.</span>")
+
+    body = (
+        '<style>'
+        '.rstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:22px 0 8px;}'
+        '.rstat{background:var(--paper);border:1.5px solid var(--line-strong);border-radius:var(--r);padding:16px 18px;}'
+        '.rn{font-family:var(--fd);font-weight:800;font-size:clamp(26px,4.4vw,38px);letter-spacing:-.03em;line-height:1;color:var(--ink);}'
+        '.rn .accent{color:var(--forest);}'
+        '.rl{margin-top:6px;font-size:13px;color:var(--ink-soft);font-weight:600;}'
+        '.rfresh{color:var(--ink-faint);font-weight:600;}'
+        '.barrow{margin:9px 0;}'
+        '.barlab{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;color:var(--ink-soft);margin-bottom:4px;}'
+        '.barn{color:var(--ink);font-variant-numeric:tabular-nums;}'
+        '.bartrack{height:9px;background:var(--bone-2);border:1px solid var(--line);border-radius:999px;overflow:hidden;}'
+        '.bartrack>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--forest),var(--lime-deep));}'
+        '.rsec{margin-top:30px;}.rsec h2{font-family:var(--fd);font-weight:800;font-size:clamp(19px,2.6vw,24px);letter-spacing:-.02em;margin-bottom:4px;}'
+        '.rsec p.k{font-size:14px;color:var(--ink-soft);margin-bottom:14px;}'
+        '.rkey{background:var(--forest);color:var(--bone);border-radius:var(--r);padding:16px 20px;margin-top:14px;font-size:15px;line-height:1.5;}'
+        '.rkey b{color:var(--lime);}'
+        '</style>'
+        f'<div class="vhead"><div class="eyebrow">Rhode Island · Data report</div>'
+        f'<h1>{esc(h1)}</h1><p class="sub" style="max-width:60ch">{intro}</p></div>'
+        f'{big}'
+        f'<div class="rkey">The busiest day for open play in RI is <b>{esc(busiest_day)}</b>, and '
+        f'mornings rule — <b>{tod["Morning (6–11am)"]}</b> of the next sessions tip off between 6 and 11am.</div>'
+        f'<section class="rsec"><h2>Where the courts are</h2><p class="k">Towns with the most places to play pickleball.</p>{top_towns}</section>'
+        f'<section class="rsec"><h2>When Rhode Island plays</h2><p class="k">Upcoming open-play sessions by day of week (across the venues we track live).</p>{wd_bars}</section>'
+        f'<section class="rsec"><h2>What time of day</h2><p class="k">Upcoming open-play sessions by time of day.</p>{tod_bars}</section>'
+        f'<section class="rsec"><h2>The breakdown</h2>'
+        f'{_bar_row("Dedicated pickleball clubs", n_clubs, len(venues))}'
+        f'{_bar_row("Venues with public reviews", sum(1 for v in venues if v.get("rating")), len(venues))}'
+        f'{_bar_row("Venues with a website", sum(1 for v in venues if v.get("website")), len(venues))}'
+        f'{_bar_row("Venues with live schedules here", live_venues, len(venues))}</section>'
+        f'<section class="nearby" style="margin-top:30px"><h2>Explore the data</h2><div class="vlist">'
+        f'<a class="vlink" href="../#directory"><span class="nm">Browse all {len(venues)} RI venues</span><span class="ct">directory</span></a>'
+        f'<a class="vlink" href="../#sessions"><span class="nm">See the live open-play schedule</span><span class="ct">{len(sessions)} sessions</span></a>'
+        f'<a class="vlink" href="../guide/free-public-pickleball-courts-rhode-island/"><span class="nm">Free &amp; public courts in RI</span><span class="ct">guide</span></a>'
+        f'</div></section>'
+        f'<p style="margin-top:24px;font-size:12.5px;color:var(--ink-faint);line-height:1.6">Methodology: venue counts come from public mapping data for Rhode Island; '
+        f'session counts are live open-play/drop-in events from the {live_venues} venues Open Play RI '
+        f'tracks (refreshed hourly) and reflect scheduled sessions in the next few weeks, not all-time. '
+        f'Numbers update automatically. Free to cite with a link to Open Play RI.</p>'
+    )
+
+    out = VENUE_TEMPLATE
+    for k, val in {
+        "PAGE_TITLE": esc(title), "META_DESC": esc(meta_desc), "OG_TITLE": esc(h1),
+        "CANONICAL": esc(canonical), "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"),
+        "JSONLD": jsonld, "HOME_HREF": "../", "BREADCRUMB": breadcrumb, "BODY": body,
+    }.items():
+        out = out.replace("{{" + k + "}}", val)
+    rdir = SITE / "rhode-island-pickleball-report"
+    rdir.mkdir(parents=True, exist_ok=True)
+    (rdir / "index.html").write_text(out, encoding="utf-8")
+    return 1
+
+
 def _git_sha() -> str:
     """Best-effort short HEAD sha; used when GITHUB_SHA isn't set (local builds)."""
     try:
@@ -1152,6 +1296,7 @@ def main(argv: list[str] | None = None) -> int:
     n_venues = build_venue_pages(directory, doc)
     n_towns = build_town_pages(directory, doc)
     n_guides = build_collection_pages(directory, doc)
+    n_report = build_report_page(directory, doc)
     n_urls = write_sitemap_and_robots(doc, directory)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
