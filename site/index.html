@@ -264,12 +264,21 @@
     padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line-strong); background: var(--paper);
     color: var(--ink-soft); transition: border-color .14s, color .14s, transform .14s; }
   .gchip:hover { border-color: var(--forest); color: var(--ink); transform: translateY(-1px); }
-  .dir-search { margin-top: clamp(16px, 2.4vw, 22px); position: relative; }
+  .dir-controls { margin-top: clamp(16px, 2.4vw, 22px); display: flex; gap: 10px; flex-wrap: wrap; }
+  .dir-search { position: relative; flex: 1; min-width: 220px; }
   .dir-search input { width: 100%; font-family: var(--font-body); font-size: 15px; color: var(--ink); background: var(--paper);
     border: 1.5px solid var(--line-strong); border-radius: var(--r); padding: 13px 16px 13px 42px; transition: border-color .15s; }
   .dir-search input:focus { outline: none; border-color: var(--forest); }
   .dir-search input::placeholder { color: var(--ink-faint); }
   .dir-search svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--ink-faint); pointer-events: none; }
+  .nearme { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-weight: 600; font-size: 14.5px;
+    color: var(--ink-soft); background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: var(--r);
+    padding: 0 16px; cursor: pointer; white-space: nowrap; transition: all .15s; }
+  .nearme svg { width: 17px; height: 17px; }
+  .nearme:hover { border-color: var(--ink); color: var(--ink); }
+  .nearme[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); color: var(--bone); }
+  .nearme[aria-busy="true"] { opacity: .6; pointer-events: none; }
+  .vcard .vdist { color: var(--forest); font-weight: 700; }
   .dir-count { margin-top: 10px; font-size: 13px; color: var(--ink-faint); }
   .dir-count b { color: var(--ink-soft); font-weight: 600; }
 
@@ -483,9 +492,15 @@
       <a class="gchip" href="guide/pickleball-clubs-rhode-island/">🏓 Pickleball clubs</a>
     </div>
 
-    <div class="dir-search">
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <input type="search" id="dir-q" placeholder="Search by venue or town — e.g. Warwick, Newport, YMCA" autocomplete="off" aria-label="Search venues and towns" />
+    <div class="dir-controls">
+      <div class="dir-search">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" id="dir-q" placeholder="Search by venue or town — e.g. Warwick, Newport, YMCA" autocomplete="off" aria-label="Search venues and towns" />
+      </div>
+      <button type="button" id="nearme" class="nearme" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+        <span id="nearme-label">Near me</span>
+      </button>
     </div>
     <div class="dir-count" id="dir-count"></div>
     <div id="dir-list">
@@ -878,7 +893,7 @@
   function $(s, r) { return (r || document).querySelector(s); }
   function esc(x) { return String(x == null ? "" : x).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
 
-  var VENUES = null, LIVE = null, Q = "";
+  var VENUES = null, LIVE = null, Q = "", USERLOC = null;
 
   function haversine(la1, lo1, la2, lo2) {
     var R = 6371000, rad = Math.PI / 180;
@@ -887,6 +902,11 @@
             Math.cos(la1 * rad) * Math.cos(la2 * rad) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
     return 2 * R * Math.asin(Math.sqrt(a));
   }
+  function milesFromUser(v) {
+    if (!USERLOC || v.latitude == null || v.longitude == null) return null;
+    return haversine(USERLOC.lat, USERLOC.lng, +v.latitude, +v.longitude) / 1609.34;
+  }
+  function fmtMiles(mi) { return mi == null ? "" : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + " mi"; }
 
   // slug -> {upcoming}: directory venues matched (by geo, <=400m) to a live source.
   function computeLive() {
@@ -909,8 +929,9 @@
 
   function townSlug(city) { return String(city || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "rhode-island"; }
 
-  function cardHTML(v, live) {
+  function cardHTML(v, live, mi) {
     var meta = [];
+    if (mi != null) meta.push('<span class="vdist">' + esc(fmtMiles(mi)) + '</span>');
     if (v.primary_type) meta.push(esc(v.primary_type));
     if (typeof v.rating === "number" && (v.rating_count || 0) >= 1)
       meta.push('<span class="vrate"><span class="star">★</span> ' + v.rating.toFixed(1) + ' (' + (v.rating_count | 0) + ')</span>');
@@ -949,12 +970,27 @@
 
     // count line
     var cc = $("#dir-count");
-    if (cc) cc.innerHTML = q
-      ? "Showing <b>" + vis.length + "</b> of " + VENUES.length + " venues"
-      : "<b>" + VENUES.length + "</b> venues across <b>" + nTowns + "</b> Rhode Island towns";
+    if (cc) cc.innerHTML = USERLOC
+      ? "Sorted by distance from you" + (q ? " · matching “" + esc(Q) + "”" : "") + " · <b>" + vis.length + "</b> venues"
+      : (q ? "Showing <b>" + vis.length + "</b> of " + VENUES.length + " venues"
+           : "<b>" + VENUES.length + "</b> venues across <b>" + nTowns + "</b> Rhode Island towns");
 
     if (!vis.length) {
       listEl.innerHTML = '<div class="dir-empty"><div class="big">No matches</div><p>No venues match “' + esc(Q) + '”. Try a town name like Warwick or Newport.</p></div>';
+      return;
+    }
+
+    // distance mode: flat list sorted by distance from the user (venues without
+    // coords sink to the bottom). Replaces the town grouping while active.
+    if (USERLOC) {
+      var withDist = vis.map(function (v) { return { v: v, mi: milesFromUser(v) }; })
+        .sort(function (a, b) {
+          if ((a.mi == null) !== (b.mi == null)) return a.mi == null ? 1 : -1;
+          if (a.mi != null && b.mi != null && a.mi !== b.mi) return a.mi - b.mi;
+          return (a.v.name || "").localeCompare(b.v.name || "");
+        });
+      listEl.innerHTML = '<div class="vgrid">' +
+        withDist.map(function (x) { return cardHTML(x.v, liveMap[x.v.slug], x.mi); }).join("") + '</div>';
       return;
     }
 
@@ -989,6 +1025,28 @@
   }
 
   window.OPRI_directory = { setLive: function (sources, ubs) { LIVE = { sources: sources, upcomingBySource: ubs }; render(); } };
+
+  // "Near me" — sort the directory by distance using browser geolocation.
+  var nmBtn = $("#nearme"), nmLabel = $("#nearme-label");
+  if (nmBtn) nmBtn.addEventListener("click", function () {
+    if (USERLOC) { // toggle off → back to town grouping
+      USERLOC = null; nmBtn.setAttribute("aria-pressed", "false"); if (nmLabel) nmLabel.textContent = "Near me"; render(); return;
+    }
+    if (!navigator.geolocation) { if (nmLabel) nmLabel.textContent = "Not supported"; return; }
+    nmBtn.setAttribute("aria-busy", "true"); if (nmLabel) nmLabel.textContent = "Locating…";
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        USERLOC = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        nmBtn.removeAttribute("aria-busy"); nmBtn.setAttribute("aria-pressed", "true");
+        if (nmLabel) nmLabel.textContent = "Near me ✓";
+        if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: "near-me", title: "Near me used", event: true });
+        render();
+        var d = document.getElementById("directory"); if (d) d.scrollIntoView({ behavior: "smooth" });
+      },
+      function () { nmBtn.removeAttribute("aria-busy"); if (nmLabel) nmLabel.textContent = "Location off"; setTimeout(function () { if (!USERLOC && nmLabel) nmLabel.textContent = "Near me"; }, 2500); },
+      { enableHighAccuracy: false, timeout: 9000, maximumAge: 600000 }
+    );
+  });
 
   var qel = $("#dir-q");
   // seed the search from ?q= (shareable searches + valid WebSite SearchAction)
