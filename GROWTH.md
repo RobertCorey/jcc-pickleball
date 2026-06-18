@@ -50,8 +50,11 @@ register-clicks** (no ad budget). Tracked KPIs:
   committed copy doesn't affect the live site. Future iterations: after `build_site.py`,
   `git checkout site/data/sessions.json` to drop the regenerated data file and commit only
   source/template/HTML — avoids the conflict entirely.
-- IndexNow key: `76c5fcc110e2a861ce80e681690b95d2` (file at site root). Resubmit new/changed URLs
-  on big content changes: POST to `https://api.indexnow.org/indexnow`.
+- IndexNow key: `76c5fcc110e2a861ce80e681690b95d2` (file at site root). ✅ 216 URLs submitted &
+  accepted 2026-06-18. NOTE: `api.indexnow.org` returned `SiteVerificationNotCompleted` (403) on
+  first try, but **`https://www.bing.com/indexnow`** accepted the same payload (HTTP 200). Use the
+  Bing endpoint. Resubmit new/changed URLs after big content changes (payload at /tmp; or
+  regenerate from the live sitemap).
 
 ## Backlog / ideas (pick the top item each iteration)
 - [ ] Town landing pages `/t/<town>/` — aggregate venues per town, ItemList schema. ← iter 1
