@@ -44,6 +44,12 @@ register-clicks** (no ad budget). Tracked KPIs:
   directory search is now URL-addressable (`?q=`) → shareable searches + valid SearchAction.
   Real unlock still = Search Console (Rob's Google acct, in NEEDS-HUMAN).
 
+- (iter 3, 2026-06-18) ✅ **Intent/collection guides** `/guide/<slug>/`: indoor-pickleball-rhode-island
+  (20), free-public-pickleball-courts-rhode-island (46), pickleball-clubs-rhode-island (17). Curated
+  venue lists grouped by town, CollectionPage/ItemList + Breadcrumb schema, cross-links. Homepage
+  surfaces them (guide chips above directory + footer). Config-driven COLLECTIONS in build_site.py.
+  Sitemap → 219 URLs. Used the streamlined commit (discard sessions.json → no merge conflict ✓).
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
