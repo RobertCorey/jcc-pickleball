@@ -57,6 +57,17 @@ register-clicks** (no ad budget). Tracked KPIs:
   now live (200), sitemap 219. Re-submitted guides to IndexNow (HTTP 200). Lesson: best-effort
   steps need timeouts, not just continue-on-error.
 
+- (iter 5, 2026-06-18) 🔨 **3rd live source — CourtReserve (in progress, delegated agent).** Found
+  that 5 top RI clubs all use **CourtReserve**: Pickleball Citi (org 11577), Ocean State (7726),
+  East Bay (16386), LIL Rhody (9068), Centerline (tbd). One adapter → up to 5 live venues. Public
+  events endpoint confirmed (no auth wall): `GET app.courtreserve.com/Online/Calendar/ReadCalendarEvents/<orgId>`
+  returns a valid Kendo JSON envelope `{"Data":[],"Total":..}`. Needs the right `jsonData`/date params
+  (scrape `requestData` token + `CostTypeId` from `/Online/Calendar/Events/<orgId>/month`; see
+  getCriteriaForRead result fields). Launched a background agent to crack the params + build
+  `scraper/courtreserve.py` + integrate into sources.py (best-effort, stdlib-only, pickleball
+  open-play only). Will review + merge its branch when it reports. THE high-value differentiator —
+  more real session pages competitors don't have.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
