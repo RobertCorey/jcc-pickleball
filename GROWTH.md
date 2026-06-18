@@ -37,6 +37,22 @@ register-clicks** (no ad budget). Tracked KPIs:
   internal links: homepage town headers → /t/, venue breadcrumb city → /t/, venue↔town↔venue.
   Sitemap 189 → 216 URLs. Checked GoatCounter baseline (≈0 real users yet).
 
+- (iter 2, 2026-06-18) ✅ **Indexing push** — root robots.txt is 404 (no crawl restrictions),
+  so the site is crawlable; it's just undiscovered. Added (a) **IndexNow** key file
+  (`site/76c5fcc110e2a861ce80e681690b95d2.txt`) → submit URLs to Bing/Yandex/DuckDuckGo without
+  a Google account; (b) homepage **Organization + WebSite** JSON-LD with a SearchAction; (c) the
+  directory search is now URL-addressable (`?q=`) → shareable searches + valid SearchAction.
+  Real unlock still = Search Console (Rob's Google acct, in NEEDS-HUMAN).
+
+## Ops notes
+- **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
+  every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
+  committed copy doesn't affect the live site. Future iterations: after `build_site.py`,
+  `git checkout site/data/sessions.json` to drop the regenerated data file and commit only
+  source/template/HTML — avoids the conflict entirely.
+- IndexNow key: `76c5fcc110e2a861ce80e681690b95d2` (file at site root). Resubmit new/changed URLs
+  on big content changes: POST to `https://api.indexnow.org/indexnow`.
+
 ## Backlog / ideas (pick the top item each iteration)
 - [ ] Town landing pages `/t/<town>/` — aggregate venues per town, ItemList schema. ← iter 1
 - [ ] Intent pages: "indoor pickleball in RI", "free public pickleball courts RI", "beginner open play".
