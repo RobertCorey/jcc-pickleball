@@ -98,6 +98,12 @@ register-clicks** (no ad budget). Tracked KPIs:
   status colors below 4.5:1 AA) → **Accessibility 100**. Sole remaining item is the ad-blockable
   analytics beacon (environmental). Baseline scores now: SEO 100 / A11y 100 / BP 96 / Agentic 100.
 
+- (iter 10, 2026-06-18) ✅ **"State of Pickleball in RI" data report** (`/rhode-island-pickleball-report/`).
+  Auto-updating insights page from aggregated data: 85 venues/28 towns/601 sessions, busiest-day +
+  time-of-day + top-town + breakdown bar charts, Article+Breadcrumb schema. A distinctive, citable
+  asset (the main link-earning lever without account access) that ranks for informational RI pickleball
+  queries. Linked from homepage footer + sitemap. Stats refresh every build.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
