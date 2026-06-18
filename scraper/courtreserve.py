@@ -55,7 +55,10 @@ BASE = "https://app.courtreserve.com"
 # How far forward to pull events. A small look-back keeps "today, earlier"
 # sessions present (they render as passed) without bloating the payload.
 WINDOW_BACK_DAYS = 1
-WINDOW_FWD_DAYS = 45
+# 3-week horizon: open play that far out is rarely actionable, and these clubs run
+# many sessions/day — a longer window explodes page/sitemap/OG-render volume for
+# little user value. Bump cautiously if needed.
+WINDOW_FWD_DAYS = 21
 
 # --------------------------------------------------------------------------- #
 # Open-play / drop-in classification

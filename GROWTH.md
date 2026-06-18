@@ -73,6 +73,18 @@ register-clicks** (no ad budget). Tracked KPIs:
   from the user (haversine, miles shown), toggles back to town grouping. Serves the core "pickleball
   near me" intent + tracks a `near-me` GoatCounter event. Verified in-browser with mocked geolocation.
 
+- (iter 7, 2026-06-18) ✅✅ **BIG WIN — 4 new live-schedule venues via CourtReserve.** The delegated
+  agent cracked CourtReserve's public events API (POST /Online/Calendar/ReadCalendarEvents with
+  KendoStart/End as {Year,Month,Day} objects + a scraped requestData token; no auth). Built
+  `scraper/courtreserve.py` (stdlib, best-effort, open-play-only filter) + registered 4 orgs in
+  sources.py: Pickleball Citi, Ocean State, East Bay, LIL Rhody. **Live venues: 2 → 6.** Driver-verified:
+  JSON-LD clean on all session pages (no injection), JCC/Bristol unchanged, all 4 venue pages show
+  live schedules. Tuned volume to keep it sane: WINDOW_FWD_DAYS 45→21 (684 sessions vs 1248),
+  OG_RENDER_CAP=220 (CI renders ≤220 cards, not 1248 → no build timeout), sitemap = upcoming sessions
+  only (719 urls). Centerline (5th club) needs its org id — in NEEDS-HUMAN.
+  ⚠ Post-deploy: smoke-check that CI's IP can fetch CourtReserve (Cloudflare); sources are isolated
+  so a block degrades gracefully to JCC+Bristol, but verify the 4 clubs actually have live data on prod.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the

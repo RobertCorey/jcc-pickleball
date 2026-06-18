@@ -58,6 +58,11 @@ DAY_COLOR = {0: "#8b5fb0", 1: "#7c8a2e", 2: "#c6f23b", 3: "#2f8f73", 4: "#d99a2b
 # (RI venues are all US/Eastern; revisit if a venue outside that zone is ever added.)
 EVENT_TZ = ZoneInfo("America/New_York")
 
+# Cap per-session social-card renders to the soonest N upcoming sessions. Bounds
+# CI build time independent of how many high-volume sources are added; the rest
+# keep the generic og.png. (Set generously — covers all near-term shareable pages.)
+OG_RENDER_CAP = 220
+
 
 def esc(x) -> str:
     return html.escape("" if x is None else str(x), quote=True)
@@ -324,7 +329,10 @@ def write_sitemap_and_robots(doc, directory=None) -> int:
     """Write site/sitemap.xml (homepage + every venue + every session page) and a
     robots.txt that points at it. Returns the URL count. Both ship in the Pages
     artifact."""
-    sids = [str(s["segment_id"]) for s in doc.get("sessions", []) if s.get("segment_id")]
+    # Only sitemap UPCOMING session pages — past sessions are dead weight in the
+    # index, and with high-volume sources they'd dominate the sitemap.
+    sids = [str(s["segment_id"]) for s in doc.get("sessions", [])
+            if s.get("segment_id") and not s.get("has_passed")]
     dvenues = [v for v in (directory or {}).get("venues", []) if v.get("slug")]
     slugs = [str(v["slug"]) for v in dvenues]
     towns = sorted({town_slug(v.get("city")) for v in dvenues if v.get("city") and v.get("city") != "Rhode Island"})
@@ -506,24 +514,30 @@ def build_session_pages(doc) -> tuple[int, int]:
 
         # og:image for this page: a fallback copy of the generic card now (so the
         # URL always resolves), then a session-specific render overwrites it below
-        # if Playwright is available.
+        # if Playwright is available — but only for the soonest upcoming sessions.
+        # With high-volume sources (CourtReserve clubs run many sessions/day) the
+        # total can be ~1200+; rendering a Chromium card for each would blow the CI
+        # build budget for little gain (far-future + past pages rarely get shared).
+        # Past + over-cap pages keep the generic og.png that was just copied.
         og_png = sdir / "og.png"
         if GENERIC_OG.exists():
             shutil.copyfile(GENERIC_OG, og_png)
-        og_cards.append((og_png, og_images.card_html(
-            date_long=when_date, time_str=when_time,
-            eyebrow=(when_rel.upper() if when_rel else ""),
-            kicker=og_kicker, url_text=og_url_text,
-            venue_top=og_venue_top, venue_bottom=og_venue_bottom,
-        )))
+        if not s.get("has_passed") and len(og_cards) < OG_RENDER_CAP:
+            og_cards.append((og_png, og_images.card_html(
+                date_long=when_date, time_str=when_time,
+                eyebrow=(when_rel.upper() if when_rel else ""),
+                kicker=og_kicker, url_text=og_url_text,
+                venue_top=og_venue_top, venue_bottom=og_venue_bottom,
+            )))
         count += 1
 
+    n_attempted = len(og_cards)
     n_imgs = 0
     try:
         n_imgs = og_images.render_all(og_cards)
     except Exception as exc:  # rendering is best-effort; the generic fallbacks stay in place
         print(f"  (per-session OG images skipped: {exc})", file=sys.stderr)
-    return count, n_imgs
+    return count, n_imgs, n_attempted
 
 
 # ---------------------------------------------------------------------------
@@ -1131,8 +1145,10 @@ def main(argv: list[str] | None = None) -> int:
     # memory for the venue pages. The homepage recomputes the live-schedule link
     # client-side from sessions.json, so the committed file stays stable.
 
-    n_pages, n_imgs = build_session_pages(doc)
-    n_fallbacks = max(0, n_pages - n_imgs)
+    n_pages, n_imgs, n_attempted = build_session_pages(doc)
+    # Only renders we ATTEMPTED but failed count as degraded — the OG_RENDER_CAP
+    # skips are intentional, not failures.
+    n_fallbacks = max(0, n_attempted - n_imgs)
     n_venues = build_venue_pages(directory, doc)
     n_towns = build_town_pages(directory, doc)
     n_guides = build_collection_pages(directory, doc)
