@@ -474,6 +474,7 @@
     <div class="list" id="list">
       <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
     </div>
+    <button class="showpast" id="showmore" hidden></button>
     <button class="showpast" id="showpast" hidden></button>
   </div>
 </main>
@@ -647,7 +648,8 @@
     return { cls: "good", dot: true, html: "Open" };
   }
 
-  var STATE = { all: [], day: "", venue: "", showPast: false, tk: todayKeyNow(), sources: [], venues: {} };
+  var STATE = { all: [], day: "", venue: "", showPast: false, showAll: false, tk: todayKeyNow(), sources: [], venues: {} };
+  var SESSION_CAP = 60; // initial visible upcoming sessions (6 live venues = 600+ total)
 
   // ---- load ----
   fetch("data/sessions.json?v=" + Date.now(), { cache: "no-store" })
@@ -680,7 +682,7 @@
       $("#venuerow").hidden = false;
       $("#venuechips").addEventListener("click", function (e) {
         var b = e.target.closest(".chip"); if (!b) return;
-        STATE.venue = b.getAttribute("data-venue");
+        STATE.venue = b.getAttribute("data-venue"); STATE.showAll = false;
         Array.prototype.forEach.call(this.querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
         render();
       });
@@ -727,12 +729,13 @@
     $("#daychips").innerHTML = ch;
     $("#daychips").addEventListener("click", function (e) {
       var b = e.target.closest(".chip"); if (!b) return;
-      STATE.day = b.getAttribute("data-day");
+      STATE.day = b.getAttribute("data-day"); STATE.showAll = false;
       Array.prototype.forEach.call(this.querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
       render();
     });
     $("#t-past").addEventListener("change", function () { STATE.showPast = this.checked; render(); });
     $("#showpast").addEventListener("click", function () { STATE.showPast = true; $("#t-past").checked = true; render(); window.scrollTo({ top: 0 }); });
+    $("#showmore").addEventListener("click", function () { STATE.showAll = true; render(); });
 
     render(true);
   }
@@ -824,9 +827,15 @@
       return;
     }
 
-    var stagger = (firstPaint && rows.length <= 90);
+    // Cap the initial list — with 6 live venues there can be 600+ upcoming
+    // sessions; showing all at once is overwhelming and slow. Show the soonest
+    // SESSION_CAP, with a "show all" button. Filters (venue/day) reset the cap.
+    var capped = (!STATE.showPast && !STATE.showAll && rows.length > SESSION_CAP);
+    var shown = capped ? rows.slice(0, SESSION_CAP) : rows;
+
+    var stagger = (firstPaint && shown.length <= 90);
     var html = "";
-    rows.forEach(function (r, i) {
+    shown.forEach(function (r, i) {
       var s = r.s, p = r.p, pe = r.pe, a = r.av;
       var isToday = p && dateKey(p) === STATE.tk;
       var delay = stagger ? Math.min(i, 16) * 26 : 0;
@@ -874,6 +883,13 @@
       html += '<div class="' + cls + '"' + (delay ? ' style="animation-delay:' + delay + 'ms"' : '') + '>' + whenHTML + midHTML + endHTML + '</div>';
     });
     listEl.innerHTML = html;
+
+    // "show all upcoming" button when the list is capped
+    var sm = $("#showmore");
+    if (capped) {
+      sm.hidden = false;
+      sm.textContent = "Show all " + rows.length + " upcoming sessions ↓";
+    } else { sm.hidden = true; }
 
     var sp = $("#showpast");
     if (!STATE.showPast && pastCount > 0) {
