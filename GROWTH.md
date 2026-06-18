@@ -63,6 +63,11 @@ register-clicks** (no ad budget). Tracked KPIs:
   regenerate from the live sitemap).
 
 ## Backlog / ideas (pick the top item each iteration)
+- [ ] **Harden CI deploy (reliability = KPI).** The "Install Playwright + Chromium" step hung ~10min
+      on a runner during iter 3 (Chromium download), stalling the deploy. OG-image rendering is
+      best-effort (falls back to generic og.png), so it must never block a deploy. Add a `timeout-minutes`
+      to that step (and/or the job) + `continue-on-error` so a flaky Chromium install can't stall
+      publishing. Workflow: .github/workflows/scrape-and-deploy.yml.
 - [ ] Town landing pages `/t/<town>/` — aggregate venues per town, ItemList schema. ← iter 1
 - [ ] Intent pages: "indoor pickleball in RI", "free public pickleball courts RI", "beginner open play".
 - [ ] Add more live-schedule sources (East Greenwich RecDesk, Centerline, Newport Pickleball Club,

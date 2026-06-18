@@ -56,13 +56,20 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-1.49.1
+      # timeout-minutes is essential here: continue-on-error only rescues a step
+      # that FAILS, not one that HANGS. Chromium's download has stalled runners for
+      # 10+ min, blocking the whole deploy. OG rendering is best-effort (generic
+      # og.png fallback), so cap this and move on — a stale preview image must never
+      # hold up publishing fresh schedule data.
       - name: Install Playwright + Chromium
         continue-on-error: true
+        timeout-minutes: 4
         run: |
           python -m pip install --quiet "playwright==1.49.1"
           python -m playwright install --with-deps chromium
 
       - name: Scrape the JCC store → data + per-session pages + preview images
+        timeout-minutes: 12
         run: python3 scraper/build_site.py
         env:
           SITE_BASE_URL: https://robertcorey.github.io/jcc-pickleball
