@@ -68,6 +68,11 @@ register-clicks** (no ad budget). Tracked KPIs:
   open-play only). Will review + merge its branch when it reports. THE high-value differentiator —
   more real session pages competitors don't have.
 
+- (iter 6, 2026-06-18) ✅ **"Near me" geolocation sort** (index.html only, chosen to not collide with
+  the in-flight CourtReserve agent's sources.py work). One-tap button → directory re-sorts by distance
+  from the user (haversine, miles shown), toggles back to town grouping. Serves the core "pickleball
+  near me" intent + tracks a `near-me` GoatCounter event. Verified in-browser with mocked geolocation.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
