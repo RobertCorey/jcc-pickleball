@@ -1,11 +1,11 @@
 {
-  "scraped_at_utc": "2026-06-19T05:56:10+00:00",
+  "scraped_at_utc": "2026-06-19T08:12:16+00:00",
   "totals": {
     "sources": 6,
     "venues": 6,
     "activities": 82,
-    "sessions": 690,
-    "upcoming_sessions": 617
+    "sessions": 689,
+    "upcoming_sessions": 616
   },
   "sources": [
     {
@@ -2643,7 +2643,7 @@
         "Open-play and drop-in sessions are booked per session through CourtReserve. Spots and times can change; confirm on CourtReserve before heading over."
       ],
       "sub_categories": [],
-      "session_count": 137,
+      "session_count": 136,
       "directory_slug": "pickleball-citi-cranston"
     },
     {
@@ -4190,7 +4190,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:h93t1hpaph0240e442m17bf1-20260608",
+      "segment_id": "bristol:5e4i38mmsd4cjb2pnd66fvg4-20260608",
       "start": "2026-06-08T10:00:00",
       "end": "2026-06-08T12:00:00",
       "all_day": false,
@@ -4234,7 +4234,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:5e4i38mmsd4cjb2pnd66fvg4-20260608",
+      "segment_id": "bristol:h93t1hpaph0240e442m17bf1-20260608",
       "start": "2026-06-08T10:00:00",
       "end": "2026-06-08T12:00:00",
       "all_day": false,
@@ -6267,51 +6267,6 @@
       "venue_name": "Pickleball Citi"
     },
     {
-      "segment_id": "pickleball-citi:2040494-20260619",
-      "start": "2026-06-19T06:00:00",
-      "end": "2026-06-19T08:00:00",
-      "all_day": false,
-      "has_passed": false,
-      "status": "registration_available",
-      "state_code": null,
-      "capacity": 13,
-      "has_unlimited_spots": false,
-      "spots_reserved": 0,
-      "spots_remaining": 13,
-      "has_place_left": true,
-      "max_attendance": 13,
-      "attendance_string": "13 of 13 spots remaining",
-      "drop_in_price": null,
-      "drop_in_best_price": null,
-      "fee": null,
-      "wait_list_enabled": true,
-      "wait_list_spots_reserved": 0,
-      "can_register": true,
-      "has_drop_ins": true,
-      "already_in_cart": false,
-      "description": null,
-      "extra_information": "Advanced Players",
-      "activity_name": "Open Play - Advanced",
-      "details_url": "https://app.courtreserve.com/Online/Events/Details/11577/XZ1Z9X511577335?eventId=2040494",
-      "registration_url": "https://app.courtreserve.com/Online/Events/Details/11577/XZ1Z9X511577335?eventId=2040494",
-      "facility": {
-        "name": "Pickleball Citi",
-        "address1": "60 Walnut Grove Ave",
-        "address2": null,
-        "city": "Cranston",
-        "province": "RI",
-        "postal_code": "02920",
-        "country": "US",
-        "phone": "4019999065",
-        "phone_ext": null,
-        "latitude": 41.789127799999996,
-        "longitude": -71.4747972
-      },
-      "location": "Pickleball Citi | 60 Walnut Grove Ave, Cranston, RI, 02920",
-      "source_id": "pickleball-citi",
-      "venue_name": "Pickleball Citi"
-    },
-    {
       "segment_id": "ocean-state-pickleball:1640061-20260619",
       "start": "2026-06-19T06:30:00",
       "end": "2026-06-19T08:30:00",
@@ -7895,19 +7850,19 @@
       "venue_name": "East Bay Pickleball"
     },
     {
-      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
+      "segment_id": "bristol:432eba65tsmup4pkco1rekm6-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
       "has_passed": false,
       "status": "registration_available",
       "state_code": null,
-      "capacity": 45,
+      "capacity": 50,
       "has_unlimited_spots": false,
       "spots_reserved": null,
       "spots_remaining": null,
       "has_place_left": true,
-      "max_attendance": 45,
+      "max_attendance": 50,
       "attendance_string": null,
       "drop_in_price": null,
       "drop_in_best_price": null,
@@ -7983,19 +7938,19 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:432eba65tsmup4pkco1rekm6-20260620",
+      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
       "has_passed": false,
       "status": "registration_available",
       "state_code": null,
-      "capacity": 50,
+      "capacity": 45,
       "has_unlimited_spots": false,
       "spots_reserved": null,
       "spots_remaining": null,
       "has_place_left": true,
-      "max_attendance": 50,
+      "max_attendance": 45,
       "attendance_string": null,
       "drop_in_price": null,
       "drop_in_best_price": null,
