@@ -108,6 +108,13 @@
   .freshnote > p a { color: var(--forest); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid var(--line-strong); transition: border-color .15s; white-space: nowrap; }
   .freshnote > p a:hover { border-color: var(--forest); }
 
+  /* ---------------- hero summary line (price + subscribe) ---------------- */
+  .summary { margin-top: clamp(16px, 2.4vw, 22px); font-size: 15px; color: var(--ink-soft); line-height: 1.55; }
+  .summary:empty { display: none; }
+  .summary b { color: var(--ink); font-weight: 700; }
+  .summary .cal { color: var(--forest); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid var(--line-strong); transition: border-color .15s; white-space: nowrap; }
+  .summary .cal:hover { border-color: var(--forest); }
+
   /* ---------------- "good to know" ---------------- */
   .glance { margin-top: clamp(20px, 3vw, 28px); background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: var(--r); padding: clamp(16px, 2.4vw, 22px) clamp(16px, 2.6vw, 24px); }
   .glance h2 { font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--forest); margin-bottom: 12px; display: inline-flex; align-items: center; gap: 9px; }
@@ -118,6 +125,19 @@
   .glance li b { color: var(--ink); font-weight: 700; }
   .glance li a { color: var(--forest); text-decoration: none; border-bottom: 1px solid var(--line-strong); transition: border-color .15s; white-space: nowrap; }
   .glance li a:hover { border-color: var(--forest); }
+
+  /* ---------------- demoted venue details (collapsed) ---------------- */
+  details.glance.gd { margin-top: clamp(18px, 2.6vw, 26px); padding: 0; overflow: hidden; }
+  details.glance.gd > summary { list-style: none; cursor: pointer; padding: clamp(14px, 2vw, 18px) clamp(16px, 2.6vw, 24px); min-height: 44px; box-sizing: border-box;
+    font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--forest);
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  details.glance.gd > summary::-webkit-details-marker { display: none; }
+  details.glance.gd > summary::after { content: "+"; font-weight: 600; color: var(--forest); font-size: 20px; line-height: 1; flex: none; transition: transform .18s; }
+  details.glance.gd[open] > summary::after { transform: rotate(45deg); }
+  details.glance.gd > ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px 26px; padding: 0 clamp(16px, 2.6vw, 24px) clamp(18px, 2.4vw, 22px); }
+  .glance .gv { display: block; }
+  .glance .gv > h3 { font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: -.01em; color: var(--ink); margin-bottom: 8px; }
+  .glance .gv-items { display: grid; gap: 8px; grid-template-columns: 1fr; }
 
   /* ---------------- FAQ ---------------- */
   .faq { padding: clamp(34px, 5vw, 56px) 0 clamp(8px, 2vw, 16px); }
@@ -432,19 +452,13 @@
     <div class="freshnote">
       <span class="fc-pill"><span class="dot-live"></span><span id="fc-when">Updated just now</span></span>
       <p>
-        <strong>Open Play RI</strong> is an independent, community directory — not an official venue site. Venue details come from
-        public listings, and the live schedules we track re-check roughly <strong>once an hour</strong>, so headcounts and open spots can
-        run a little behind. Always confirm open-play times and prices with the venue
+        <strong>Open Play RI</strong> is an independent, community directory — not an official venue site. Live schedules re-check
+        roughly <strong>once an hour</strong>, so always confirm times and prices with the venue
         (<a id="fc-link" href="#directory">find it in the directory&nbsp;↓</a>) before you head over.
       </p>
     </div>
 
-    <section class="glance" aria-label="Good to know">
-      <h2>Venues with a live schedule</h2>
-      <ul id="glance-list">
-        <li><span class="ico">⏳</span><span>Loading…</span></li>
-      </ul>
-    </section>
+    <p class="summary" id="glance-summary"></p>
   </div>
 </header>
 
@@ -478,6 +492,15 @@
     <button class="showpast" id="showpast" hidden></button>
   </div>
 </main>
+
+<div class="wrap">
+  <details class="glance gd">
+    <summary>Venue details, discounts &amp; fine print</summary>
+    <ul id="glance-list">
+      <li><span class="ico" aria-hidden="true">⏳</span><span>Loading…</span></li>
+    </ul>
+  </details>
+</div>
 
 <section class="directory" id="directory" aria-labelledby="dir-h">
   <div class="wrap">
@@ -742,11 +765,9 @@
   }
 
   function buildGlance(data, rows) {
-    var items = [];
     var sources = STATE.sources;
-    var multi = sources.length > 1;
 
-    // price range across all sessions (combined headline)
+    // ---- price/subscribe headline -> hero summary line (was the first glance row) ----
     var lo = null, hi = null;
     (rows || []).forEach(function (r) {
       var b = r.s.drop_in_best_price, f = r.s.drop_in_price;
@@ -755,44 +776,68 @@
       if (b != null && (hi == null || b > hi) && f == null) hi = b;
     });
     var pr = priceRange(lo, hi);
-    if (pr) {
+    var sumEl = $("#glance-summary");
+    if (sumEl) {
       var hasAmilia = sources.some(function (m) { return m.booking_system === "amilia"; });
-      items.push({ ico: "💵", html: "<b>Drop-in</b> — " + esc(pr) + " per session." + (hasAmilia ? " Pay on the store, or use a Multipass." : "") });
+      var sub = '<a class="cal" href="webcal://robertcorey.github.io/jcc-pickleball/open-play-rhode-island.ics">📅 Subscribe in your calendar</a>';
+      if (pr) {
+        sumEl.innerHTML = "<b>Drop-in from " + esc(pr) + "</b> per session." + (hasAmilia ? " Pay on the store, or use a Multipass." : "") + " · " + sub;
+      } else {
+        sumEl.innerHTML = sub;
+      }
     }
 
-    // promotions (Amilia sources)
+    // ---- secondary details: deduped, grouped BY venue ----
+    // Dedupe identical promo / notice strings across ALL venues so the same
+    // "Member Discount 25%" or shared CourtReserve notice renders only once.
+    var seenPromo = {}, seenNotice = {};
+    var blocks = [];
+
     sources.forEach(function (m) {
+      var v = m.venue;
+      var nm = (v && (v.short_name || v.name)) || m.id;
+      var lines = [];
+
+      // promotions (Amilia sources) — collapse byte-identical promos
       (m.sub_categories || []).forEach(function (sc) { (sc.activities || []).forEach(function (a) {
         (a.promotions || []).forEach(function (pr2) {
           var pct = pr2.discount ? pr2.discount.replace(/^Discount of\s*/i, "").trim() : "";
           var detail = (pr2.details && pr2.details.length) ? pr2.details.join(" · ") : (pr2.notes && pr2.notes.length ? pr2.notes.join(" · ") : (pr2.text || ""));
-          items.push({ ico: "🏷️", html: "<b>" + esc((pr2.title || "Discount").replace(/^Pickleball:\s*/i, "").trim() || pr2.title) + "</b> — " + (pct ? esc(pct) + " off" : "Discount") + (detail ? " · " + esc(detail) : "") });
+          var title = (pr2.title || "Discount").replace(/^Pickleball:\s*/i, "").trim() || pr2.title;
+          var key = (title || "") + "|" + (pct || "") + "|" + (detail || "");
+          if (seenPromo[key]) return; seenPromo[key] = 1;
+          lines.push({ ico: "🏷️", html: "<b>" + esc(title) + "</b> — " + (pct ? esc(pct) + " off" : "Discount") + (detail ? " · " + esc(detail) : "") });
         });
       }); });
-    });
 
-    // notices, prefixed with the venue name when there's more than one
-    sources.forEach(function (m) {
-      var nm = (m.venue && (m.venue.short_name || m.venue.name)) || m.id;
+      // notices — collapse byte-identical notices shared across venues
       (m.notices || []).filter(Boolean).forEach(function (n) {
-        items.push({ ico: "⚠️", html: (multi ? "<b>" + esc(nm) + "</b> — " : "") + esc(n) });
+        if (seenNotice[n]) return; seenNotice[n] = 1;
+        lines.push({ ico: "⚠️", html: esc(n) });
       });
+
+      // one "Where" line per venue
+      if (v) {
+        var addr = [v.address1, [v.city, v.province].filter(Boolean).join(", ") + (v.postal_code ? " " + v.postal_code : "")].filter(Boolean).join(", ");
+        var mapHref = (v.latitude && v.longitude) ? "https://maps.google.com/?q=" + v.latitude + "," + v.longitude
+          : "https://maps.google.com/?q=" + encodeURIComponent([v.address1, v.city, v.province, v.postal_code].filter(Boolean).join(" "));
+        lines.push({ ico: "📍", html: esc(v.name || "Venue") + (addr ? ", " + esc(addr) : "")
+          + (v.phone ? " · " + esc(fmtPhone(v.phone)) : "")
+          + ' · <a href="' + esc(mapHref) + '" target="_blank" rel="noopener">Map ↗</a>' });
+      }
+
+      if (lines.length) blocks.push({ name: nm, lines: lines });
     });
 
-    // one "Where" line per venue
-    sources.forEach(function (m) {
-      var v = m.venue; if (!v) return;
-      var addr = [v.address1, [v.city, v.province].filter(Boolean).join(", ") + (v.postal_code ? " " + v.postal_code : "")].filter(Boolean).join(", ");
-      var mapHref = (v.latitude && v.longitude) ? "https://maps.google.com/?q=" + v.latitude + "," + v.longitude
-        : "https://maps.google.com/?q=" + encodeURIComponent([v.address1, v.city, v.province, v.postal_code].filter(Boolean).join(" "));
-      items.push({ ico: "📍", html: "<b>" + (multi ? esc(v.short_name || v.name) : "Where") + "</b> — " + esc(v.name || "Venue") + (addr ? ", " + esc(addr) : "")
-        + (v.phone ? " · " + esc(fmtPhone(v.phone)) : "")
-        + ' · <a href="' + esc(mapHref) + '" target="_blank" rel="noopener">Map ↗</a>' });
-    });
-
-    $("#glance-list").innerHTML = items.map(function (it) {
-      return '<li><span class="ico" aria-hidden="true">' + it.ico + '</span><span>' + it.html + '</span></li>';
+    var html = blocks.map(function (bl) {
+      var lis = bl.lines.map(function (it) {
+        return '<li><span class="ico" aria-hidden="true">' + it.ico + '</span><span>' + it.html + '</span></li>';
+      }).join("");
+      return '<li class="gv"><h3>' + esc(bl.name) + '</h3><ul class="gv-items">' + lis + '</ul></li>';
     }).join("");
+
+    var gl = $("#glance-list");
+    if (gl) gl.innerHTML = html;
   }
 
   function render(firstPaint) {
