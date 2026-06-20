@@ -1,5 +1,5 @@
 {
-  "scraped_at_utc": "2026-06-20T05:41:41+00:00",
+  "scraped_at_utc": "2026-06-20T07:35:32+00:00",
   "totals": {
     "sources": 6,
     "venues": 6,
@@ -4060,7 +4060,7 @@
     {
       "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260606",
       "start": "2026-06-06T10:00:00",
-      "end": "2026-06-06T11:30:00",
+      "end": "2026-06-06T12:00:00",
       "all_day": false,
       "has_passed": true,
       "status": "passed",
@@ -4331,7 +4331,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
+      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
@@ -4375,7 +4375,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
+      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
@@ -4622,7 +4622,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260613",
+      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
       "start": "2026-06-13T10:00:00",
       "end": "2026-06-13T11:30:00",
       "all_day": false,
@@ -4666,7 +4666,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
+      "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260613",
       "start": "2026-06-13T10:00:00",
       "end": "2026-06-13T11:30:00",
       "all_day": false,
@@ -6409,7 +6409,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:jlcsejcbrojoa2cpg1q8gk8k-20260620",
+      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
@@ -6453,7 +6453,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
+      "segment_id": "bristol:jlcsejcbrojoa2cpg1q8gk8k-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
@@ -7271,11 +7271,11 @@
       "state_code": null,
       "capacity": 13,
       "has_unlimited_spots": false,
-      "spots_reserved": 3,
-      "spots_remaining": 10,
+      "spots_reserved": 4,
+      "spots_remaining": 9,
       "has_place_left": true,
       "max_attendance": 13,
-      "attendance_string": "10 of 13 spots remaining",
+      "attendance_string": "9 of 13 spots remaining",
       "drop_in_price": null,
       "drop_in_best_price": null,
       "fee": null,
@@ -7811,11 +7811,11 @@
       "state_code": null,
       "capacity": 13,
       "has_unlimited_spots": false,
-      "spots_reserved": 2,
-      "spots_remaining": 11,
+      "spots_reserved": 4,
+      "spots_remaining": 9,
       "has_place_left": true,
       "max_attendance": 13,
-      "attendance_string": "11 of 13 spots remaining",
+      "attendance_string": "9 of 13 spots remaining",
       "drop_in_price": null,
       "drop_in_best_price": null,
       "fee": null,
