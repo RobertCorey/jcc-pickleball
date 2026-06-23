@@ -1,5 +1,5 @@
 {
-  "scraped_at_utc": "2026-06-23T05:32:54+00:00",
+  "scraped_at_utc": "2026-06-23T07:31:26+00:00",
   "totals": {
     "sources": 6,
     "venues": 6,
@@ -4111,7 +4111,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
+      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
@@ -4155,7 +4155,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:3hmndoef97kt1erulk3p5em4-20260609",
+      "segment_id": "bristol:717bq16ea3r8frl3r3tgq240-20260609",
       "start": "2026-06-09T10:00:00",
       "end": "2026-06-09T12:00:00",
       "all_day": false,
@@ -4975,7 +4975,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
+      "segment_id": "bristol:jlcsejcbrojoa2cpg1q8gk8k-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
@@ -5019,7 +5019,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:jlcsejcbrojoa2cpg1q8gk8k-20260620",
+      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
@@ -7292,11 +7292,11 @@
       "state_code": null,
       "capacity": 20,
       "has_unlimited_spots": false,
-      "spots_reserved": 24,
-      "spots_remaining": -4,
+      "spots_reserved": 23,
+      "spots_remaining": -3,
       "has_place_left": false,
       "max_attendance": 20,
-      "attendance_string": "-4 of 20 spots remaining",
+      "attendance_string": "-3 of 20 spots remaining",
       "drop_in_price": null,
       "drop_in_best_price": null,
       "fee": null,
