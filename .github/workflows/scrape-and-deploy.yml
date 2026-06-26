@@ -8,16 +8,15 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# allow the workflow to commit refreshed data, publish Pages, and file a
-# tracking issue when the run fails so a multi-day outage isn't invisible.
+# Commit refreshed data back to the repo + file a tracking issue on failure.
+# The Hosting deploy authenticates via the FIREBASE_SERVICE_ACCOUNT_* secret
+# (GOOGLE_APPLICATION_CREDENTIALS), not via these workflow permissions.
 permissions:
   contents: write
-  pages: write
-  id-token: write
   issues: write
 
 concurrency:
-  group: pages
+  group: firebase-live
   cancel-in-progress: false
 
 jobs:
@@ -31,10 +30,10 @@ jobs:
           python-version: "3.12"
 
       # ---- v2 (Vite + React + TS + Tailwind + SSG) toolchain smoke test ----
-      # The v2 scaffold lives at the repo root alongside the Python scraper.
-      # We build it in CI to catch toolchain regressions, but the Pages
-      # artifact below still ships site/ — the v1 vanilla HTML. The cutover
-      # to dist/ happens in a later PR once the React port is feature-complete.
+      # The v2 scaffold lives at the repo root alongside the Python scraper. We
+      # build it in CI to catch toolchain regressions, but the deploy below still
+      # ships site/ — the v1 vanilla HTML. The cutover to dist/ happens in a later
+      # PR once the React port is feature-complete.
       - uses: actions/setup-node@v6
         with:
           node-version: "20"
@@ -44,12 +43,12 @@ jobs:
       - name: Build v2 (smoke test, not deployed yet)
         run: npm run build
 
-      # Playwright (+ Chromium) is used to render the per-session social-preview
-      # cards. The browser binary is cached; if any of this fails the build still
-      # succeeds — build_site.py falls back to the generic og.png per session
-      # and surfaces a ::warning:: + step-summary note so the degradation isn't
-      # silent. Playwright is pinned exactly and the version is baked into the
-      # cache key so a future bump cleanly invalidates the cached Chromium.
+      # Playwright (+ Chromium) renders the per-session social-preview cards. The
+      # browser binary is cached; if any of this fails the build still succeeds —
+      # build_site.py falls back to the generic og.png per session and surfaces a
+      # ::warning:: + step-summary note so the degradation isn't silent. Playwright
+      # is pinned exactly and the version is baked into the cache key so a future
+      # bump cleanly invalidates the cached Chromium.
       - name: Cache Playwright browser
         id: pw-cache
         uses: actions/cache@v5
@@ -68,15 +67,17 @@ jobs:
           python -m pip install --quiet "playwright==1.49.1"
           python -m playwright install --with-deps chromium
 
-      - name: Scrape the JCC store → data + per-session pages + preview images
+      - name: Scrape all sources → data + per-session pages + preview images
         timeout-minutes: 12
         run: python3 scraper/build_site.py
         env:
-          SITE_BASE_URL: https://robertcorey.github.io/jcc-pickleball
+          # Interim production base URL = the live Firebase host. Flip this single
+          # value to https://openplayri.com once the custom domain is verified.
+          SITE_BASE_URL: https://open-play-ri.web.app
 
       # Best-effort: keep a record of the schedule in git history. Never blocks the
-      # deploy — the Pages artifact is uploaded from the working tree either way,
-      # and a push that loses a race just gets picked up next cycle.
+      # deploy — Hosting is published from the working tree either way, and a push
+      # that loses a race just gets picked up next cycle.
       - name: Commit refreshed data (best-effort)
         continue-on-error: true
         run: |
@@ -91,14 +92,22 @@ jobs:
             echo "No data change."
           fi
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: site
+      # Publish site/ to Firebase Hosting (live channel). Auth via the deploy
+      # service-account JSON stored in the repo secret; the key file is written to
+      # the runner temp dir and removed after. firebase-tools picks it up through
+      # GOOGLE_APPLICATION_CREDENTIALS.
+      - name: Deploy to Firebase Hosting (live)
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OPEN_PLAY_RI }}
+        run: |
+          echo "$FIREBASE_SA" > "$RUNNER_TEMP/fbsa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/fbsa.json"
+          npx --yes firebase-tools@15 deploy --only hosting --project open-play-ri --non-interactive
+          rm -f "$RUNNER_TEMP/fbsa.json"
 
-      # If anything in the build job failed, open-or-update a single tracking
-      # issue so a recurring failure isn't invisible. Idempotent: comments on an
-      # existing open issue with the matching title rather than spamming new ones.
+      # If anything in the build job failed, open-or-update a single tracking issue
+      # so a recurring failure isn't invisible. Idempotent: comments on an existing
+      # open issue with the matching title rather than spamming new ones.
       - name: Notify on failure
         if: failure()
         env:
@@ -114,7 +123,6 @@ jobs:
           BODY=$(printf '%s\n\n- Run: %s\n- Trigger: `%s`\n- Commit: `%s`\n- Time: %s\n\nThis issue is auto-updated on each failure; close it once the workflow is green again.' \
             "The hourly **scrape-and-deploy** workflow failed." \
             "$RUN_URL" "$EVENT" "$SHA" "$NOW")
-          # find an existing open issue with the exact title (jq filter, not search relevance)
           existing="$(gh issue list --state open --limit 100 \
             --json number,title --jq ".[] | select(.title==\"$TITLE\") | .number" | head -n1)"
           if [ -n "$existing" ]; then
@@ -124,14 +132,3 @@ jobs:
             echo "Opening new tracking issue"
             gh issue create --title "$TITLE" --body "$BODY"
           fi
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5

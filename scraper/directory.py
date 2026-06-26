@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import math
 import pathlib
+import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -37,7 +38,13 @@ def load(path: pathlib.Path | None = None) -> dict:
     p = path or DIRECTORY_JSON
     try:
         doc = json.loads(p.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
+    except FileNotFoundError:
+        return {"venues": [], "totals": {}, "by_city": {}}
+    except json.JSONDecodeError as exc:
+        # A present-but-unparseable file is alarming (a truncated/bad write), not
+        # a benign absence — surface it so it isn't read as a silent empty doc.
+        print(f"::warning::directory.json is present but unparseable ({exc}); "
+              f"treating as empty", file=sys.stderr)
         return {"venues": [], "totals": {}, "by_city": {}}
     doc.setdefault("venues", [])
     return doc

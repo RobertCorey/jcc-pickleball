@@ -38,11 +38,13 @@ ids never collide across sources and per-session share pages stay unique.
 from __future__ import annotations
 
 import datetime as dt
+import functools
 import sys
 
 import scrape_open_play
 import bristol_ics
 import courtreserve
+import directory
 
 
 # --------------------------------------------------------------------------- #
@@ -97,109 +99,100 @@ def _jcc_venue(doc: dict) -> dict:
     }
 
 
+# Bristol's per-session registration link (a public Google Calendar embed) is
+# source-owned — the directory can't know it. Facts come from the directory.
+_BRISTOL_REG_URL = (
+    "https://calendar.google.com/calendar/u/0/embed"
+    "?src=bristolpickleballclubri@gmail.com&ctz=America/New_York"
+)
+
+
 def _bristol() -> dict:
-    return bristol_ics.build_source()
+    venue = _venue_from_directory(
+        "bristol-town-common-pickleball-courts-bristol",
+        short_name="Bristol Pickleball", registration_url=_BRISTOL_REG_URL,
+    )
+    return bristol_ics.build_source(venue)
+
+
+# --------------------------------------------------------------------------- #
+# Venue facts: single source of truth.
+#
+# ``directory.json`` (Places-discovered, committed) is the ONE home for a venue's
+# geographic/contact facts. A source only references its directory entry by slug
+# and supplies what the directory can't know: the booking ``registration_url``
+# and a short display name. The venue facts are hydrated from the directory at
+# build time, so the facts never live in two places that can drift apart.
+# --------------------------------------------------------------------------- #
+@functools.lru_cache(maxsize=1)
+def _directory_index() -> dict:
+    """slug -> directory venue (loaded once from the committed directory.json)."""
+    return {v.get("slug"): v for v in directory.load().get("venues", [])}
+
+
+def _venue_from_directory(slug: str, *, short_name: str,
+                          registration_url: str) -> dict:
+    """Assemble a normalized source venue from its directory entry.
+
+    The directory supplies the facts (name/address/geo/phone/website); the source
+    supplies only booking + presentation fields. Raises if the slug is absent so
+    a fact-less venue can never ship silently — the merge layer isolates the
+    failure and the source-health guard surfaces it.
+    """
+    d = _directory_index().get(slug)
+    if d is None:
+        raise RuntimeError(f"venue {slug!r} not found in directory.json")
+    return {
+        "name": d.get("name"),
+        "short_name": short_name,
+        "address1": d.get("address1"),
+        "address2": None,
+        "city": d.get("city"),
+        "province": d.get("province"),
+        "postal_code": d.get("postal_code"),
+        "country": "US",
+        "phone": d.get("phone"),
+        "phone_ext": None,
+        "latitude": d.get("latitude"),
+        "longitude": d.get("longitude"),
+        "registration_url": registration_url,
+        "homepage_url": d.get("website"),
+    }
 
 
 # --------------------------------------------------------------------------- #
 # CourtReserve sources — RI clubs that publish a public CourtReserve calendar.
 #
 # Each entry is one organization whose public calendar we VERIFIED returns real
-# upcoming open-play / drop-in events with no login. Venue facts (name / address
-# / geo / phone / website) mirror the club's ``directory.json`` entry so the
-# directory layer geo-matches and deep-links the live schedule to its venue page.
+# upcoming open-play / drop-in events with no login. Venue facts come from the
+# matching ``directory.json`` entry (named by ``directory_slug``); only the
+# CourtReserve org id and a short display name live here.
 # (Centerline Pickleball Club uses CourtReserve too, but its public site never
 # exposes an org id, so it is intentionally omitted until one is confirmed.)
 # --------------------------------------------------------------------------- #
+_COURTRESERVE_REG_URL = "https://app.courtreserve.com/Online/Calendar/Events/{org_id}/month"
+
 COURTRESERVE_ORGS = [
-    {
-        "source_id": "pickleball-citi",
-        "org_id": 11577,
-        "venue": {
-            "name": "Pickleball Citi",
-            "short_name": "Pickleball Citi",
-            "address1": "60 Walnut Grove Ave",
-            "address2": None,
-            "city": "Cranston",
-            "province": "RI",
-            "postal_code": "02920",
-            "country": "US",
-            "phone": "4019999065",
-            "phone_ext": None,
-            "latitude": 41.789127799999996,
-            "longitude": -71.4747972,
-            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/11577/month",
-            "homepage_url": "https://www.pickleballciti.com/",
-        },
-    },
-    {
-        "source_id": "ocean-state-pickleball",
-        "org_id": 7726,
-        "venue": {
-            "name": "Ocean State Pickleball",
-            "short_name": "Ocean State Pickleball",
-            "address1": "360 S Pier Rd",
-            "address2": None,
-            "city": "Narragansett",
-            "province": "RI",
-            "postal_code": "02882",
-            "country": "US",
-            "phone": "4017863329",
-            "phone_ext": None,
-            "latitude": 41.428961,
-            "longitude": -71.479182,
-            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/7726/month",
-            "homepage_url": "http://oceanstatepickleball.com/",
-        },
-    },
-    {
-        "source_id": "east-bay-pickleball",
-        "org_id": 16386,
-        "venue": {
-            "name": "East Bay Pickleball Club",
-            "short_name": "East Bay Pickleball",
-            "address1": "317 Market St",
-            "address2": None,
-            "city": "Warren",
-            "province": "RI",
-            "postal_code": "02885",
-            "country": "US",
-            "phone": "4012524021",
-            "phone_ext": None,
-            "latitude": 41.7400143,
-            "longitude": -71.27291989999999,
-            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/16386/month",
-            "homepage_url": "https://eastbaypickleballclub.com/",
-        },
-    },
-    {
-        "source_id": "lil-rhody-pickleball",
-        "org_id": 9068,
-        "venue": {
-            "name": "LIL Rhody PICKLEBALL",
-            "short_name": "Lil Rhody Pickleball",
-            "address1": "6615 Post Rd",
-            "address2": None,
-            "city": "North Kingstown",
-            "province": "RI",
-            "postal_code": "02852",
-            "country": "US",
-            "phone": "4013722272",
-            "phone_ext": None,
-            "latitude": 41.61624390000001,
-            "longitude": -71.4591135,
-            "registration_url": "https://app.courtreserve.com/Online/Calendar/Events/9068/month",
-            "homepage_url": "http://lilrhodypickleball.club/",
-        },
-    },
+    {"source_id": "pickleball-citi", "org_id": 11577,
+     "directory_slug": "pickleball-citi-cranston", "short_name": "Pickleball Citi"},
+    {"source_id": "ocean-state-pickleball", "org_id": 7726,
+     "directory_slug": "ocean-state-pickleball-narragansett", "short_name": "Ocean State Pickleball"},
+    {"source_id": "east-bay-pickleball", "org_id": 16386,
+     "directory_slug": "east-bay-pickleball-club-warren", "short_name": "East Bay Pickleball"},
+    {"source_id": "lil-rhody-pickleball", "org_id": 9068,
+     "directory_slug": "lil-rhody-pickleball-north-kingstown", "short_name": "Lil Rhody Pickleball"},
 ]
 
 
 def _make_courtreserve_source(org: dict):
     """Bind one COURTRESERVE_ORGS entry into a zero-arg source callable."""
     def _fn() -> dict:
+        venue = _venue_from_directory(
+            org["directory_slug"], short_name=org["short_name"],
+            registration_url=_COURTRESERVE_REG_URL.format(org_id=org["org_id"]),
+        )
         return courtreserve.build_source(
-            org["org_id"], org["venue"], source_id=org["source_id"],
+            org["org_id"], venue, source_id=org["source_id"],
             cta_label="Reserve on CourtReserve",
         )
     return _fn

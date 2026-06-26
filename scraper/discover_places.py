@@ -320,7 +320,13 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write(payload)
     else:
         OUT.parent.mkdir(parents=True, exist_ok=True)
-        OUT.write_text(payload, encoding="utf-8")
+        # Atomic write: a partial/interrupted write must never leave a truncated
+        # directory.json — the build now hard-fails on an unreadable directory
+        # (it's the single source of truth for venue facts), so write to a temp
+        # sibling and os.replace() it into place (atomic on the same filesystem).
+        tmp = OUT.with_suffix(OUT.suffix + ".tmp")
+        tmp.write_text(payload, encoding="utf-8")
+        os.replace(tmp, OUT)
         print(f"wrote {OUT.relative_to(ROOT)} — {doc['totals']['venues']} RI venues "
               f"({doc['totals']['high_confidence']} high-confidence) across "
               f"{doc['totals']['cities']} cities", file=sys.stderr)

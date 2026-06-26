@@ -42,36 +42,18 @@ USER_AGENT = (
 TZ = ZoneInfo("America/New_York")
 
 # How far back / forward to materialize recurring sessions. Bounded so the feed's
-# many open-ended weekly rules don't explode the output.
+# many open-ended weekly rules don't explode the output. The 30-day horizon
+# matches the other sources' philosophy — open play further out is rarely
+# actionable, and Bristol has no live spot counts to justify a longer window.
 WINDOW_BACK_DAYS = 14
-WINDOW_FWD_DAYS = 120
+WINDOW_FWD_DAYS = 30
 
 SOURCE_ID = "bristol"
+DIRECTORY_SLUG = "bristol-town-common-pickleball-courts-bristol"
 
-VENUE = {
-    "name": "Bristol Town Common Courts",
-    "short_name": "Bristol Pickleball",
-    "address1": "339 Wood St",
-    "address2": None,
-    "city": "Bristol",
-    "province": "RI",
-    "postal_code": "02809",
-    "country": "US",
-    "phone": None,
-    "phone_ext": None,
-    # Geo from the Google Places listing for Bristol Town Common Pickleball
-    # Courts — also lets the directory link this source to its directory page.
-    "latitude": 41.6705216,
-    "longitude": -71.2712717,
-    # NEEDS-HUMAN: confirm the official per-session registration link. The club
-    # registers via PlayerLineUp; until that URL is confirmed we point at the
-    # club's public calendar (a real, viewable page) so the CTA always resolves.
-    "registration_url": (
-        "https://calendar.google.com/calendar/u/0/embed"
-        "?src=bristolpickleballclubri@gmail.com&ctz=America/New_York"
-    ),
-    "homepage_url": "https://www.bristolpickleball.com",
-}
+# Venue facts live ONLY in directory.json (the single source of truth); the
+# caller (sources.py) hydrates them and passes the venue in. This module holds
+# no venue literals so they can't drift.
 
 # Friendly label for the registration CTA (Bristol isn't an Amilia store).
 CTA_LABEL = "View schedule"
@@ -306,8 +288,12 @@ def _shape(occ: dt.datetime, dur: dt.timedelta, title: str, cap: int | None,
 # --------------------------------------------------------------------------- #
 # Public entry point
 # --------------------------------------------------------------------------- #
-def build_source() -> dict:
-    """Fetch + parse the Bristol feed into a source result. Raises on failure."""
+def build_source(venue: dict) -> dict:
+    """Fetch + parse the Bristol feed into a source result. Raises on failure.
+
+    ``venue`` is the normalized venue dict (facts from ``directory.json``,
+    assembled by the caller in ``sources.py``).
+    """
     text = _unfold(_fetch(ICS_URL))
     now_local = dt.datetime.now(TZ).replace(tzinfo=None)
     today = now_local.date()
@@ -357,20 +343,20 @@ def build_source() -> dict:
     sessions = sorted(by_id.values(), key=lambda s: s["start"])
     # attach the venue as a per-session facility too, so existing facility-based
     # site code renders Bristol identically to the JCC.
-    facility = {k: VENUE.get(k) for k in (
+    facility = {k: venue.get(k) for k in (
         "name", "address1", "address2", "city", "province", "postal_code",
         "country", "phone", "phone_ext", "latitude", "longitude")}
     for s in sessions:
         s["facility"] = facility
         s["location"] = (
-            f"{VENUE['name']} | {VENUE['address1']}, {VENUE['city']}, "
-            f"{VENUE['province']}, {VENUE['postal_code']}"
+            f"{venue['name']} | {venue['address1']}, {venue['city']}, "
+            f"{venue['province']}, {venue['postal_code']}"
         )
 
     return {
         "id": SOURCE_ID,
         "booking_system": "google-ics",
-        "venue": VENUE,
+        "venue": venue,
         "cta_label": CTA_LABEL,
         "notices": [
             "Open play at the Bristol Town Common courts. Registration is required "
@@ -385,6 +371,17 @@ if __name__ == "__main__":
     import json
     import sys
 
-    src = build_source()
+    import directory
+
+    # Hydrate facts from directory.json — same single source of truth the
+    # production path (sources._bristol) uses, so the standalone debug output
+    # can't drift from what ships.
+    entry = next((v for v in directory.load().get("venues", [])
+                  if v.get("slug") == DIRECTORY_SLUG), None)
+    if entry is None:
+        sys.exit(f"directory.json has no entry for {DIRECTORY_SLUG!r}")
+    venue = dict(entry, short_name="Bristol Pickleball",
+                 registration_url="https://www.bristolpickleball.com")
+    src = build_source(venue)
     print(f"bristol: {len(src['sessions'])} sessions", file=sys.stderr)
     print(json.dumps(src, ensure_ascii=False, indent=2))

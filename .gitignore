@@ -16,3 +16,8 @@ node_modules/
 dist/
 *.tsbuildinfo
 .vite/
+
+# Firebase CLI cache + local tooling
+.firebase/
+.playwright-mcp/
+site/data/build.json

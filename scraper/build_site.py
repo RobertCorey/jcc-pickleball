@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Run the Amilia scraper and build everything the static site serves.
+"""Run the scrapers and build everything the static site serves.
 
 Usage:
-    python3 scraper/build_site.py [program_url]
+    python3 scraper/build_site.py
 
 Outputs (under ``site/``):
   - ``data/sessions.json``      — the data the main page fetches
@@ -15,7 +15,9 @@ Paths are resolved relative to this file, so it can be run from anywhere.
 """
 from __future__ import annotations
 
+import collections
 import datetime as dt
+import functools
 import html
 import json
 import os
@@ -45,7 +47,7 @@ GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
 VENUE_TEMPLATE = (HERE / "templates" / "venue.html").read_text(encoding="utf-8")
 
-SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://robertcorey.github.io/jcc-pickleball").rstrip("/")
+SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://open-play-ri.web.app").rstrip("/")
 
 WD_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 WD_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -68,9 +70,13 @@ def esc(x) -> str:
     return html.escape("" if x is None else str(x), quote=True)
 
 
+_DI_PB_PREFIX = re.compile(r"^\s*D/I\s*Pickleball\s*:\s*", re.I)
+_DI_PREFIX = re.compile(r"^\s*D/I\s+", re.I)
+
+
 def short_name(n: str) -> str:
-    s = re.sub(r"^\s*D/I\s*Pickleball\s*:\s*", "", n or "", flags=re.I)
-    s = re.sub(r"^\s*D/I\s+", "", s, flags=re.I).strip()
+    s = _DI_PB_PREFIX.sub("", n or "")
+    s = _DI_PREFIX.sub("", s).strip()
     return s or (n or "Drop-in session")
 
 
@@ -490,6 +496,8 @@ def build_session_pages(doc) -> tuple[int, int]:
             "OG_IMAGE": esc(f"{SITE_BASE_URL}/s/{sid}/og.png"),
             "HOME_HREF": "../../",
             "STORE_URL": esc(store_url),
+            "VENUE_NAME": esc(og_kicker),
+            "VENUE_SHORT": esc(venue_short),
             "REG_URL": esc(reg_url),
             "ACTIVITY": esc(act),
             "WHEN_REL": esc(when_rel),
@@ -507,9 +515,7 @@ def build_session_pages(doc) -> tuple[int, int]:
             "SCRAPED_ISO": esc(scraped_iso),
             "JSONLD": jsonld,
         }
-        out = TEMPLATE
-        for k, v in fields.items():
-            out = out.replace("{{" + k + "}}", v)
+        out = _fill_template(TEMPLATE, fields)
         sdir = SESSIONS_DIR / str(sid)
         sdir.mkdir(parents=True, exist_ok=True)
         (sdir / "index.html").write_text(out, encoding="utf-8")
@@ -602,6 +608,30 @@ def _breadcrumb_jsonld(crumbs: list[tuple[str, str | None]]) -> dict:
     return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
 
 
+def _fill_template(template: str, fields: dict) -> str:
+    """Substitute ``{{KEY}}`` placeholders in a page template. Shared by every
+    page builder so the placeholder syntax lives in exactly one place."""
+    out = template
+    for k, val in fields.items():
+        out = out.replace("{{" + k + "}}", val)
+    return out
+
+
+def _group_by_city(venues: list) -> dict[str, list]:
+    """Group directory venues by city (venues without one fall under 'Rhode Island')."""
+    by_city: dict[str, list] = {}
+    for v in venues:
+        by_city.setdefault(v.get("city") or "Rhode Island", []).append(v)
+    return by_city
+
+
+def _venue_rank_key(v: dict) -> tuple:
+    """Sort key for venue lists: live first, then dedicated, then rating, then name."""
+    return (0 if v.get("source_id") else 1,
+            0 if v.get("confidence") == "high" else 1,
+            -(v.get("rating") or 0), v.get("name") or "")
+
+
 def _session_row_html(s: dict) -> str:
     p = parse_local(s.get("start"))
     pe = parse_local(s.get("end"))
@@ -629,9 +659,7 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
         return 0
 
     # Town index for "more places nearby" cross-links.
-    by_city: dict[str, list] = {}
-    for v in venues:
-        by_city.setdefault(v.get("city") or "Rhode Island", []).append(v)
+    by_city = _group_by_city(venues)
 
     # Upcoming sessions per source, soonest first — inlined on linked venues.
     upcoming_by_source: dict[str, list] = {}
@@ -786,8 +814,7 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
                 f'<h1>{esc(name)}</h1><p class="sub">{sub}</p>{badges_html}</div>'
                 f'{sched_html}{info_card}{nearby_html}')
 
-        out = VENUE_TEMPLATE
-        for k, val in {
+        out = _fill_template(VENUE_TEMPLATE, {
             "PAGE_TITLE": esc(page_title),
             "META_DESC": esc(meta_desc),
             "OG_TITLE": esc(og_title),
@@ -797,8 +824,7 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
             "HOME_HREF": "../../",
             "BREADCRUMB": breadcrumb,
             "BODY": body,
-        }.items():
-            out = out.replace("{{" + k + "}}", val)
+        })
 
         sdir = VENUES_DIR / slug
         sdir.mkdir(parents=True, exist_ok=True)
@@ -812,6 +838,7 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
 # Town landing pages -> /t/<town-slug>/  (programmatic local SEO: one strong
 # page per town targeting "pickleball in <town>, RI", aggregating its venues)
 # ---------------------------------------------------------------------------
+@functools.lru_cache(maxsize=None)
 def town_slug(city: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", (city or "").lower()).strip("-")
     return s or "rhode-island"
@@ -835,16 +862,7 @@ def build_town_pages(directory: dict, doc: dict) -> int:
     venues = [v for v in directory.get("venues", []) if v.get("slug")]
     if not venues:
         return 0
-    by_city: dict[str, list] = {}
-    for v in venues:
-        by_city.setdefault(v.get("city") or "Rhode Island", []).append(v)
-
-    # rank within town: live first, then dedicated, then rating, then name
-    def vkey(v):
-        return (0 if v.get("source_id") else 1,
-                0 if v.get("confidence") == "high" else 1,
-                -(v.get("rating") or 0), v.get("name") or "")
-
+    by_city = _group_by_city(venues)
     towns_sorted = sorted(by_city.items(), key=lambda kv: (-len(kv[1]), kv[0]))
     town_slugs = {c: town_slug(c) for c in by_city}
 
@@ -857,7 +875,7 @@ def build_town_pages(directory: dict, doc: dict) -> int:
         if city == "Rhode Island":
             continue
         slug = town_slugs[city]
-        vs = sorted(vs, key=vkey)
+        vs = sorted(vs, key=_venue_rank_key)
         n = len(vs)
         live = [v for v in vs if v.get("source_id")]
         canonical = f"{SITE_BASE_URL}/t/{slug}/"
@@ -882,10 +900,8 @@ def build_town_pages(directory: dict, doc: dict) -> int:
                 for i, v in enumerate(vs)
             ],
         }
-        crumbs = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
-            {"@type": "ListItem", "position": 1, "name": "Open Play RI", "item": f"{SITE_BASE_URL}/"},
-            {"@type": "ListItem", "position": 2, "name": f"Pickleball in {city}", "item": canonical},
-        ]}
+        crumbs = _breadcrumb_jsonld([("Open Play RI", f"{SITE_BASE_URL}/"),
+                                     (f"Pickleball in {city}", canonical)])
         jsonld = _jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
         breadcrumb = '<a href="../../">Open Play RI</a><span class="sep">/</span>' + f'<span>{esc(city)}, RI</span>'
 
@@ -915,13 +931,11 @@ def build_town_pages(directory: dict, doc: dict) -> int:
                 f'<div class="vlist">{cards}</div></section>'
                 + (f'<section class="nearby"><h2>Other Rhode Island towns</h2><div class="vlist">{nearby}</div></section>' if nearby else ""))
 
-        out = VENUE_TEMPLATE
-        for k, val in {
+        out = _fill_template(VENUE_TEMPLATE, {
             "PAGE_TITLE": esc(page_title), "META_DESC": esc(meta_desc), "OG_TITLE": esc(og_title),
             "CANONICAL": esc(canonical), "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"),
             "JSONLD": jsonld, "HOME_HREF": "../../", "BREADCRUMB": breadcrumb, "BODY": body,
-        }.items():
-            out = out.replace("{{" + k + "}}", val)
+        })
         sdir = TOWNS_DIR / slug
         sdir.mkdir(parents=True, exist_ok=True)
         (sdir / "index.html").write_text(out, encoding="utf-8")
@@ -987,13 +1001,9 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
         shutil.rmtree(cdir)
     cdir.mkdir(parents=True, exist_ok=True)
 
-    def vkey(v):
-        return (0 if v.get("source_id") else 1, 0 if v.get("confidence") == "high" else 1,
-                -(v.get("rating") or 0), v.get("name") or "")
-
     count = 0
     for col in COLLECTIONS:
-        matched = sorted([v for v in venues if col["match"](v)], key=vkey)
+        matched = sorted([v for v in venues if col["match"](v)], key=_venue_rank_key)
         if len(matched) < 3:
             continue  # too thin to be a useful page
         n = len(matched)
@@ -1012,10 +1022,8 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
                 for i, v in enumerate(matched)
             ],
         }
-        crumbs = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
-            {"@type": "ListItem", "position": 1, "name": "Open Play RI", "item": f"{SITE_BASE_URL}/"},
-            {"@type": "ListItem", "position": 2, "name": col["h1"], "item": canonical},
-        ]}
+        crumbs = _breadcrumb_jsonld([("Open Play RI", f"{SITE_BASE_URL}/"),
+                                     (col["h1"], canonical)])
         jsonld = _jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
         breadcrumb = ('<a href="../../">Open Play RI</a><span class="sep">/</span>'
                       f'<span>{esc(col["h1"])}</span>')
@@ -1027,9 +1035,7 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
                          f'Live open-play schedule · {names}</span></div>')
 
         # group matched venues by town for scannability
-        by_city: dict[str, list] = {}
-        for v in matched:
-            by_city.setdefault(v.get("city") or "Rhode Island", []).append(v)
+        by_city = _group_by_city(matched)
         towns = sorted(by_city, key=lambda c: (-len(by_city[c]), c))
         sections = []
         for c in towns:
@@ -1052,14 +1058,12 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
                 f'<h1>{esc(col["h1"])}</h1><p class="sub">{esc(col["blurb"])}</p>{live_note}</div>'
                 f'{"".join(sections)}{guide_sec}')
 
-        out = VENUE_TEMPLATE
-        for k, val in {
+        out = _fill_template(VENUE_TEMPLATE, {
             "PAGE_TITLE": esc(col["title"]), "META_DESC": esc(meta_desc),
             "OG_TITLE": esc(col["h1"]), "CANONICAL": esc(canonical),
             "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"), "JSONLD": jsonld,
             "HOME_HREF": "../../", "BREADCRUMB": breadcrumb, "BODY": body,
-        }.items():
-            out = out.replace("{{" + k + "}}", val)
+        })
         sdir = cdir / col["slug"]
         sdir.mkdir(parents=True, exist_ok=True)
         (sdir / "index.html").write_text(out, encoding="utf-8")
@@ -1176,7 +1180,6 @@ def build_report_page(directory: dict, doc: dict) -> int:
     page derived from the aggregated directory + live schedules. A distinctive,
     linkable content asset (ranks for "rhode island pickleball" informational
     queries) that only an aggregator sitting on this data can produce."""
-    import collections
     venues = [v for v in directory.get("venues", []) if v.get("slug")]
     if len(venues) < 5:
         return 0
@@ -1224,9 +1227,8 @@ def build_report_page(directory: dict, doc: dict) -> int:
         "mainEntityOfPage": canonical, "url": canonical, "description": meta_desc,
         "about": "Pickleball in Rhode Island",
     }
-    crumbs = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Open Play RI", "item": f"{SITE_BASE_URL}/"},
-        {"@type": "ListItem", "position": 2, "name": "RI Pickleball Report", "item": canonical}]}
+    crumbs = _breadcrumb_jsonld([("Open Play RI", f"{SITE_BASE_URL}/"),
+                                 ("RI Pickleball Report", canonical)])
     jsonld = _jsonld_script(article) + "\n" + _jsonld_script(crumbs)
     breadcrumb = '<a href="../">Open Play RI</a><span class="sep">/</span><span>RI Pickleball Report</span>'
 
@@ -1291,13 +1293,11 @@ def build_report_page(directory: dict, doc: dict) -> int:
         f'Numbers update automatically. Free to cite with a link to Open Play RI.</p>'
     )
 
-    out = VENUE_TEMPLATE
-    for k, val in {
+    out = _fill_template(VENUE_TEMPLATE, {
         "PAGE_TITLE": esc(title), "META_DESC": esc(meta_desc), "OG_TITLE": esc(h1),
         "CANONICAL": esc(canonical), "OG_IMAGE": esc(f"{SITE_BASE_URL}/og.png"),
         "JSONLD": jsonld, "HOME_HREF": "../", "BREADCRUMB": breadcrumb, "BODY": body,
-    }.items():
-        out = out.replace("{{" + k + "}}", val)
+    })
     rdir = SITE / "rhode-island-pickleball-report"
     rdir.mkdir(parents=True, exist_ok=True)
     (rdir / "index.html").write_text(out, encoding="utf-8")
@@ -1377,8 +1377,9 @@ def _report_og_health(*, n_pages: int, n_imgs: int, n_fallbacks: int) -> None:
 # or one of these dropping to zero sessions, means the site's core value (live
 # schedules) silently degraded — surface it loudly even though the build still
 # succeeds (the merge layer isolates failures so JCC+Bristol still publish).
-EXPECTED_LIVE_SOURCES = {"jcc-ri", "bristol", "pickleball-citi",
-                         "ocean-state-pickleball", "east-bay-pickleball", "lil-rhody-pickleball"}
+# Derived from the source registry so adding a source in sources.py registers it
+# with the health guard automatically (no second list to keep in sync).
+EXPECTED_LIVE_SOURCES = {sid for sid, _ in sources.SOURCES}
 
 
 def _report_source_health(doc: dict) -> None:
@@ -1416,16 +1417,28 @@ def _report_source_health(doc: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
-def main(argv: list[str] | None = None) -> int:
-    # The pipeline is now multi-source; sources + venues live in sources.py.
-    # (A CLI arg is still accepted for back-compat but ignored — the JCC URL is
-    # the default source in the registry.)
+def main() -> int:
+    # Directory layer: Places-discovered RI venues (committed JSON; no key needed
+    # at build time). It is now the single source of truth for venue facts —
+    # every live source except the JCC hydrates its venue from it (see
+    # sources.py). Load and validate it FIRST: an empty/missing/corrupt directory
+    # would silently gut the site to JCC-only while still "succeeding", so fail
+    # fast (before any scraping) to block the deploy, keep the last-known-good
+    # site live, and fire CI's failure notification. (A single venue missing from
+    # a present directory degrades gracefully + warns via _report_source_health.)
+    directory = directory_mod.load()
+    if not directory.get("venues"):
+        print("::error::directory.json is empty/missing/unreadable — the Bristol "
+              "and CourtReserve sources hydrate their venue facts from it. "
+              "Refusing to build a gutted site; restore site/data/directory.json.",
+              file=sys.stderr)
+        return 1
+
+    # The pipeline is multi-source; sources + venues live in sources.py.
     doc = sources.build_merged_document()
 
-    # Directory layer: Places-discovered RI venues (committed JSON; no key needed
-    # at build time). Cross-link the venues that have live schedules to their
-    # source so the directory pages can deep-link the real sessions.
-    directory = directory_mod.load()
+    # Cross-link the venues that have live schedules to their source so the
+    # directory pages can deep-link the real sessions.
     directory_mod.link_to_sources(directory, doc)
 
     DATA_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -1434,8 +1447,10 @@ def main(argv: list[str] | None = None) -> int:
         fh.write("\n")
     # NB: directory.json is the committed source of truth (CI has no Places key),
     # so we DON'T rewrite it here — the link_to_sources() stamps live only in
-    # memory for the venue pages. The homepage recomputes the live-schedule link
-    # client-side from sessions.json, so the committed file stays stable.
+    # memory for the venue pages. link_to_sources() also writes each source's
+    # `directory_slug` into the sessions.json we just wrote, so the homepage reads
+    # that to badge live venues (no client-side geo-match) and the committed
+    # directory.json stays stable.
 
     n_pages, n_imgs, n_attempted = build_session_pages(doc)
     # Only renders we ATTEMPTED but failed count as degraded — the OG_RENDER_CAP

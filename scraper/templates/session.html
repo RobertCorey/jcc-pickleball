@@ -9,14 +9,14 @@
 <link rel="canonical" href="{{CANONICAL}}" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
 <meta property="og:type" content="website" />
-<meta property="og:site_name" content="Providence JCC Pickleball" />
+<meta property="og:site_name" content="Open Play RI" />
 <meta property="og:title" content="{{OG_TITLE}}" />
 <meta property="og:description" content="{{OG_DESC}}" />
 <meta property="og:url" content="{{CANONICAL}}" />
 <meta property="og:image" content="{{OG_IMAGE}}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Drop-in pickleball at the Providence JCC — schedule" />
+<meta property="og:image:alt" content="Drop-in pickleball in Rhode Island — Open Play RI" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{{OG_TITLE}}" />
 <meta name="twitter:description" content="{{OG_DESC}}" />
@@ -102,12 +102,9 @@
   footer a{color:rgba(243,239,226,.85);text-decoration:none;border-bottom:1px solid rgba(243,239,226,.3);}
   footer a:hover{border-color:var(--lime);color:var(--lime);}
 </style>
-<!-- Privacy-friendly analytics (GoatCounter): no cookies, no consent banner.
-     count.js is vendored (site/count.js) and served first-party so ad/tracker
-     blockers don't drop the script host. Register the code at goatcounter.com
-     and swap the subdomain below; the beacon endpoint stays *.goatcounter.com. -->
-<script data-goatcounter="https://jcc-pickleball.goatcounter.com/count"
-        async src="/jcc-pickleball/count.js"></script>
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-69SBHEGRY1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-69SBHEGRY1');</script>
 </head>
 <body>
 
@@ -115,7 +112,7 @@
   <div class="wrap">
     <a class="brand" href="{{HOME_HREF}}">
       <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
-      <span>JCC&nbsp;Pickleball</span>
+      <span>Open&nbsp;Play&nbsp;RI</span>
     </a>
     <a class="src-link" href="{{STORE_URL}}" target="_blank" rel="noopener">Official store ↗</a>
   </div>
@@ -144,7 +141,7 @@
 
       <p class="fresh">
         Sign-up counts here are a snapshot from <b id="fresh-when">when this page was built</b> and re-check about hourly — they can drift, so the
-        <a href="{{REG_URL}}" target="_blank" rel="noopener">official JCC store ↗</a> is the real source of truth. This page just exists for easy sharing.
+        <a href="{{REG_URL}}" target="_blank" rel="noopener">official {{VENUE_SHORT}} schedule ↗</a> is the real source of truth. This page just exists for easy sharing.
       </p>
     </article>
 
@@ -157,7 +154,7 @@
 
 <footer>
   <div class="wrap">
-    Unofficial mirror of the <a href="{{STORE_URL}}" target="_blank" rel="noopener">JCC of Greater Rhode Island</a> pickleball schedule · not affiliated with the JCC or Amilia · <a href="{{HOME_HREF}}">see the full schedule</a>.
+    Unofficial mirror of the <a href="{{STORE_URL}}" target="_blank" rel="noopener">{{VENUE_NAME}}</a> open-play schedule · not affiliated with the venue or its booking provider · <a href="{{HOME_HREF}}">see the full schedule</a>.
   </div>
 </footer>
 
@@ -175,7 +172,7 @@
   // analytics is blocked or hasn't loaded yet.
   document.addEventListener("click",function(e){
     var a=e.target.closest&&e.target.closest("a.js-reg");
-    if(a&&window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:"register-click",title:"Register on Amilia",event:true});}
+    if(a&&window.gtag){gtag('event','register_click');}
   },true);
 })();
 </script>

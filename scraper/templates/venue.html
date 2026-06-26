@@ -112,8 +112,9 @@
   footer a{color:rgba(243,239,226,.85);text-decoration:none;border-bottom:1px solid rgba(243,239,226,.3);}
   footer a:hover{border-color:var(--lime);color:var(--lime);}
 </style>
-<script data-goatcounter="https://jcc-pickleball.goatcounter.com/count"
-        async src="/jcc-pickleball/count.js"></script>
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-69SBHEGRY1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-69SBHEGRY1');</script>
 </head>
 <body>
 
@@ -144,7 +145,7 @@
 (function(){
   document.addEventListener("click",function(e){
     var a=e.target.closest&&e.target.closest("a.js-reg");
-    if(a&&window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:"register-click",title:"Venue register click",event:true});}
+    if(a&&window.gtag){gtag('event','register_click',{venue:1});}
   },true);
 })();
 </script>
