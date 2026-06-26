@@ -47,7 +47,7 @@ GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
 VENUE_TEMPLATE = (HERE / "templates" / "venue.html").read_text(encoding="utf-8")
 
-SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://open-play-ri.web.app").rstrip("/")
+SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://openplayri.com").rstrip("/")
 
 WD_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 WD_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]

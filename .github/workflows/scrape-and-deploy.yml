@@ -73,7 +73,7 @@ jobs:
         env:
           # Interim production base URL = the live Firebase host. Flip this single
           # value to https://openplayri.com once the custom domain is verified.
-          SITE_BASE_URL: https://open-play-ri.web.app
+          SITE_BASE_URL: https://openplayri.com
 
       # Best-effort: keep a record of the schedule in git history. Never blocks the
       # deploy — Hosting is published from the working tree either way, and a push

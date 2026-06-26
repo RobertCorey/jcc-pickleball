@@ -6,22 +6,22 @@
 <title>Pickleball Open Play in Rhode Island — Every Place to Play | Open Play RI</title>
 <meta name="description" content="Where to play pickleball in Rhode Island: a directory of every court, club, and open-play venue across the state — plus live open-play schedules with times, prices, and sign-up counts. Find pickleball near you in Providence, Warwick, Newport, and beyond." />
 <meta name="color-scheme" content="light" />
-<link rel="canonical" href="https://open-play-ri.web.app/" />
+<link rel="canonical" href="https://openplayri.com/" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
 <!-- social link previews -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Open Play RI" />
 <meta property="og:title" content="Pickleball Open Play in Rhode Island — Every Place to Play" />
 <meta property="og:description" content="A directory of every pickleball court, club, and open-play venue across Rhode Island — plus live open-play schedules with times, prices, and live sign-up counts." />
-<meta property="og:url" content="https://open-play-ri.web.app/" />
-<meta property="og:image" content="https://open-play-ri.web.app/og.png" />
+<meta property="og:url" content="https://openplayri.com/" />
+<meta property="og:image" content="https://openplayri.com/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content="Pickleball open play across Rhode Island — Open Play RI" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Pickleball Open Play in Rhode Island — Every Place to Play" />
 <meta name="twitter:description" content="Every pickleball court, club, and open-play venue across Rhode Island — plus live open-play schedules with times, prices, and sign-up counts." />
-<meta name="twitter:image" content="https://open-play-ri.web.app/og.png" />
+<meta name="twitter:image" content="https://openplayri.com/og.png" />
 <meta name="theme-color" content="#f3efe2" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -391,25 +391,25 @@
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://open-play-ri.web.app/#org",
+      "@id": "https://openplayri.com/#org",
       "name": "Open Play RI",
       "alternateName": "Open Play Rhode Island",
-      "url": "https://open-play-ri.web.app/",
+      "url": "https://openplayri.com/",
       "description": "A community directory of every place to play pickleball in Rhode Island, with live open-play schedules for the venues it tracks.",
       "areaServed": { "@type": "State", "name": "Rhode Island" },
       "knowsAbout": ["Pickleball", "Open play pickleball", "Pickleball courts in Rhode Island", "Drop-in pickleball"]
     },
     {
       "@type": "WebSite",
-      "@id": "https://open-play-ri.web.app/#website",
+      "@id": "https://openplayri.com/#website",
       "name": "Open Play RI",
-      "url": "https://open-play-ri.web.app/",
-      "publisher": { "@id": "https://open-play-ri.web.app/#org" },
+      "url": "https://openplayri.com/",
+      "publisher": { "@id": "https://openplayri.com/#org" },
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://open-play-ri.web.app/?q={search_term_string}#directory"
+          "urlTemplate": "https://openplayri.com/?q={search_term_string}#directory"
         },
         "query-input": "required name=search_term_string"
       }
@@ -463,7 +463,7 @@
   <div class="sec-head" style="padding-top:clamp(24px,4vw,40px)">
     <span class="eyebrow">Live open-play schedule</span>
     <h2>Upcoming open-play sessions</h2>
-    <p class="sub">Real schedules for the venues we track — every upcoming drop-in session with its time, price, and live sign-up count. Filter by venue or day, and tap any session to share or register. <a href="webcal://open-play-ri.web.app/open-play-rhode-island.ics" style="color:var(--forest);font-weight:600;white-space:nowrap;border-bottom:1.5px solid var(--line-strong)">📅 Subscribe in your calendar</a></p>
+    <p class="sub">Real schedules for the venues we track — every upcoming drop-in session with its time, price, and live sign-up count. Filter by venue or day, and tap any session to share or register. <a href="webcal://openplayri.com/open-play-rhode-island.ics" style="color:var(--forest);font-weight:600;white-space:nowrap;border-bottom:1.5px solid var(--line-strong)">📅 Subscribe in your calendar</a></p>
   </div>
 </div>
 
@@ -776,7 +776,7 @@
     var sumEl = $("#glance-summary");
     if (sumEl) {
       var hasAmilia = sources.some(function (m) { return m.booking_system === "amilia"; });
-      var sub = '<a class="cal" href="webcal://open-play-ri.web.app/open-play-rhode-island.ics">📅 Subscribe in your calendar</a>';
+      var sub = '<a class="cal" href="webcal://openplayri.com/open-play-rhode-island.ics">📅 Subscribe in your calendar</a>';
       if (pr) {
         sumEl.innerHTML = "<b>Drop-in from " + esc(pr) + "</b> per session." + (hasAmilia ? " Pay on the store, or use a Multipass." : "") + " · " + sub;
       } else {

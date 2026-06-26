@@ -10,7 +10,7 @@ Nothing here blocks ongoing code work — these are decisions / credentials / DN
 Moving off GitHub Pages (`robertcorey.github.io/jcc-pickleball`) → **Firebase Hosting** on the production
 domain **openplayri.com**. Already done by me: Firebase project `open-play-ri` created (Spark), web app +
 SDK config pulled, `firebase.json`/`.firebaserc` committed, smoke deploy live at
-**https://open-play-ri.web.app**, and custom domain `openplayri.com` added (status: *Needs setup*).
+**https://openplayri.com**, and custom domain `openplayri.com` added (status: *Needs setup*).
 
 ### 1. ⬛ DNS for openplayri.com  ← the biggest blocker
 Confirm you own **openplayri.com** (register it if not). Then in Cloudflare DNS add:
@@ -62,7 +62,7 @@ pointing to the new domain (cleaner hand-off for the few already-indexed URLs). 
       keep it fresh (~$1 Places quota/run).
 
 ## Resolved
-- [x] **Firebase project + Hosting** — `open-play-ri` created; live at https://open-play-ri.web.app.
+- [x] **Firebase project + Hosting** — `open-play-ri` created; live at https://openplayri.com.
 - [x] **Firebase CLI auth** — already logged in as robertbcorey@gmail.com (CLI + gcloud).
 - [x] **Google Places API key** — on the Pi (`~/.env`), verified.
 - [x] **GoatCounter blocked by Pi-hole** — allowlisted goatcounter.com / www / gc.zgo.at.

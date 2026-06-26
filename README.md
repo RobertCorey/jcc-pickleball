@@ -1,6 +1,6 @@
 # Open Play RI — Pickleball Open Play across Rhode Island
 
-**Live site → https://open-play-ri.web.app/**
+**Live site → https://openplayri.com/**
 
 Open Play RI is a statewide aggregator for **pickleball open play (drop-in) in Rhode Island**.
 It combines two things no single venue site offers:
@@ -15,7 +15,7 @@ It combines two things no single venue site offers:
   one-tap registration.
 
 Plus: a **"Near me"** distance sort, town + intent landing pages, calendar subscriptions
-(`.ics` / webcal), an auto-updating [data report](https://open-play-ri.web.app/rhode-island-pickleball-report/),
+(`.ics` / webcal), an auto-updating [data report](https://openplayri.com/rhode-island-pickleball-report/),
 and full schema.org structured data. Privacy-friendly analytics (GoatCounter), no cookies.
 
 ## How it works
