@@ -99,12 +99,12 @@ def _jcc_venue(doc: dict) -> dict:
     }
 
 
-# Bristol's per-session registration link (a public Google Calendar embed) is
-# source-owned — the directory can't know it. Facts come from the directory.
-_BRISTOL_REG_URL = (
-    "https://calendar.google.com/calendar/u/0/embed"
-    "?src=bristolpickleballclubri@gmail.com&ctz=America/New_York"
-)
+# Bristol's per-session registration link is source-owned — the directory can't
+# know it. The club's official site (bristolpickleballri.org) states registration
+# "is managed via Playerlineup" and its "Register to Play" button points here;
+# unlike the old read-only Google Calendar embed, this is where players actually
+# mark themselves IN/OUT for a session. Facts come from the directory.
+_BRISTOL_REG_URL = "https://bristolpickleball.playerlineup.com/"
 
 
 def _bristol() -> dict:
@@ -167,8 +167,9 @@ def _venue_from_directory(slug: str, *, short_name: str,
 # upcoming open-play / drop-in events with no login. Venue facts come from the
 # matching ``directory.json`` entry (named by ``directory_slug``); only the
 # CourtReserve org id and a short display name live here.
-# (Centerline Pickleball Club uses CourtReserve too, but its public site never
-# exposes an org id, so it is intentionally omitted until one is confirmed.)
+# (Centerline's org id, 12220, was recovered from its CourtReserve embed widget /
+# Portal/Index page — the live Wix site only exposes a generic, org-less signup
+# link, so it isn't visible in the page source.)
 # --------------------------------------------------------------------------- #
 _COURTRESERVE_REG_URL = "https://app.courtreserve.com/Online/Calendar/Events/{org_id}/month"
 
@@ -181,6 +182,8 @@ COURTRESERVE_ORGS = [
      "directory_slug": "east-bay-pickleball-club-warren", "short_name": "East Bay Pickleball"},
     {"source_id": "lil-rhody-pickleball", "org_id": 9068,
      "directory_slug": "lil-rhody-pickleball-north-kingstown", "short_name": "Lil Rhody Pickleball"},
+    {"source_id": "centerline-pickleball", "org_id": 12220,
+     "directory_slug": "centerline-pickleball-club-warwick", "short_name": "Centerline Pickleball"},
 ]
 
 

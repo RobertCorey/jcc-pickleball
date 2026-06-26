@@ -381,7 +381,7 @@ if __name__ == "__main__":
     if entry is None:
         sys.exit(f"directory.json has no entry for {DIRECTORY_SLUG!r}")
     venue = dict(entry, short_name="Bristol Pickleball",
-                 registration_url="https://www.bristolpickleball.com")
+                 registration_url="https://bristolpickleball.playerlineup.com/")
     src = build_source(venue)
     print(f"bristol: {len(src['sessions'])} sessions", file=sys.stderr)
     print(json.dumps(src, ensure_ascii=False, indent=2))
