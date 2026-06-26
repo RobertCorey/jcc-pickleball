@@ -7,7 +7,7 @@
 <meta name="description" content="Where to play pickleball in Rhode Island: a directory of every court, club, and open-play venue across the state — plus live open-play schedules with times, prices, and sign-up counts. Find pickleball near you in Providence, Warwick, Newport, and beyond." />
 <meta name="color-scheme" content="light" />
 <link rel="canonical" href="https://openplayri.com/" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230e3247'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c68a2e' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c68a2e'/%3E%3C/svg%3E" />
 <!-- social link previews -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Open Play RI" />
@@ -22,31 +22,37 @@
 <meta name="twitter:title" content="Pickleball Open Play in Rhode Island — Every Place to Play" />
 <meta name="twitter:description" content="Every pickleball court, club, and open-play venue across Rhode Island — plus live open-play schedules with times, prices, and sign-up counts." />
 <meta name="twitter:image" content="https://openplayri.com/og.png" />
-<meta name="theme-color" content="#f3efe2" />
+<meta name="theme-color" content="#0e3247" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=Hanken+Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bone: #f3efe2;
-    --bone-2: #ece6d4;
-    --paper: #faf7ee;
-    --ink: #1a1b13;
-    --ink-soft: #4a4b3e;
-    --ink-faint: #686854; /* darkened from #84846f to pass WCAG AA contrast on cream bg */
-    --line: #ddd7c4;
-    --line-strong: #c8c1aa;
-    --lime: #c6f23b;
+    /* "Ocean State" palette: Bay Navy + Anchor Gold + warm Sand. Green is demoted
+       to live/available status only. (--forest holds Bay Navy so every existing
+       primary usage — headings, links, buttons — cascades automatically.) */
+    --bone: #f4ecdb;        /* Sand — page background */
+    --bone-2: #ece0c9;
+    --paper: #fbf6ea;       /* Surf — card / surface */
+    --ink: #15211c;
+    --ink-soft: #3b4842;
+    --ink-faint: #566058;   /* Stone — passes WCAG AA on sand */
+    --line: #e2d8c1;
+    --line-strong: #cdc1a2;
+    --lime: #c6f23b;        /* retained for the odd incidental accent only */
     --lime-deep: #a9d423;
-    --forest: #14483a;
-    --forest-2: #0c3328;
-    --clay: #b9542f;
-    --gold: #c98e26;
+    --sea: #2f8f55;         /* live "available" dot — harbor green */
+    --sea-deep: #1f6b3a;    /* live status text (AA on sand) */
+    --forest: #0e3247;      /* Bay Navy — primary: headings, links, buttons */
+    --forest-2: #0a2636;
+    --clay: #a6431f;        /* Buoy Red — full / waitlist */
+    --gold: #c68a2e;        /* Anchor Gold — mark, hairlines, hero highlight */
     --amber: #9a6a14;
     --r: 13px;
     --maxw: 880px;
     --font-display: "Bricolage Grotesque", "Hanken Grotesque", system-ui, sans-serif;
     --font-body: "Hanken Grotesque", system-ui, -apple-system, sans-serif;
+    --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,8 +69,8 @@
   body::before {
     content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
     background:
-      radial-gradient(120% 70% at 88% -12%, rgba(198,242,59,.16), transparent 58%),
-      radial-gradient(90% 60% at -12% 6%, rgba(20,72,58,.09), transparent 52%);
+      radial-gradient(120% 70% at 88% -12%, rgba(198,138,46,.15), transparent 58%),
+      radial-gradient(90% 60% at -12% 6%, rgba(14,50,71,.10), transparent 52%);
   }
   body::after {
     content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .5; mix-blend-mode: multiply;
@@ -75,34 +81,35 @@
     padding-right: max(clamp(20px, 5vw, 40px), env(safe-area-inset-right)); }
 
   a { color: inherit; }
-  ::selection { background: var(--lime); color: var(--ink); }
+  ::selection { background: var(--gold); color: var(--ink); }
   :focus-visible { outline: 2.5px solid var(--forest); outline-offset: 2px; border-radius: 4px; }
 
   /* ---------------- top bar ---------------- */
   .topbar { border-bottom: 1.5px solid var(--ink); background: var(--bone); position: relative; z-index: 3; }
   .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 13px; }
   .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 16.5px; letter-spacing: -0.02em; text-decoration: none; min-width: 0; }
-  .brand .mark { width: 28px; height: 28px; border-radius: 8px; background: var(--ink); flex: none; display: grid; place-items: center; }
-  .brand .mark svg { width: 18px; height: 18px; }
-  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--lime-deep); flex: none; box-shadow: 0 0 0 0 rgba(169,212,35,.6); animation: pulse 2.6s ease-out infinite; }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(169,212,35,.5);} 70% { box-shadow: 0 0 0 9px rgba(169,212,35,0);} 100% { box-shadow: 0 0 0 0 rgba(169,212,35,0);} }
+  .brand .mark { width: 28px; height: 28px; border-radius: 8px; background: var(--forest); flex: none; display: grid; place-items: center; }
+  .brand .mark svg { width: 19px; height: 19px; }
+  .brand .ri { color: var(--gold); }
+  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--sea); flex: none; box-shadow: 0 0 0 0 rgba(47,143,85,.6); animation: pulse 2.6s ease-out infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(47,143,85,.5);} 70% { box-shadow: 0 0 0 9px rgba(47,143,85,0);} 100% { box-shadow: 0 0 0 0 rgba(47,143,85,0);} }
   .src-link { text-decoration: none; font-size: 13px; color: var(--ink-soft); border-bottom: 1.5px solid var(--line-strong); padding-bottom: 1px; transition: border-color .15s; white-space: nowrap; flex: none; }
   .src-link:hover { border-color: var(--ink); }
 
   /* ---------------- hero ---------------- */
   .hero { padding: clamp(26px, 5vw, 48px) 0 clamp(16px, 3vw, 24px); }
-  .kicker { font-family: var(--font-body); font-weight: 600; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--forest); display: inline-flex; align-items: center; gap: 10px; }
-  .kicker::before { content: ""; width: 24px; height: 1.5px; background: var(--forest); display: inline-block; flex: none; }
+  .kicker { font-family: var(--font-mono); font-weight: 500; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--forest); display: inline-flex; align-items: center; gap: 10px; }
+  .kicker::before { content: ""; width: 24px; height: 2px; background: var(--gold); display: inline-block; flex: none; }
   h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(29px, 6.6vw, 58px); line-height: 1.0; letter-spacing: -0.032em; margin: 12px 0 0; max-width: 18ch; }
   h1 .accent { position: relative; white-space: nowrap; }
-  h1 .accent::after { content: ""; position: absolute; left: -2px; right: -2px; bottom: 0.07em; height: 0.3em; background: var(--lime); z-index: -1; transform: rotate(-1deg); border-radius: 2px; }
+  h1 .accent::after { content: ""; position: absolute; left: -2px; right: -2px; bottom: 0.07em; height: 0.3em; background: var(--gold); opacity: .85; z-index: -1; transform: rotate(-1deg); border-radius: 2px; }
   .lede { margin-top: 14px; font-size: clamp(15px, 1.5vw, 17px); color: var(--ink-soft); max-width: 52ch; line-height: 1.5; }
   .lede strong { color: var(--ink); font-weight: 600; }
 
   /* ---------------- freshness / disclaimer note ---------------- */
   .freshnote { margin-top: 16px; max-width: 62ch; }
   .fc-pill { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 14.5px; letter-spacing: -.01em; color: var(--forest-2);
-    background: #eef5d6; border: 1.5px solid var(--lime-deep); padding: 7px 14px 7px 12px; border-radius: 999px; }
+    background: #e7efe7; border: 1.5px solid var(--sea); padding: 7px 14px 7px 12px; border-radius: 999px; }
   .freshnote > p { margin-top: 12px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
   .freshnote > p strong { color: var(--ink); font-weight: 700; }
   .freshnote > p a { color: var(--forest); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid var(--line-strong); transition: border-color .15s; white-space: nowrap; }
@@ -168,7 +175,7 @@
   .pasttoggle { margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
   .pasttoggle input { position: absolute; opacity: 0; width: 0; height: 0; }
   .pasttoggle .box { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--line-strong); display: grid; place-items: center; transition: all .14s; }
-  .pasttoggle .box svg { width: 9px; height: 9px; opacity: 0; transition: opacity .12s; color: var(--lime); }
+  .pasttoggle .box svg { width: 9px; height: 9px; opacity: 0; transition: opacity .12s; color: var(--forest); }
   .pasttoggle:hover { color: var(--ink); }
   .pasttoggle:has(input:checked) .box { background: var(--forest-2); border-color: var(--forest-2); }
   .pasttoggle:has(input:checked) .box svg { opacity: 1; }
@@ -189,14 +196,14 @@
   }
   @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .row { animation: none; opacity: 1; } .dot-live { animation: none; } }
-  .row:hover { background: rgba(20,72,58,.05); }
-  .row.today { border-left-color: var(--lime); background: linear-gradient(90deg, rgba(198,242,59,.14), transparent 40%); }
-  .row.today:hover { background: linear-gradient(90deg, rgba(198,242,59,.2), transparent 45%); }
+  .row:hover { background: rgba(14,50,71,.05); }
+  .row.today { border-left-color: var(--gold); background: linear-gradient(90deg, rgba(198,138,46,.15), transparent 40%); }
+  .row.today:hover { background: linear-gradient(90deg, rgba(198,138,46,.22), transparent 45%); }
   .row.past { opacity: .5; }
   .row .when { line-height: 1.2; }
   .row .when .wd { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
   .row .when .dt { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
-  .row .when .today-tag { display: inline-block; margin-top: 2px; font-size: 9.5px; font-weight: 800; letter-spacing: .1em; background: var(--lime); color: var(--forest-2); padding: 2px 6px; border-radius: 999px; }
+  .row .when .today-tag { display: inline-block; margin-top: 2px; font-size: 9.5px; font-weight: 800; letter-spacing: .1em; background: var(--gold); color: #fff; padding: 2px 6px; border-radius: 999px; }
   .row .mid { min-width: 0; }
   .row .mid .name { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: -.012em; color: inherit; text-decoration: none; }
   /* the name link's ::after stretches over the whole row → click anywhere (except Register) opens the session page */
@@ -209,7 +216,7 @@
   .avail { font-size: 12px; font-weight: 600; letter-spacing: .01em; display: inline-flex; align-items: center; gap: 6px; }
   .avail b { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
   .avail .pdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
-  .avail.good { color: #52701a; }       /* darkened for WCAG AA contrast on cream */
+  .avail.good { color: #1f6b3a; }       /* Eelgrass green — AA on sand */
   .avail.low  { color: #8a5e10; }
   .avail.full { color: #a8481f; }
   .avail.soon, .avail.past { color: var(--ink-faint); }
@@ -221,8 +228,8 @@
     position: relative; z-index: 2; /* stays clickable above the row's stretched link */
   }
   .go:active { transform: translateY(1px); }
-  .go.primary { background: var(--lime); color: var(--ink); border-color: var(--lime-deep); }
-  .go.primary:hover { background: var(--lime-deep); }
+  .go.primary { background: var(--forest); color: var(--paper); border-color: var(--forest); }
+  .go.primary:hover { background: var(--forest-2); border-color: var(--forest-2); }
   .go.primary .arrow { transition: transform .16s; }
   .go.primary:hover .arrow { transform: translateX(2px); }
   .go.ghost { background: transparent; border-color: var(--line-strong); color: var(--ink-soft); }
@@ -242,15 +249,16 @@
   @keyframes sweep { 100% { transform: translateX(100%); } }
 
   /* ---------------- footer ---------------- */
-  footer { border-top: 1.5px solid var(--ink); background: var(--ink); color: var(--bone); padding: clamp(28px, 4vw, 44px) 0 clamp(24px, 3vw, 34px); position: relative; z-index: 1; }
+  footer { border-top: 1.5px solid var(--forest-2); background: var(--forest); color: var(--bone); padding: clamp(28px, 4vw, 44px) 0 clamp(24px, 3vw, 34px); position: relative; z-index: 1; }
   footer .row2 { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; }
-  footer .blurb { max-width: 46ch; font-size: 13px; color: rgba(243,239,226,.72); line-height: 1.6; }
+  footer .blurb { max-width: 46ch; font-size: 13px; color: rgba(244,236,219,.74); line-height: 1.6; }
   footer .blurb .lg { font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 4vw, 30px); letter-spacing: -.03em; color: var(--bone); display: block; margin-bottom: 10px; }
-  footer .blurb .lg .accent { color: var(--lime); }
-  footer .links h3 { font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--lime); margin-bottom: 10px; }
+  footer .blurb .lg .accent { color: var(--gold); }
+  footer .blurb .ftag { display: block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .03em; color: var(--gold); margin: -2px 0 12px; }
+  footer .links h3 { font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
   footer .links ul { list-style: none; display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; }
-  footer .links a { text-decoration: none; color: rgba(243,239,226,.8); border-bottom: 1px solid rgba(243,239,226,.28); transition: border-color .15s, color .15s; }
-  footer .links a:hover { border-color: var(--lime); color: var(--lime); }
+  footer .links a { text-decoration: none; color: rgba(244,236,219,.82); border-bottom: 1px solid rgba(244,236,219,.28); transition: border-color .15s, color .15s; }
+  footer .links a:hover { border-color: var(--gold); color: var(--gold); }
   footer .legal { margin-top: clamp(20px, 3vw, 32px); padding-top: 16px; border-top: 1px solid rgba(243,239,226,.16); font-size: 11.5px; color: rgba(243,239,226,.5); display: flex; flex-wrap: wrap; gap: 5px 16px; justify-content: space-between; }
 
   @media (max-width: 560px) {
@@ -310,15 +318,15 @@
   .vcard { position: relative; display: block; background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: 11px;
     padding: 14px 15px; text-decoration: none; transition: border-color .14s, transform .14s, box-shadow .14s; }
   .vcard:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: 0 10px 22px -16px rgba(20,30,15,.5); }
-  .vcard.live { border-color: var(--forest); background: linear-gradient(180deg, rgba(20,72,58,.05), var(--paper) 60%); }
+  .vcard.live { border-color: var(--sea); background: linear-gradient(180deg, rgba(47,143,85,.07), var(--paper) 60%); }
   .vcard .vn { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; letter-spacing: -.01em; color: var(--ink); line-height: 1.25; }
   .vcard .vm { margin-top: 5px; font-size: 12px; color: var(--ink-faint); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
   .vcard .vrate { color: var(--ink-soft); font-weight: 600; }
   .vcard .vrate .star { color: var(--gold); }
   .vcard .livetag { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; font-size: 11px; font-weight: 800;
-    letter-spacing: .04em; text-transform: uppercase; color: var(--forest); }
-  .vcard .livetag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime-deep); flex: none;
-    box-shadow: 0 0 0 0 rgba(169,212,35,.6); animation: pulse 2.6s ease-out infinite; }
+    letter-spacing: .04em; text-transform: uppercase; color: var(--sea-deep); }
+  .vcard .livetag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sea); flex: none;
+    box-shadow: 0 0 0 0 rgba(47,143,85,.6); animation: pulse 2.6s ease-out infinite; }
   .vcard .arrow2 { position: absolute; top: 13px; right: 14px; color: var(--line-strong); font-size: 14px; transition: transform .14s, color .14s; }
   .vcard:hover .arrow2 { color: var(--forest); transform: translate(2px,-2px); }
   /* card = a stretched main link (to the venue page) + a directions escape-hatch
@@ -448,8 +456,8 @@
 <div class="topbar">
   <div class="wrap">
     <a class="brand" href="#top">
-      <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
-      <span>Open&nbsp;Play&nbsp;RI</span>
+      <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#C68A2E" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="17" r="7"/><line x1="32" y1="24" x2="32" y2="47"/><line x1="22" y1="29" x2="42" y2="29"/><path d="M18 41 q14 17 28 0"/></g><g fill="#C68A2E"><circle cx="29" cy="15" r="1.4"/><circle cx="35" cy="15" r="1.4"/><circle cx="32" cy="19.5" r="1.4"/></g></svg></span>
+      <span>Open&nbsp;Play&nbsp;<span class="ri">RI</span></span>
     </a>
     <a class="src-link" href="#directory">All RI venues&nbsp;→</a>
     <a id="source-link" hidden href="https://app.amilia.com/store/en/jewishallianceofgreaterrhodeisland/shop/programs/128482?subCategoryIds=6876731"></a>
@@ -595,6 +603,7 @@
     <div class="row2">
       <div class="blurb">
         <span class="lg">Open Play <span class="accent">RI</span></span>
+        <span class="ftag">Pickleball, anchored in Rhode Island.</span>
         A community directory of every place to play pickleball in Rhode Island, with live open-play schedules for the venues we track. Venue details come from public listings; schedules refresh hourly. Always confirm times and prices with the venue before you go.
       </div>
       <div class="links">
@@ -1055,8 +1064,8 @@
       var isLive = !!liveMap[v.slug];
       var m = L.circleMarker([+v.latitude, +v.longitude], {
         radius: isLive ? 8 : 6, weight: 2,
-        color: isLive ? "#14483a" : "#7a7a68",
-        fillColor: isLive ? "#a9d423" : "#d7d7c6", fillOpacity: .92
+        color: isLive ? "#0e3247" : "#7a7a68",
+        fillColor: isLive ? "#2f8f55" : "#d7d7c6", fillOpacity: .92
       });
       m.bindPopup('<div class="mappop"><b>' + esc(v.name) + '</b>' +
         (isLive ? '<span class="pl">● Live schedule</span>' : '') +

@@ -7,7 +7,7 @@
 <meta name="description" content="{{OG_DESC}}" />
 <meta name="color-scheme" content="light" />
 <link rel="canonical" href="{{CANONICAL}}" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1b14'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c6f23b' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c6f23b'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c6f23b'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230e3247'/%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='%23c68a2e' stroke-width='8'/%3E%3Ccircle cx='40' cy='38' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='60' cy='38' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='40' cy='62' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='60' cy='62' r='4.5' fill='%23c68a2e'/%3E%3Ccircle cx='50' cy='50' r='4.5' fill='%23c68a2e'/%3E%3C/svg%3E" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Open Play RI" />
 <meta property="og:title" content="{{OG_TITLE}}" />
@@ -21,32 +21,33 @@
 <meta name="twitter:title" content="{{OG_TITLE}}" />
 <meta name="twitter:description" content="{{OG_DESC}}" />
 <meta name="twitter:image" content="{{OG_IMAGE}}" />
-<meta name="theme-color" content="#f3efe2" />
+<meta name="theme-color" content="#0e3247" />
 {{JSONLD}}
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --bone:#f3efe2;--bone-2:#ece6d4;--paper:#faf7ee;--ink:#1a1b13;--ink-soft:#4a4b3e;--ink-faint:#686854;
-    --line:#ddd7c4;--line-strong:#c8c1aa;--lime:#c6f23b;--lime-deep:#a9d423;--forest:#14483a;--forest-2:#0c3328;
-    --clay:#b9542f;--amber:#9a6a14;--r:13px;
+    --bone:#f4ecdb;--bone-2:#ece0c9;--paper:#fbf6ea;--ink:#15211c;--ink-soft:#3b4842;--ink-faint:#566058;
+    --line:#e2d8c1;--line-strong:#cdc1a2;--lime:#c6f23b;--lime-deep:#a9d423;--sea:#2f8f55;--sea-deep:#1f6b3a;--forest:#0e3247;--forest-2:#0a2636;
+    --clay:#a6431f;--gold:#c68a2e;--amber:#9a6a14;--r:13px;
     --fd:"Bricolage Grotesque","Hanken Grotesque",system-ui,sans-serif;--fb:"Hanken Grotesque",system-ui,-apple-system,sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{font-family:var(--fb);color:var(--ink);background:var(--bone);line-height:1.5;letter-spacing:-.003em;min-height:100vh;overflow-x:hidden;}
-  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(120% 70% at 88% -12%,rgba(198,242,59,.16),transparent 58%),radial-gradient(90% 60% at -12% 6%,rgba(20,72,58,.09),transparent 52%);}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(120% 70% at 88% -12%,rgba(198,138,46,.15),transparent 58%),radial-gradient(90% 60% at -12% 6%,rgba(14,50,71,.10),transparent 52%);}
   body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
   .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding-left:max(clamp(20px,5vw,40px),env(safe-area-inset-left));padding-right:max(clamp(20px,5vw,40px),env(safe-area-inset-right));}
-  a{color:inherit;}::selection{background:var(--lime);color:var(--ink);}
+  a{color:inherit;}::selection{background:var(--gold);color:var(--ink);}
   :focus-visible{outline:2.5px solid var(--forest);outline-offset:2px;border-radius:4px;}
 
   .topbar{border-bottom:1.5px solid var(--ink);background:var(--bone);position:relative;z-index:2;}
   .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:13px;}
   .brand{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:700;font-size:16.5px;letter-spacing:-.02em;text-decoration:none;}
-  .brand .mark{width:28px;height:28px;border-radius:8px;background:var(--ink);flex:none;display:grid;place-items:center;}
-  .brand .mark svg{width:18px;height:18px;}
+  .brand .mark{width:28px;height:28px;border-radius:8px;background:var(--forest);flex:none;display:grid;place-items:center;}
+  .brand .mark svg{width:19px;height:19px;}
+  .brand .ri{color:var(--gold);}
   .src-link{text-decoration:none;font-size:13px;color:var(--ink-soft);border-bottom:1.5px solid var(--line-strong);padding-bottom:1px;white-space:nowrap;flex:none;transition:border-color .15s;}
   .src-link:hover{border-color:var(--ink);}
 
@@ -69,15 +70,15 @@
   .avail .pdot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;}
   .avail.good{color:#52701a;}.avail.low{color:#8a5e10;}.avail.full{color:#a8481f;}.avail.soon,.avail.past{color:var(--ink-faint);}
   .meter{flex:1;min-width:140px;height:8px;border-radius:999px;background:var(--bone-2);border:1px solid var(--line);overflow:hidden;}
-  .meter>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--lime-deep),var(--lime));}
+  .meter>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--sea-deep),var(--sea));}
   .meter.low>i{background:linear-gradient(90deg,#d99a2b,#ecc04b);}
   .meter.full>i{background:linear-gradient(90deg,var(--clay),#d97c5a);}
 
   .cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;}
   .btn{font-family:var(--fb);font-weight:700;font-size:14.5px;padding:12px 18px;border-radius:10px;text-decoration:none;cursor:pointer;border:1.5px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,background .15s,border-color .15s,color .15s;}
   .btn:active{transform:translateY(1px);}
-  .btn-primary{flex:1;min-width:200px;background:var(--lime);color:var(--ink);border-color:var(--lime-deep);}
-  .btn-primary:hover{background:var(--lime-deep);}
+  .btn-primary{flex:1;min-width:200px;background:var(--forest);color:var(--paper);border-color:var(--forest);}
+  .btn-primary:hover{background:var(--forest-2);border-color:var(--forest-2);}
   .btn-primary .arrow{transition:transform .16s;}.btn-primary:hover .arrow{transform:translateX(3px);}
   .btn-ghost{background:transparent;border-color:var(--line-strong);color:var(--ink-soft);}
   .btn-ghost:hover{border-color:var(--ink);color:var(--ink);}
@@ -100,7 +101,7 @@
 
   footer{border-top:1.5px solid var(--ink);background:var(--ink);color:var(--bone);padding:clamp(22px,3.5vw,32px) 0;position:relative;z-index:1;font-size:12.5px;color:rgba(243,239,226,.66);}
   footer a{color:rgba(243,239,226,.85);text-decoration:none;border-bottom:1px solid rgba(243,239,226,.3);}
-  footer a:hover{border-color:var(--lime);color:var(--lime);}
+  footer a:hover{border-color:var(--gold);color:var(--gold);}
 </style>
 <!-- Google Analytics 4 (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-69SBHEGRY1"></script>
@@ -111,8 +112,8 @@
 <div class="topbar">
   <div class="wrap">
     <a class="brand" href="{{HOME_HREF}}">
-      <span class="mark"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="32" fill="none" stroke="#c6f23b" stroke-width="9"/><circle cx="39" cy="37" r="5" fill="#c6f23b"/><circle cx="61" cy="37" r="5" fill="#c6f23b"/><circle cx="39" cy="63" r="5" fill="#c6f23b"/><circle cx="61" cy="63" r="5" fill="#c6f23b"/><circle cx="50" cy="50" r="5" fill="#c6f23b"/></svg></span>
-      <span>Open&nbsp;Play&nbsp;RI</span>
+      <span class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#C68A2E" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="17" r="7"/><line x1="32" y1="24" x2="32" y2="47"/><line x1="22" y1="29" x2="42" y2="29"/><path d="M18 41 q14 17 28 0"/></g><g fill="#C68A2E"><circle cx="29" cy="15" r="1.4"/><circle cx="35" cy="15" r="1.4"/><circle cx="32" cy="19.5" r="1.4"/></g></svg></span>
+      <span>Open&nbsp;Play&nbsp;<span class="ri">RI</span></span>
     </a>
     <a class="src-link" href="{{STORE_URL}}" target="_blank" rel="noopener">{{STORE_LABEL}} ↗</a>
   </div>
