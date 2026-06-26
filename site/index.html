@@ -676,11 +676,12 @@
   fetch("data/sessions.json?v=" + Date.now(), { cache: "no-store" })
     .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(init)
-    .catch(function (err) {
-      $("#list").innerHTML = '<div class="errbox"><div class="big">Couldn’t load the schedule</div><p>' + esc(String(err)) +
-        '. Browse it on the <a href="' + esc($("#source-link").getAttribute("href")) + '" target="_blank" rel="noopener">official store ↗</a> instead.</p></div>';
-      $("#countline").textContent = "Failed to load.";
-      var fcw = $("#fc-when"); if (fcw) { fcw.textContent = "Couldn’t reach the schedule"; var d = $(".fc-pill .dot-live"); if (d) d.style.background = "var(--clay)"; }
+    .catch(function () {
+      $("#list").innerHTML = '<div class="errbox"><div class="big">Couldn’t load the schedule</div>' +
+        '<p>The live schedule didn’t load just now. Please refresh, or ' +
+        '<a href="#directory">browse every RI venue in the directory ↓</a>.</p></div>';
+      $("#countline").textContent = "Schedule unavailable.";
+      var fcw = $("#fc-when"); if (fcw) { fcw.textContent = "Schedule unavailable"; var d = $(".fc-pill .dot-live"); if (d) d.style.background = "var(--clay)"; }
       $("#showpast").hidden = true;
     });
 
@@ -764,24 +765,16 @@
   function buildGlance(data, rows) {
     var sources = STATE.sources;
 
-    // ---- price/subscribe headline -> hero summary line (was the first glance row) ----
-    var lo = null, hi = null;
-    (rows || []).forEach(function (r) {
-      var b = r.s.drop_in_best_price, f = r.s.drop_in_price;
-      if (b != null) lo = (lo == null) ? b : Math.min(lo, b);
-      if (f != null) hi = (hi == null) ? f : Math.max(hi, f);
-      if (b != null && (hi == null || b > hi) && f == null) hi = b;
-    });
-    var pr = priceRange(lo, hi);
+    // ---- subscribe / headline -> hero summary line ----
+    // Venue-neutral on purpose: pricing and booking flow vary per club (and most
+    // venues don't publish a price at all), so the aggregate hero must NOT surface
+    // any single club's price range or booking copy (e.g. the JCC's Amilia
+    // "Multipass"). Per-session price + live sign-up render on each session and
+    // venue page, where they're correct for that specific venue.
     var sumEl = $("#glance-summary");
     if (sumEl) {
-      var hasAmilia = sources.some(function (m) { return m.booking_system === "amilia"; });
       var sub = '<a class="cal" href="webcal://openplayri.com/open-play-rhode-island.ics">📅 Subscribe in your calendar</a>';
-      if (pr) {
-        sumEl.innerHTML = "<b>Drop-in from " + esc(pr) + "</b> per session." + (hasAmilia ? " Pay on the store, or use a Multipass." : "") + " · " + sub;
-      } else {
-        sumEl.innerHTML = sub;
-      }
+      sumEl.innerHTML = "<b>Drop-in open play</b> at clubs across Rhode Island — each session shows its price and live sign-up. · " + sub;
     }
 
     // ---- secondary details: deduped, grouped BY venue ----
@@ -865,7 +858,7 @@
     if (!rows.length) {
       listEl.innerHTML = '<div class="empty"><div class="big">Nothing here</div><p>' +
         (STATE.day !== "" ? "No " + WD_FULL[+STATE.day] + " sessions" + (STATE.showPast ? "" : " coming up") + ". Try “All”." : "No sessions to show.") +
-        ' Check the <a href="' + esc($("#source-link").getAttribute("href")) + '" target="_blank" rel="noopener">official store ↗</a>.</p></div>';
+        ' <a href="#directory">Browse every RI venue ↓</a></p></div>';
       $("#showpast").hidden = true;
       return;
     }

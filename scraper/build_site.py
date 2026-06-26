@@ -65,6 +65,35 @@ EVENT_TZ = ZoneInfo("America/New_York")
 # keep the generic og.png. (Set generously — covers all near-term shareable pages.)
 OG_RENDER_CAP = 220
 
+# --------------------------------------------------------------------------- #
+# Directory curation: cut "public courts" (parks, playgrounds, public tennis &
+# athletic courts) so the directory focuses on clubs and dedicated venues. The
+# Places `primary_type` is unreliable — real clubs are routinely mislabeled
+# (Pickleball Citi / Ocean State / Centerline all come back as "Athletic Field"),
+# so a venue is NEVER cut when it has a live schedule (source_id, set by
+# link_to_sources) or its name reads like a club / academy / YMCA / branded
+# pickleball venue. Everything else of a public-court type is dropped.
+# --------------------------------------------------------------------------- #
+_PUBLIC_COURT_TYPES = {
+    "Park", "City Park", "Playground", "Tennis Court",
+    "Athletic Field", "Stadium", "Swimming Pool",
+}
+_CLUB_NAME_RE = re.compile(r"\b(club|academy|ymca|ywca|fieldhouse)\b", re.I)
+
+
+def _is_public_court(v: dict) -> bool:
+    """True if a directory venue is a public court we cut to tighten focus."""
+    if v.get("source_id"):
+        return False  # has a live schedule — always keep
+    name = v.get("name") or ""
+    if _CLUB_NAME_RE.search(name):
+        return False  # club / academy / YMCA — keep
+    low = name.lower()
+    if "pickleball" in low and not re.search(
+            r"court|tennis|park|field|common|rec\b|school|town", low):
+        return False  # branded pickleball venue (e.g. "Pickleballri") — keep
+    return v.get("primary_type") in _PUBLIC_COURT_TYPES
+
 
 def esc(x) -> str:
     return html.escape("" if x is None else str(x), quote=True)
@@ -418,6 +447,11 @@ def build_session_pages(doc) -> tuple[int, int]:
         cta_primary = src.get("cta_label") or "Register"
         cta_view = "View on Amilia" if is_amilia else cta_primary
         store_url = (src.get("program") or {}).get("url") or venue_v.get("registration_url") or scraper.DEFAULT_URL
+        # Venue-appropriate label for the source link: only the JCC (Amilia) is a
+        # "store"; CourtReserve clubs book on their schedule, others are generic.
+        store_label = ("Official store" if is_amilia
+                       else "Book on CourtReserve" if src.get("booking_system") == "courtreserve"
+                       else "Official schedule")
 
         p = parse_local(s.get("start"))
         pe = parse_local(s.get("end"))
@@ -496,6 +530,7 @@ def build_session_pages(doc) -> tuple[int, int]:
             "OG_IMAGE": esc(f"{SITE_BASE_URL}/s/{sid}/og.png"),
             "HOME_HREF": "../../",
             "STORE_URL": esc(store_url),
+            "STORE_LABEL": esc(store_label),
             "VENUE_NAME": esc(og_kicker),
             "VENUE_SHORT": esc(venue_short),
             "REG_URL": esc(reg_url),
@@ -1438,19 +1473,33 @@ def main() -> int:
     doc = sources.build_merged_document()
 
     # Cross-link the venues that have live schedules to their source so the
-    # directory pages can deep-link the real sessions.
+    # directory pages can deep-link the real sessions. (Must run before the
+    # public-court cut below, which keeps any venue with a live source_id.)
     directory_mod.link_to_sources(directory, doc)
+
+    # Tighten focus: drop public courts (parks, public tennis & athletic courts)
+    # from the directory, keeping clubs + dedicated venues + every live source.
+    _before = len(directory.get("venues", []))
+    directory["venues"] = [v for v in directory.get("venues", []) if not _is_public_court(v)]
+    if isinstance(directory.get("totals"), dict):
+        directory["totals"]["venues"] = len(directory["venues"])
+    print(f"  directory curated: kept {len(directory['venues'])}, "
+          f"cut {_before - len(directory['venues'])} public courts", file=sys.stderr)
 
     DATA_OUT.parent.mkdir(parents=True, exist_ok=True)
     with DATA_OUT.open("w", encoding="utf-8") as fh:
         json.dump(doc, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
-    # NB: directory.json is the committed source of truth (CI has no Places key),
-    # so we DON'T rewrite it here — the link_to_sources() stamps live only in
-    # memory for the venue pages. link_to_sources() also writes each source's
-    # `directory_slug` into the sessions.json we just wrote, so the homepage reads
-    # that to badge live venues (no client-side geo-match) and the committed
-    # directory.json stays stable.
+    # The SERVED directory.json is the CURATED subset (public courts cut above)
+    # that the homepage fetches for its venue list. The COMMITTED
+    # site/data/directory.json is the full Places-discovered source of truth (CI
+    # has no Places key); CI's commit-back writes only sessions.json, so the
+    # committed source stays complete and the curation re-applies deterministically
+    # each build. link_to_sources() also stamped each source's `directory_slug`
+    # into the sessions.json above so the homepage badges live venues directly.
+    with (SITE / "data" / "directory.json").open("w", encoding="utf-8") as fh:
+        json.dump(directory, fh, ensure_ascii=False, indent=2)
+        fh.write("\n")
 
     n_pages, n_imgs, n_attempted = build_session_pages(doc)
     # Only renders we ATTEMPTED but failed count as degraded — the OG_RENDER_CAP

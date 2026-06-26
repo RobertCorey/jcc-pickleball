@@ -202,9 +202,17 @@ def _make_courtreserve_source(org: dict):
 
 
 # Registry. Order here is the order venues appear on the site.
+#
+# NOTE: Bristol is intentionally NOT registered as a live source. The club moved
+# scheduling off its public Google Calendar (the ``bristol_ics`` feed) to
+# Playerlineup, and the ICS is now a historical archive — every recurring rule
+# has expired/exhausted, so it yields 0 upcoming sessions and renders as a broken
+# empty schedule. ``bristol_ics`` + ``_bristol`` are kept for when we build a real
+# Playerlineup integration (registration already points at
+# https://bristolpickleball.playerlineup.com/). Re-add ("bristol", _bristol) here
+# once a source can return live upcoming sessions.
 SOURCES = [
     ("jcc-ri", _jcc_amilia),
-    ("bristol", _bristol),
 ]
 SOURCES += [(o["source_id"], _make_courtreserve_source(o)) for o in COURTRESERVE_ORGS]
 
