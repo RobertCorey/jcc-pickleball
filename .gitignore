@@ -21,3 +21,6 @@ dist/
 .firebase/
 .playwright-mcp/
 site/data/build.json
+
+# Claude Code local worktrees (ephemeral)
+.claude/worktrees/
