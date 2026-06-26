@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Play RI has moved to openplayri.com</title>
+<!-- This site moved off GitHub Pages to its own domain. These stubs path-preserve
+     redirect every old URL to the live site. See NEEDS-HUMAN.md / the June 2026 migration. -->
+<link rel="canonical" href="https://openplayri.com/">
+<meta http-equiv="refresh" content="0; url=https://openplayri.com/">
+<script>
+(function () {
+  // Old project-page base was /jcc-pickleball; strip it so the path carries over.
+  var base = '/jcc-pickleball';
+  var p = location.pathname;
+  if (p.indexOf(base) === 0) p = p.slice(base.length);
+  if (!p) p = '/';
+  location.replace('https://openplayri.com' + p + location.search + location.hash);
+})();
+</script>
+</head>
+<body>
+<p>Open Play RI now lives at <a href="https://openplayri.com/">openplayri.com</a>. Redirecting&hellip;</p>
+</body>
+</html>

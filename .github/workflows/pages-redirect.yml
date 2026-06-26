@@ -1,0 +1,39 @@
+name: Deploy Pages redirect (old site → openplayri.com)
+
+# The project moved off GitHub Pages to openplayri.com (Firebase Hosting) in
+# June 2026. This one-shot deploy replaces the stale Pages artifact with tiny
+# path-preserving redirect stubs so old robertcorey.github.io/jcc-pickleball
+# bookmarks and shared links forward to the live site. Triggers only when the
+# redirect content changes, so the hourly data commits never re-run it.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pages-redirect/**'
+      - '.github/workflows/pages-redirect.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-redirect
+      - id: deployment
+        uses: actions/deploy-pages@v4
