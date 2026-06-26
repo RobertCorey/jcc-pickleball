@@ -1,5 +1,5 @@
 {
-  "scraped_at_utc": "2026-06-26T18:49:07+00:00",
+  "scraped_at_utc": "2026-06-26T18:52:46+00:00",
   "totals": {
     "sources": 6,
     "venues": 6,
@@ -4270,7 +4270,7 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260613",
+      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
       "start": "2026-06-13T10:00:00",
       "end": "2026-06-13T11:30:00",
       "all_day": false,
@@ -4314,7 +4314,7 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:79o0fpcnhfvhumhfcpeqnj83-20260613",
+      "segment_id": "bristol:367hvlq0jhajq2jaf180tka1-20260613",
       "start": "2026-06-13T10:00:00",
       "end": "2026-06-13T11:30:00",
       "all_day": false,
@@ -4843,19 +4843,19 @@
       "venue_name": "Providence JCC"
     },
     {
-      "segment_id": "bristol:432eba65tsmup4pkco1rekm6-20260620",
+      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
       "has_passed": true,
       "status": "passed",
       "state_code": null,
-      "capacity": 50,
+      "capacity": 45,
       "has_unlimited_spots": false,
       "spots_reserved": null,
       "spots_remaining": null,
       "has_place_left": null,
-      "max_attendance": 50,
+      "max_attendance": 45,
       "attendance_string": null,
       "drop_in_price": null,
       "drop_in_best_price": null,
@@ -4931,19 +4931,19 @@
       "venue_name": "Bristol Pickleball"
     },
     {
-      "segment_id": "bristol:252fcr5hvhjqspg6kmc16sf2-20260620",
+      "segment_id": "bristol:432eba65tsmup4pkco1rekm6-20260620",
       "start": "2026-06-20T11:30:00",
       "end": "2026-06-20T13:00:00",
       "all_day": false,
       "has_passed": true,
       "status": "passed",
       "state_code": null,
-      "capacity": 45,
+      "capacity": 50,
       "has_unlimited_spots": false,
       "spots_reserved": null,
       "spots_remaining": null,
       "has_place_left": null,
-      "max_attendance": 45,
+      "max_attendance": 50,
       "attendance_string": null,
       "drop_in_price": null,
       "drop_in_best_price": null,
