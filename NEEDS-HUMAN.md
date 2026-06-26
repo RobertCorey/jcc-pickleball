@@ -15,11 +15,15 @@ Open Play RI is live on **Firebase Hosting** at **https://openplayri.com** (ever
   **Cloud DNS** zone `openplayri-com`, Firebase-managed SSL. Canonical/OG/sitemap/feeds all on it.
 
 ### Optional follow-ups (non-blocking)
-- [ ] **Google Search Console** — add `openplayri.com`, submit `https://openplayri.com/sitemap.xml`
-      (your Google account; I can drop an HTML verification file). File a Change-of-Address from the
-      old `robertcorey.github.io/jcc-pickleball` property if it was ever submitted.
-- [ ] **`www` redirect** — `www.openplayri.com` isn't set up. Say the word and I'll add it as a
-      redirect to the apex (another Firebase custom domain + a `www` CNAME in Cloud DNS).
+- [x] **Google Search Console** — `openplayri.com` added as a **Domain property**, ownership
+      **auto-verified** (same Google account as Cloud Domains, no DNS step needed). Sitemap
+      `https://openplayri.com/sitemap.xml` submitted and read — **Success, 673 pages discovered**
+      (2026-06-26). If the old `robertcorey.github.io/jcc-pickleball` property was ever in Search
+      Console, file a Change-of-Address from it; otherwise nothing to do.
+- [x] **`www` redirect** — `www.openplayri.com` added in Firebase as a **301 redirect to the apex**;
+      Cloud DNS zone `openplayri-com` now has a `www` **CNAME → open-play-ri.web.app** (the A record
+      was swapped out — CNAME can't coexist with A). Firebase was still showing "records not yet
+      detected" at setup time (propagation lag, same as the apex); it auto-connects in the background.
 - [ ] **Old GitHub Pages** — `robertcorey.github.io/jcc-pickleball` is now stale (CI no longer
       deploys there). Disable it in repo settings, or leave it. Low stakes (barely indexed).
 - [ ] **`gmail-cleanup-rc` billing** — I unlinked it to free a Cloud-billing slot for `openplayri.com`
