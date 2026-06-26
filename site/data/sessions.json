@@ -1,5 +1,5 @@
 {
-  "scraped_at_utc": "2026-06-26T07:34:53+00:00",
+  "scraped_at_utc": "2026-06-26T09:19:52+00:00",
   "totals": {
     "sources": 6,
     "venues": 6,
@@ -29849,11 +29849,11 @@
       "state_code": null,
       "capacity": 12,
       "has_unlimited_spots": false,
-      "spots_reserved": 1,
-      "spots_remaining": 11,
+      "spots_reserved": 2,
+      "spots_remaining": 10,
       "has_place_left": true,
       "max_attendance": 12,
-      "attendance_string": "11 of 12 spots remaining",
+      "attendance_string": "10 of 12 spots remaining",
       "drop_in_price": null,
       "drop_in_best_price": null,
       "fee": null,
