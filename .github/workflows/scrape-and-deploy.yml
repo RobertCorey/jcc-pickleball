@@ -75,24 +75,21 @@ jobs:
           # value to https://openplayri.com once the custom domain is verified.
           SITE_BASE_URL: https://openplayri.com
 
-      # Best-effort: keep a record of the schedule in git history. Never blocks the
-      # deploy — Hosting is published from the working tree either way, and a push
-      # that loses a race just gets picked up next cycle.
-      - name: Commit refreshed data (best-effort)
-        continue-on-error: true
+      # Guard: the built data MUST be valid before anything is published. The build
+      # writes sessions.json fresh, but a future bug (or a stray git op) must never
+      # be able to ship a truncated / conflict-marked file to prod. Fail the run if
+      # the JSON won't parse or still carries merge-conflict markers.
+      - name: Validate built data (deploy guard)
         run: |
-          if [[ -n "$(git status --porcelain site/data/sessions.json)" ]]; then
-            git config user.name  "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add site/data/sessions.json
-            git commit -m "data: refresh pickleball schedule ($(date -u +'%Y-%m-%d %H:%MZ'))"
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME:-main}" || true
-            git push || echo "::warning::data commit-back lost a push race; will refresh next cycle"
-          else
-            echo "No data change."
+          python3 -c "import json; json.load(open('site/data/sessions.json'))"
+          if grep -nE '^(<<<<<<<|=======|>>>>>>>)' site/data/sessions.json; then
+            echo "::error::sessions.json contains merge-conflict markers — refusing to deploy"; exit 1
           fi
+          echo "sessions.json is valid JSON with no conflict markers."
 
-      # Publish site/ to Firebase Hosting (live channel). Auth via the deploy
+      # Publish site/ to Firebase Hosting (live channel) BEFORE the git commit-back,
+      # so the deploy always ships the freshly-built working tree and can never be
+      # corrupted by a rebase conflict in the commit-back step. Auth via the deploy
       # service-account JSON stored in the repo secret; the key file is written to
       # the runner temp dir and removed after. firebase-tools picks it up through
       # GOOGLE_APPLICATION_CREDENTIALS.
@@ -104,6 +101,28 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/fbsa.json"
           npx --yes firebase-tools@15 deploy --only hosting --project open-play-ri --non-interactive
           rm -f "$RUNNER_TEMP/fbsa.json"
+
+      # Best-effort: keep a record of the schedule in git history. Runs AFTER the
+      # deploy, so a rebase race can never affect what's already live. On any
+      # conflict we abort cleanly (never leaving markers behind) and let the next
+      # cycle commit the data.
+      - name: Commit refreshed data (best-effort)
+        continue-on-error: true
+        run: |
+          if [[ -n "$(git status --porcelain site/data/sessions.json)" ]]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add site/data/sessions.json
+            git commit -m "data: refresh pickleball schedule ($(date -u +'%Y-%m-%d %H:%MZ'))"
+            if git pull --rebase origin "${GITHUB_REF_NAME:-main}"; then
+              git push || echo "::warning::data commit-back lost a push race; will refresh next cycle"
+            else
+              git rebase --abort 2>/dev/null || true
+              echo "::warning::data commit-back hit a rebase conflict; skipped (already deployed; next cycle commits)"
+            fi
+          else
+            echo "No data change."
+          fi
 
       # If anything in the build job failed, open-or-update a single tracking issue
       # so a recurring failure isn't invisible. Idempotent: comments on an existing
