@@ -321,6 +321,23 @@
     box-shadow: 0 0 0 0 rgba(169,212,35,.6); animation: pulse 2.6s ease-out infinite; }
   .vcard .arrow2 { position: absolute; top: 13px; right: 14px; color: var(--line-strong); font-size: 14px; transition: transform .14s, color .14s; }
   .vcard:hover .arrow2 { color: var(--forest); transform: translate(2px,-2px); }
+  /* card = a stretched main link (to the venue page) + a directions escape-hatch
+     link that sits above it (so it's not a nested anchor). */
+  .vcard-go { display: block; text-decoration: none; color: inherit; }
+  .vcard-go::after { content: ""; position: absolute; inset: 0; z-index: 0; }
+  .vdir { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 4px; margin-top: 10px;
+    font-size: 11.5px; font-weight: 700; color: var(--forest); text-decoration: none;
+    border-bottom: 1.5px solid var(--line-strong); padding-bottom: 1px; }
+  .vdir:hover { border-color: var(--forest); }
+  /* directory map view (Leaflet + OpenStreetMap) */
+  .dir-map { height: 380px; margin: 0 0 18px; border: 1.5px solid var(--line-strong); border-radius: 12px; overflow: hidden; }
+  @media (max-width: 640px) { .dir-map { height: 260px; } }
+  .dir-map .leaflet-container { font: inherit; background: var(--paper); }
+  .mappop { font-family: var(--font-body); font-size: 13px; line-height: 1.45; min-width: 156px; }
+  .mappop b { font-family: var(--font-display); font-size: 13.5px; color: var(--ink); }
+  .mappop .pl { display: block; color: var(--forest); font-weight: 700; font-size: 11px; margin-top: 2px; }
+  .mappop .pa { color: var(--ink-faint); font-size: 11.5px; margin: 2px 0 7px; }
+  .mappop a { color: var(--forest); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--line-strong); }
   .dir-empty { text-align: center; padding: 40px 16px; color: var(--ink-soft); }
   .dir-empty .big { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--ink); margin-bottom: 6px; }
 </style>
@@ -420,6 +437,11 @@
 <!-- Google Analytics 4 (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-69SBHEGRY1"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-69SBHEGRY1');</script>
+<!-- Leaflet (directory map view). OpenStreetMap tiles — no API key / billing. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
 
@@ -522,8 +544,13 @@
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
         <span id="nearme-label">Near me</span>
       </button>
+      <button type="button" id="dir-mapbtn" class="nearme" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 4v13M15 6.5v13" stroke="currentColor" stroke-width="2"/></svg>
+        <span id="dir-mapbtn-label">Map</span>
+      </button>
     </div>
     <div class="dir-count" id="dir-count"></div>
+    <div id="dir-map" class="dir-map" aria-label="Map of Rhode Island pickleball venues" hidden></div>
     <div id="dir-list">
       <div class="skel" style="height:120px;border:none"></div>
     </div>
@@ -976,6 +1003,16 @@
 
   function townSlug(city) { return String(city || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "rhode-island"; }
 
+  // Directions deep-link: prefer the venue's Google Maps URI; else build a
+  // directions URL to its coordinates (or name) that opens the user's map app.
+  function dirHref(v) {
+    if (v.maps_uri) return v.maps_uri;
+    var dest = (v.latitude != null && v.longitude != null)
+      ? (v.latitude + "," + v.longitude)
+      : encodeURIComponent((v.name || "") + " Rhode Island");
+    return "https://www.google.com/maps/dir/?api=1&destination=" + dest;
+  }
+
   function cardHTML(v, live, mi) {
     var meta = [];
     if (mi != null) meta.push('<span class="vdist">' + esc(fmtMiles(mi)) + '</span>');
@@ -985,11 +1022,52 @@
     var liveTag = live
       ? '<div class="livetag"><span class="dot"></span>Live schedule' + (live.upcoming ? ' · ' + live.upcoming + ' upcoming' : '') + '</div>'
       : '';
-    return '<a class="vcard' + (live ? ' live' : '') + '" href="v/' + esc(v.slug) + '/">' +
-      '<span class="arrow2" aria-hidden="true">↗</span>' +
-      '<div class="vn">' + esc(v.name) + '</div>' +
-      (meta.length ? '<div class="vm">' + meta.join(' · ') + '</div>' : '') +
-      liveTag + '</a>';
+    return '<div class="vcard' + (live ? ' live' : '') + '">' +
+      '<a class="vcard-go" href="v/' + esc(v.slug) + '/">' +
+        '<span class="arrow2" aria-hidden="true">↗</span>' +
+        '<div class="vn">' + esc(v.name) + '</div>' +
+        (meta.length ? '<div class="vm">' + meta.join(' · ') + '</div>' : '') +
+        liveTag +
+      '</a>' +
+      '<a class="vdir" href="' + esc(dirHref(v)) + '" target="_blank" rel="noopener" aria-label="Directions to ' + esc(v.name) + '">Directions ↗</a>' +
+    '</div>';
+  }
+
+  // ---- Leaflet map view (lazy: only built when the user opens it) ----
+  var MAP = null, MARKERS = null, MAPON = false;
+  function ensureMap() {
+    if (MAP || !window.L) return MAP;
+    var el = document.getElementById("dir-map");
+    if (!el) return null;
+    MAP = L.map(el, { scrollWheelZoom: false }).setView([41.68, -71.55], 9);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18, attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(MAP);
+    MARKERS = L.layerGroup().addTo(MAP);
+    return MAP;
+  }
+  function updateMap(vis, liveMap) {
+    if (!MAPON || !ensureMap()) return;
+    MARKERS.clearLayers();
+    var pts = [];
+    vis.forEach(function (v) {
+      if (v.latitude == null || v.longitude == null) return;
+      var isLive = !!liveMap[v.slug];
+      var m = L.circleMarker([+v.latitude, +v.longitude], {
+        radius: isLive ? 8 : 6, weight: 2,
+        color: isLive ? "#14483a" : "#7a7a68",
+        fillColor: isLive ? "#a9d423" : "#d7d7c6", fillOpacity: .92
+      });
+      m.bindPopup('<div class="mappop"><b>' + esc(v.name) + '</b>' +
+        (isLive ? '<span class="pl">● Live schedule</span>' : '') +
+        (v.city ? '<div class="pa">' + esc(v.city) + ', RI</div>' : '<div class="pa"></div>') +
+        '<a href="v/' + esc(v.slug) + '/">View details →</a> &nbsp;·&nbsp; ' +
+        '<a href="' + esc(dirHref(v)) + '" target="_blank" rel="noopener">Directions ↗</a></div>');
+      m.addTo(MARKERS);
+      pts.push([+v.latitude, +v.longitude]);
+    });
+    if (pts.length) { try { MAP.fitBounds(pts, { padding: [28, 28], maxZoom: 12 }); } catch (e) {} }
+    setTimeout(function () { if (MAP) MAP.invalidateSize(); }, 60);
   }
 
   function render() {
@@ -1014,6 +1092,9 @@
       if (!q) return true;
       return (v.name || "").toLowerCase().indexOf(q) >= 0 || (v.city || "").toLowerCase().indexOf(q) >= 0;
     });
+
+    // keep the map (when open) in sync with the current filter / near-me set
+    if (MAPON) updateMap(vis, liveMap);
 
     // count line
     var cc = $("#dir-count");
@@ -1093,6 +1174,16 @@
       function () { nmBtn.removeAttribute("aria-busy"); if (nmLabel) nmLabel.textContent = "Location off"; setTimeout(function () { if (!USERLOC && nmLabel) nmLabel.textContent = "Near me"; }, 2500); },
       { enableHighAccuracy: false, timeout: 9000, maximumAge: 600000 }
     );
+  });
+
+  // "Map" toggle — lazy-show a Leaflet map of the current (filtered) venue set.
+  var mapBtn = $("#dir-mapbtn"), mapLabel = $("#dir-mapbtn-label"), mapEl = $("#dir-map");
+  if (mapBtn) mapBtn.addEventListener("click", function () {
+    MAPON = !MAPON;
+    mapBtn.setAttribute("aria-pressed", MAPON ? "true" : "false");
+    if (mapLabel) mapLabel.textContent = MAPON ? "Hide map" : "Map";
+    if (mapEl) mapEl.hidden = !MAPON;
+    if (MAPON) { if (window.gtag) gtag('event', 'map_view_opened'); render(); }
   });
 
   var qel = $("#dir-q");
