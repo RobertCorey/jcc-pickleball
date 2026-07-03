@@ -1,0 +1,246 @@
+{
+  "g:free-public-pickleball-courts-rhode-island": {
+    "date": "2026-07-03",
+    "hash": "20c9ac814e3bb8c8f94703b466f1a84b66d48a2a6ddf7e3cb2eef3df4108513e"
+  },
+  "g:indoor-pickleball-rhode-island": {
+    "date": "2026-07-03",
+    "hash": "6f08fd2b9f1f4b02456375dce6d7e994adc90e8b227afeb44f67397d0dd86ac4"
+  },
+  "g:pickleball-clubs-rhode-island": {
+    "date": "2026-07-03",
+    "hash": "c7875a526afe454567f6ef06761fa6fba72c75588a01a62bb9a512037a57cc2b"
+  },
+  "report": {
+    "date": "2026-07-03",
+    "hash": "2acb756066cda839ab970644e3acd839ada972cd52dab656ed74e2823fb6517b"
+  },
+  "t:barrington": {
+    "date": "2026-07-03",
+    "hash": "dc7b1af44fa5202e4106829f6cfc0b268a52ce4dce5cb89540e234a53cf13fa2"
+  },
+  "t:bristol": {
+    "date": "2026-07-03",
+    "hash": "68c2f39a8c99117b73597d8b8e52c396b94d37658d7dbe85a937c69e74531710"
+  },
+  "t:coventry": {
+    "date": "2026-07-03",
+    "hash": "92f0e10488ad42bee94e27d75b6be5572a09aae57893141e6a8b66a452e86d8d"
+  },
+  "t:cranston": {
+    "date": "2026-07-03",
+    "hash": "92fe197ba5b3e2173dc83195c144582b1936b418d9e53ea2819f40e3bf7ca9f7"
+  },
+  "t:cumberland": {
+    "date": "2026-07-03",
+    "hash": "e509acbf37d721ec413433e61db2e825179253e9d3c4c4bffdfeb336bfc879b7"
+  },
+  "t:east-greenwich": {
+    "date": "2026-07-03",
+    "hash": "0862325c6bbd124917fc1dfffe05bf759da1420db922fdf91294ceb715ece168"
+  },
+  "t:east-providence": {
+    "date": "2026-07-03",
+    "hash": "63aac8958ea96d314d72993c07e11e3f77b84a2f0cec58e91976841229f49e39"
+  },
+  "t:johnston": {
+    "date": "2026-07-03",
+    "hash": "906e43ae086935cf70a170fb1b65ef206b427e0bb6a06a4aee8142217a055e32"
+  },
+  "t:lincoln": {
+    "date": "2026-07-03",
+    "hash": "4c142115915b420d14d21abb4f89df9ec33fab2e72cc8bde7ca6937d8d193075"
+  },
+  "t:middletown": {
+    "date": "2026-07-03",
+    "hash": "2fe7e793fdcdee4764be41a0a6d204333ef7bcafc7e98090d801c21c7f8653e1"
+  },
+  "t:narragansett": {
+    "date": "2026-07-03",
+    "hash": "e093358526006f3bb0651bda6498ee8e05cfdf1f1357bbe9300eebefe17bd826"
+  },
+  "t:newport": {
+    "date": "2026-07-03",
+    "hash": "1ce6f4e74ed9d3c0c83f51be60c5f9782d649c4f9f6ae25b5dcde72a109a8184"
+  },
+  "t:north-kingstown": {
+    "date": "2026-07-03",
+    "hash": "0cf34070bd31f1253c2a42851dcbb5cc0c4d4f45c34fc900daacaaf6536bb249"
+  },
+  "t:pawtucket": {
+    "date": "2026-07-03",
+    "hash": "0d6eb8e129a0829eefb5ec3351c764824e70686d073207d9826fa524c798f263"
+  },
+  "t:providence": {
+    "date": "2026-07-03",
+    "hash": "028df41547597da5dc0096b2c85e8574502846825ee6de02e7c34e40f7864671"
+  },
+  "t:smithfield": {
+    "date": "2026-07-03",
+    "hash": "a4218264a993cf445444c5a0e7374497c6a6d35a2852d323741f4441d845bf9c"
+  },
+  "t:south-kingstown": {
+    "date": "2026-07-03",
+    "hash": "34afb8de1a9b3f581924d40bc5286a6d0c25423c48d2b9b8128017e5324e94e5"
+  },
+  "t:tiverton": {
+    "date": "2026-07-03",
+    "hash": "ed99c7340184046b03325cf12946a111c0d068c2d6c97db6b3c5802aa4e4a021"
+  },
+  "t:warren": {
+    "date": "2026-07-03",
+    "hash": "8c07b87c58a52cff04dce8050805884c72bca85ae29f85fe1ab257097e78f7b7"
+  },
+  "t:warwick": {
+    "date": "2026-07-03",
+    "hash": "1ff9ef7f792dbd078b8f92a13a13e7cf54da88e42cc7d4d8654e25a53096f78a"
+  },
+  "t:west-warwick": {
+    "date": "2026-07-03",
+    "hash": "10175ad4ce15ccbc85bde3146b074c25e419a0a62a12ba492e79e2ffb15d1e66"
+  },
+  "v:academy-field-east-greenwich": {
+    "date": "2026-07-03",
+    "hash": "f28bb6b753bed55955a74657349a0c7f05160c38f74bc5fac3cdf095c03efa18"
+  },
+  "v:agawam-hunt-east-providence": {
+    "date": "2026-07-03",
+    "hash": "02ca10965bd94c5ed948dc291f5d5303c9fded8b493a756046dbb813c128dcf6"
+  },
+  "v:bayside-family-ymca-barrington": {
+    "date": "2026-07-03",
+    "hash": "8c812e572176a0798ad5a9cc8105ba2315192b348a87191e19794d3cf92624c7"
+  },
+  "v:centerline-pickleball-club-warwick": {
+    "date": "2026-07-03",
+    "hash": "5bacd812ce9359d444db351692245efcaafd0c42ae6b8dcca0e2aac8948c853a"
+  },
+  "v:centre-court-tennis-club-east-providence": {
+    "date": "2026-07-03",
+    "hash": "cc2b01212fde7bca24f52d4f5a1d9402362e1045c6cb12a1a228c31cb6f30e3c"
+  },
+  "v:chianese-field-barrington": {
+    "date": "2026-07-03",
+    "hash": "a0bf6d47e2b02044e6372d52a8605b414596413ac411899638132e66966bb9a4"
+  },
+  "v:coventry-community-center-coventry": {
+    "date": "2026-07-03",
+    "hash": "d9a38a3ee936f2b08a0a0a48de5c5e9680685fce9ea03fb24f9b82d74b3bd7b0"
+  },
+  "v:cranston-ymca-cranston": {
+    "date": "2026-07-03",
+    "hash": "0665f21efc492a6db25540544ac49f27321919d06958acfe8a6540d1c3045879"
+  },
+  "v:dwares-jcc-providence": {
+    "date": "2026-07-03",
+    "hash": "8156b350dc96fd0b0d7fece80fe5280fe2870b81fc3b0fd7ff20d1d7670e65b0"
+  },
+  "v:east-bay-pickleball-club-warren": {
+    "date": "2026-07-03",
+    "hash": "3669b437adabc6e5f07690e382c4751fcd1d55d6f80f783d11eb27c066b6f14d"
+  },
+  "v:east-providence-recreation-center-east-providence": {
+    "date": "2026-07-03",
+    "hash": "ee68e22f18c1115a0ba1a85a4a9299351496ddd70671305b5f8183d0cc9f5584"
+  },
+  "v:erickson-athletic-complex-providence": {
+    "date": "2026-07-03",
+    "hash": "a8f735a2343c9e5eb2024f7a442bd468d56ac9b4824eaec86a6e194427107548"
+  },
+  "v:fore-court-racquet-fitness-club-cumberland": {
+    "date": "2026-07-03",
+    "hash": "16d4a843de8680fd8706815901ab8fa5ad1cd7f8e24a76f64f31abcc1b238cd1"
+  },
+  "v:johnston-indoor-recreation-center-johnston": {
+    "date": "2026-07-03",
+    "hash": "a51eaa1679622213d80b69f81406956325b55809a27bd474635e06a49ecbc43d"
+  },
+  "v:kent-county-ymca-warwick": {
+    "date": "2026-07-03",
+    "hash": "8ce6797f72cc39ec156ca380779159821e277c35324cc7877da7a7cf6fc99b6d"
+  },
+  "v:lil-rhody-pickleball-north-kingstown": {
+    "date": "2026-07-03",
+    "hash": "69a571a8b0bb48c83744655563e8fa7b8640bc7eba1c932b9ce28fdb0c76e3b6"
+  },
+  "v:longplex-family-sports-center-tiverton": {
+    "date": "2026-07-03",
+    "hash": "1ae2da903123bd7e8e4b0c81cd37f521ee9dd2cd0601efec31acef3274190cad"
+  },
+  "v:maccoll-ymca-lincoln": {
+    "date": "2026-07-03",
+    "hash": "051802a87f7f8f867a278515ea22cfb700d7253be1a914960d6405f7d4367e0b"
+  },
+  "v:newport-pickleball-club-middletown": {
+    "date": "2026-07-03",
+    "hash": "0bf8b747979cf1f92e988f3b55ca9e47615bedd906c31a3f4859da08434f0aa2"
+  },
+  "v:newport-recreation-department-newport": {
+    "date": "2026-07-03",
+    "hash": "eb9b0e90427bc3b899fcfbfe65f87f5d5ad8599179376f999568cca8fb3afa3e"
+  },
+  "v:ocean-state-pickleball-narragansett": {
+    "date": "2026-07-03",
+    "hash": "3ab40f755ff52a839f78e8d5af4235914bb8c60962c7595df540d6bc2622036f"
+  },
+  "v:olney-margolies-athletic-center-omac-providence": {
+    "date": "2026-07-03",
+    "hash": "963cf7c732718f9fd5bc224b4d54287cd8c6c50ce8d9e5d58b1781c253fd97bd"
+  },
+  "v:pawtucket-family-ymca-pawtucket": {
+    "date": "2026-07-03",
+    "hash": "89c74ea0fb095f16d67a7ea2bb79ea9f5171ed6bf271f5cd81b0ec69aafd929e"
+  },
+  "v:pickle-ball-courts-west-warwick": {
+    "date": "2026-07-03",
+    "hash": "edb3b014f40a7d90ae1d946920ba7fc9c26569a254c278b482ae8353a0a7746c"
+  },
+  "v:pickleball-central-pro-shop-at-east-bay-pickleball-club-warr": {
+    "date": "2026-07-03",
+    "hash": "981749fdd4acfeabb21507f4548c416f1344f9b429fd80632ba51ac38101199f"
+  },
+  "v:pickleball-citi-cranston": {
+    "date": "2026-07-03",
+    "hash": "897d19f642ed66692efba8d6ea5baa637c63f1b7309f53ff769057e3b633ea4b"
+  },
+  "v:pickleball-willow-courts-smithfield": {
+    "date": "2026-07-03",
+    "hash": "5e5825a6649ec1db7ad01e298c21aa75680f3cfe2bed7def9bc9107fd325ea9d"
+  },
+  "v:pickleballri-warwick": {
+    "date": "2026-07-03",
+    "hash": "e9b561c96bf5a73c5d75d4424f09a0b5c00a8f9edfc3a5900fecaca810c54aa4"
+  },
+  "v:providence-tennis-academy-at-roger-williams-park-providence": {
+    "date": "2026-07-03",
+    "hash": "d695421634c14c63c1e83d8ee026ccf988937d10a42233471b20526684dbcf6a"
+  },
+  "v:quinta-gamelin-community-center-bristol": {
+    "date": "2026-07-03",
+    "hash": "19cf97e3d4d8d759d13328de86c22ca8b46fcbe123025578188855c1f2fd6cb6"
+  },
+  "v:rally-point-racquet-club-smithfield": {
+    "date": "2026-07-03",
+    "hash": "f82c93f6c114621e46d7fdb60d7928748a4350661c48d158772872c081958447"
+  },
+  "v:rhode-island-racquet-club-warwick": {
+    "date": "2026-07-03",
+    "hash": "0016ed1820db6e802b945436c71ef1c95c5f27bae3d622a6d518915ac655c5ce"
+  },
+  "v:rodgers-recreation-center-webster-st-newport-ri-02840-newpor": {
+    "date": "2026-07-03",
+    "hash": "a9873e48c34cad2143c2a672f527c4a86dceabff4d78273e8b3233ab96941a1f"
+  },
+  "v:south-kingstown-recreation-center-south-kingstown": {
+    "date": "2026-07-03",
+    "hash": "e7aa35ca1df5127ad940a6f1a84e4f3ec5e2b4c18cd67425e38e767beafda688"
+  },
+  "v:tennis-rhode-island-east-providence-east-providence": {
+    "date": "2026-07-03",
+    "hash": "34698152786599fb67e7882fa99184a92bf2a3c0ed8ba27b83ba3063171b21d1"
+  },
+  "v:wide-world-of-indoor-sports-north-kingstown": {
+    "date": "2026-07-03",
+    "hash": "4f962f3d2acf890966b238573f6d9616ce3b4ea2409a32e5330fd85c408bc55a"
+  }
+}

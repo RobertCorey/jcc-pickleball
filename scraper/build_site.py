@@ -18,6 +18,7 @@ from __future__ import annotations
 import collections
 import datetime as dt
 import functools
+import hashlib
 import html
 import json
 import os
@@ -40,6 +41,7 @@ import og_images  # noqa: E402
 SITE = ROOT / "site"
 DATA_OUT = SITE / "data" / "sessions.json"
 BUILD_META_OUT = SITE / "data" / "build.json"
+LASTMOD_STORE = SITE / "data" / "lastmod.json"
 SESSIONS_DIR = SITE / "s"
 VENUES_DIR = SITE / "v"
 TOWNS_DIR = SITE / "t"
@@ -392,6 +394,27 @@ def soonest_segment_ids(sessions: list) -> set[str]:
     return {sid for _, sid in best.values()}
 
 
+def _load_lastmod_store() -> dict:
+    try:
+        return json.loads(LASTMOD_STORE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def _tracked_lastmod(store: dict, key: str, content: str, today: str) -> str:
+    """Per-page-type freshness: only bump a page's sitemap <lastmod> to today
+    when its actual content changed since the last build, instead of every
+    hourly rebuild claiming every URL just updated — a signal Google explicitly
+    discounts once it stops correlating with real changes. ``store`` persists
+    across builds via LASTMOD_STORE (committed back by CI like sessions.json)."""
+    h = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    prev = store.get(key)
+    if prev and prev.get("hash") == h:
+        return prev.get("date") or today
+    store[key] = {"hash": h, "date": today}
+    return today
+
+
 def write_sitemap_and_robots(doc, directory=None, soonest_ids=None) -> int:
     """Write site/sitemap.xml (homepage + every venue + every session page) and a
     robots.txt that points at it. Returns the URL count. Both ship in the Pages
@@ -404,24 +427,49 @@ def write_sitemap_and_robots(doc, directory=None, soonest_ids=None) -> int:
             if s.get("segment_id") and not s.get("has_passed")
             and (soonest_ids is None or s["segment_id"] in soonest_ids)]
     dvenues = [v for v in (directory or {}).get("venues", []) if v.get("slug")]
-    slugs = [str(v["slug"]) for v in dvenues]
-    towns = sorted({town_slug(v.get("city")) for v in dvenues if v.get("city") and v.get("city") != "Rhode Island"})
-    lastmod = (doc.get("scraped_at_utc") or "")[:10] or dt.date.today().isoformat()
-    entries = [(f"{SITE_BASE_URL}/", "hourly", "1.0")]
-    # Town landing pages — top local-intent SEO surface ("pickleball in <town> RI").
-    entries += [(f"{SITE_BASE_URL}/t/{t}/", "weekly", "0.9") for t in towns]
-    # Intent/collection guides ("indoor pickleball RI", "free public courts", "clubs").
-    entries += [(f"{SITE_BASE_URL}/guide/{c['slug']}/", "weekly", "0.9") for c in COLLECTIONS]
-    # Data report — a linkable insights asset, refreshed each build.
-    entries.append((f"{SITE_BASE_URL}/rhode-island-pickleball-report/", "weekly", "0.8"))
+    build_lastmod = (doc.get("scraped_at_utc") or "")[:10] or dt.date.today().isoformat()
+
+    # Session availability genuinely changes hourly, so the homepage (which
+    # surfaces it live) and session pages legitimately use the build timestamp.
+    # Everything else's lastmod tracks when its actual content last changed.
+    store = _load_lastmod_store()
+    entries = [(f"{SITE_BASE_URL}/", build_lastmod, "hourly", "1.0")]
+
+    by_city = _group_by_city(dvenues)
+    for city, vs in sorted(by_city.items()):
+        if city == "Rhode Island":
+            continue
+        tslug = town_slug(city)
+        content = "|".join(sorted(f"{v['slug']}:{bool(v.get('source_id'))}" for v in vs))
+        tm = _tracked_lastmod(store, f"t:{tslug}", content, build_lastmod)
+        entries.append((f"{SITE_BASE_URL}/t/{tslug}/", tm, "weekly", "0.9"))
+
+    for col in COLLECTIONS:
+        matched = sorted(v["slug"] for v in dvenues if col["match"](v))
+        if len(matched) < 3:
+            continue
+        gm = _tracked_lastmod(store, f"g:{col['slug']}", "|".join(matched), build_lastmod)
+        entries.append((f"{SITE_BASE_URL}/guide/{col['slug']}/", gm, "weekly", "0.9"))
+
+    n_live = len({v.get("source_id") for v in dvenues if v.get("source_id")})
+    report_content = f"{len(dvenues)}|{len(by_city)}|{n_live}"
+    rm = _tracked_lastmod(store, "report", report_content, build_lastmod)
+    entries.append((f"{SITE_BASE_URL}/rhode-island-pickleball-report/", rm, "weekly", "0.8"))
+
     # Venue/directory pages — the durable SEO surface; change rarely but are the
     # most link-worthy, so a notch below the homepage and above ephemeral sessions.
-    entries += [(f"{SITE_BASE_URL}/v/{slug}/", "weekly", "0.8") for slug in slugs]
-    entries += [(f"{SITE_BASE_URL}/s/{sid}/", "daily", "0.7") for sid in sids]
+    for v in sorted(dvenues, key=lambda v: v["slug"]):
+        vcontent = "|".join(str(v.get(f) or "") for f in
+                             ("name", "city", "address", "phone", "website", "confidence", "hours")) \
+                   + f"|live={bool(v.get('source_id'))}"
+        vm = _tracked_lastmod(store, f"v:{v['slug']}", vcontent, build_lastmod)
+        entries.append((f"{SITE_BASE_URL}/v/{v['slug']}/", vm, "weekly", "0.8"))
+
+    entries += [(f"{SITE_BASE_URL}/s/{sid}/", build_lastmod, "daily", "0.7") for sid in sids]
 
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for loc, freq, pri in entries:
+    for loc, lastmod, freq, pri in entries:
         lines.append("  <url>"
                      f"<loc>{esc(loc)}</loc>"
                      f"<lastmod>{esc(lastmod)}</lastmod>"
@@ -430,6 +478,9 @@ def write_sitemap_and_robots(doc, directory=None, soonest_ids=None) -> int:
                      "</url>")
     lines.append("</urlset>")
     (SITE / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    LASTMOD_STORE.parent.mkdir(parents=True, exist_ok=True)
+    LASTMOD_STORE.write_text(json.dumps(store, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     (SITE / "robots.txt").write_text(
         "User-agent: *\n"
