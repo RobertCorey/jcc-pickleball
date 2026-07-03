@@ -259,6 +259,8 @@
   footer .links ul { list-style: none; display: flex; flex-direction: column; gap: 7px; font-size: 13.5px; }
   footer .links a { text-decoration: none; color: rgba(244,236,219,.82); border-bottom: 1px solid rgba(244,236,219,.28); transition: border-color .15s, color .15s; }
   footer .links a:hover { border-color: var(--gold); color: var(--gold); }
+  footer .links.towns ul { column-count: 2; column-gap: 20px; display: block; max-width: 320px; }
+  footer .links.towns li { break-inside: avoid; margin-bottom: 7px; }
   footer .legal { margin-top: clamp(20px, 3vw, 32px); padding-top: 16px; border-top: 1px solid rgba(243,239,226,.16); font-size: 11.5px; color: rgba(243,239,226,.5); display: flex; flex-wrap: wrap; gap: 5px 16px; justify-content: space-between; }
 
   @media (max-width: 560px) {
@@ -527,6 +529,10 @@
       <li><span class="ico" aria-hidden="true">⏳</span><span>Loading…</span></li>
     </ul>
   </details>
+  <details class="glance gd" id="all-venues">
+    <summary>Every pickleball venue in Rhode Island — browse by town</summary>
+    <ul>{{ALL_VENUES_SSR}}</ul>
+  </details>
 </div>
 
 <section class="directory" id="directory" aria-labelledby="dir-h">
@@ -617,6 +623,10 @@
           <li><a href="rhode-island-pickleball-report/">RI pickleball data report →</a></li>
           <li><a href="#faq-h">Common questions ↓</a></li>
         </ul>
+      </div>
+      <div class="links towns">
+        <h3>Towns</h3>
+        <ul>{{FOOTER_TOWN_LI}}</ul>
       </div>
     </div>
     <div class="legal">

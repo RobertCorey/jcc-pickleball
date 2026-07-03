@@ -128,6 +128,42 @@ register-clicks** (no ad budget). Tracked KPIs:
   any failed/empty/missing expected-live source emits a loud `::warning::` + step-summary on the
   Action. Going forward: poll build.json's source health each iteration (cheap asset protection).
 
+- (iter 14, 2026-07-03) ✅ **Root-caused the indexing stall + fixed it; spun up a
+  growth team.** A week after the openplayri.com migration, GA4/Search Console
+  showed the real picture: ~0 real users (GA4 "traffic" was almost entirely
+  bot/datacenter-city sessions — Council Bluffs, Boardman, Ashburn), 0 organic
+  search clicks, and 672 of 676 sitemap URLs stuck "Discovered — currently not
+  indexed." Ran a 4-agent workflow (SEO audit + real RI-community research, then
+  outreach drafts + a concrete fix plan) — added 8 curated marketing/growth
+  subagents to `.claude/agents/` (adapted from
+  github.com/msitarzewski/agency-agents, scoped to this project's constraints:
+  no ad budget, no social accounts, drafts only). The audit found and I shipped
+  the actual root cause: **the homepage — the site's only high-authority page —
+  had ZERO server-rendered links to any of the 36 venue or 21 town pages**
+  (directory/session lists are 100% client-JS-injected from `fetch()`), so
+  Google's HTML-only crawl of the domain's top page passed zero link equity
+  downstream. Fixed: (1) homepage now server-renders real `<a href="v/…">` /
+  `<a href="t/…">` links (a collapsed "every venue" disclosure + a footer towns
+  column) — `site/index.html` is no longer hand-authored, it's now
+  `scraper/templates/index.html` built by `build_homepage()`; (2) every session
+  page (92% of the site's URLs) now links back to its own venue page + carries
+  BreadcrumbList schema — previously a dead-end leaf pointing only at the
+  homepage; (3) the sitemap no longer lists every date-instance of a recurring
+  weekly slot (770 → 284 URLs) — only the soonest occurrence of each distinct
+  (venue, weekday, time) slot is sitemapped/indexable, later dates stay live +
+  linked but self-tag `noindex,follow` so ~575 near-duplicate pages stop
+  diluting crawl trust. Also manually requested priority indexing (Search
+  Console URL Inspection) for the homepage, all 3 guides, the data report, and
+  the two highest-traffic town pages. Verified: exactly 36/21 SSR links on the
+  homepage, 0 session pages missing a venue link or BreadcrumbList, sitemap
+  count == non-noindexed page count (222 == 222) by construction. Outreach:
+  real (verified) RI pickleball communities + drafted posts/emails saved to
+  `OUTREACH.md` for Rob to personally send — no agent has or will post/send
+  anything on his behalf. **Not shipped this iteration** (queued as backlog):
+  per-page-type `lastmod` (currently identical across all URLs every build,
+  which erodes Google's trust in the freshness signal) and cross-linking the
+  data report / guides into the town/venue link graph.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
@@ -141,6 +177,17 @@ register-clicks** (no ad budget). Tracked KPIs:
   regenerate from the live sitemap).
 
 ## Backlog / ideas (pick the top item each iteration)
+- [ ] **Per-page-type sitemap `lastmod`.** Currently every URL gets the same
+      build-timestamp date every hour regardless of whether that page's content
+      actually changed — Google discounts a freshness signal that never varies
+      meaningfully. Venue/town/guide/report pages should carry a lastmod tied to
+      when their rendered content last changed (hash directory fields, persist
+      last-changed date). Session pages can keep the build timestamp (their
+      availability genuinely changes hourly). ← flagged iter 14, not yet shipped.
+- [ ] **Cross-link the data report + guides into the town/venue graph.**
+      `/rhode-island-pickleball-report/` and the 3 `/guide/` pages don't link out
+      to most `/t/` or `/v/` pages — they're currently link-equity dead ends
+      despite being the most citable/linkable assets on the site. ← flagged iter 14.
 - [ ] **Harden CI deploy (reliability = KPI).** The "Install Playwright + Chromium" step hung ~10min
       on a runner during iter 3 (Chromium download), stalling the deploy. OG-image rendering is
       best-effort (falls back to generic og.png), so it must never block a deploy. Add a `timeout-minutes`

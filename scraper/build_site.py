@@ -46,6 +46,7 @@ TOWNS_DIR = SITE / "t"
 GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
 VENUE_TEMPLATE = (HERE / "templates" / "venue.html").read_text(encoding="utf-8")
+HOME_TEMPLATE = (HERE / "templates" / "index.html").read_text(encoding="utf-8")
 
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://openplayri.com").rstrip("/")
 
@@ -360,14 +361,47 @@ def event_jsonld(s, *, name, reg_url, p, pe, avail_cls, organizer_name, store_ur
     return _jsonld_script(data)
 
 
-def write_sitemap_and_robots(doc, directory=None) -> int:
+def _slot_key(s: dict):
+    """Identity of a session's recurring weekly slot (source + weekday + start
+    time) — every future date of the same slot renders a near-identical page."""
+    p = parse_local(s.get("start"))
+    if not p:
+        return None
+    return (s.get("source_id"), p["wd"], p["h"], p["mi"])
+
+
+def soonest_segment_ids(sessions: list) -> set[str]:
+    """segment_id of the soonest upcoming occurrence of each distinct recurring
+    slot. Sitemapping every date within the scrape window (600+ near-duplicate
+    pages differing only by date) dilutes crawl trust for a new domain; the
+    later dates stay live and linked (from the venue page), just excluded from
+    the sitemap and self-tagged noindex."""
+    best: dict[tuple, tuple[str, str]] = {}
+    for s in sessions:
+        sid = s.get("segment_id")
+        if not sid or s.get("has_passed"):
+            continue
+        key = _slot_key(s)
+        if key is None:
+            continue
+        start = s.get("start") or ""
+        cur = best.get(key)
+        if cur is None or start < cur[0]:
+            best[key] = (start, sid)
+    return {sid for _, sid in best.values()}
+
+
+def write_sitemap_and_robots(doc, directory=None, soonest_ids=None) -> int:
     """Write site/sitemap.xml (homepage + every venue + every session page) and a
     robots.txt that points at it. Returns the URL count. Both ship in the Pages
     artifact."""
     # Only sitemap UPCOMING session pages — past sessions are dead weight in the
-    # index, and with high-volume sources they'd dominate the sitemap.
+    # index, and with high-volume sources they'd dominate the sitemap. Also only
+    # the soonest occurrence of each recurring slot (see soonest_segment_ids) —
+    # every later date is a near-duplicate page, excluded here + self-noindexed.
     sids = [str(s["segment_id"]) for s in doc.get("sessions", [])
-            if s.get("segment_id") and not s.get("has_passed")]
+            if s.get("segment_id") and not s.get("has_passed")
+            and (soonest_ids is None or s["segment_id"] in soonest_ids)]
     dvenues = [v for v in (directory or {}).get("venues", []) if v.get("slug")]
     slugs = [str(v["slug"]) for v in dvenues]
     towns = sorted({town_slug(v.get("city")) for v in dvenues if v.get("city") and v.get("city") != "Rhode Island"})
@@ -405,7 +439,7 @@ def write_sitemap_and_robots(doc, directory=None) -> int:
     return len(entries)
 
 
-def build_session_pages(doc) -> tuple[int, int]:
+def build_session_pages(doc, soonest_ids=None) -> tuple[int, int]:
     """Write site/s/<id>/index.html for every session (+ a per-session og.png if
     Playwright is available). Returns (page_count, image_count)."""
     sessions = doc.get("sessions", [])
@@ -522,6 +556,32 @@ def build_session_pages(doc) -> tuple[int, int]:
             organizer_name=og_kicker, store_url=store_url, location=jsonld_location,
         )
 
+        # Link this session page back up to its venue/town page (previously
+        # every session page dead-ended at the homepage) + BreadcrumbList, same
+        # pattern the venue/town/guide pages already use.
+        venue_slug = src.get("directory_slug")
+        city = venue_v.get("city")
+        tslug = town_slug(city) if city else None
+        crumb_bits = ['<a href="../../">Open Play RI</a>', '<span class="sep">/</span>']
+        if city and tslug:
+            crumb_bits += [f'<a href="../../t/{esc(tslug)}/">{esc(city)}, RI</a>', '<span class="sep">/</span>']
+        crumb_bits.append(f'<a href="../../v/{esc(venue_slug)}/">{esc(venue_short)}</a>' if venue_slug
+                           else f'<span>{esc(venue_short)}</span>')
+        breadcrumb_html = "".join(crumb_bits)
+        venue_link_html = (f'<a class="venue-link" href="../../v/{esc(venue_slug)}/">See the {esc(venue_short)} venue page →</a>'
+                            if venue_slug else "")
+
+        crumbs = [("Open Play RI", f"{SITE_BASE_URL}/")]
+        if city and tslug:
+            crumbs.append((f"Pickleball in {city}", f"{SITE_BASE_URL}/t/{tslug}/"))
+        if venue_slug:
+            crumbs.append((venue_short, f"{SITE_BASE_URL}/v/{venue_slug}/"))
+        crumbs.append((date_brief or "Session", canonical))
+        jsonld += "\n" + _jsonld_script(_breadcrumb_jsonld(crumbs))
+
+        is_soonest = soonest_ids is None or sid in soonest_ids
+        robots_meta = "" if is_soonest else '<meta name="robots" content="noindex,follow" />'
+
         fields = {
             "PAGE_TITLE": esc(page_title),
             "OG_TITLE": esc(og_title),
@@ -549,6 +609,9 @@ def build_session_pages(doc) -> tuple[int, int]:
             "GLANCE_LIS": glance_lis,
             "SCRAPED_ISO": esc(scraped_iso),
             "JSONLD": jsonld,
+            "BREADCRUMB": breadcrumb_html,
+            "VENUE_LINK_HTML": venue_link_html,
+            "ROBOTS_META": robots_meta,
         }
         out = _fill_template(TEMPLATE, fields)
         sdir = SESSIONS_DIR / str(sid)
@@ -890,6 +953,39 @@ def _venue_vlink(v: dict, href: str, live: bool) -> str:
     meta = " · ".join(bits)
     return (f'<a class="vlink" href="{esc(href)}"><span class="nm">{esc(v.get("name"))}</span>'
             f'<span class="ct">{meta}</span></a>')
+
+
+def _town_venue_ssr_html(directory: dict) -> tuple[str, str]:
+    """Server-rendered <a href> links to every /v/ and /t/ page, for the
+    homepage. The homepage's directory/session lists are JS-injected from
+    fetch()'d JSON, so without this Googlebot's HTML-only crawl of the site's
+    highest-authority page sees zero links to any venue or town page."""
+    venues = [v for v in directory.get("venues", []) if v.get("slug")]
+    by_city = _group_by_city(venues)
+    towns_sorted = sorted(by_city.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+    all_lis, footer_lis = [], []
+    for city, vs in towns_sorted:
+        if city == "Rhode Island":
+            continue  # no /t/ page for the catch-all bucket
+        slug = town_slug(city)
+        vlis = "".join(f'<li><a href="v/{esc(v["slug"])}/">{esc(v.get("name"))}</a></li>'
+                        for v in sorted(vs, key=_venue_rank_key))
+        all_lis.append(f'<li class="gv"><h3><a href="t/{esc(slug)}/">{esc(city)}, RI</a></h3>'
+                        f'<ul class="gv-items">{vlis}</ul></li>')
+        footer_lis.append(f'<li><a href="t/{esc(slug)}/">{esc(city)}, RI</a></li>')
+    return "".join(all_lis), "".join(footer_lis)
+
+
+def build_homepage(directory: dict) -> None:
+    """Write site/index.html from the template, injecting server-rendered
+    venue/town links (see _town_venue_ssr_html)."""
+    all_venues_lis, footer_town_lis = _town_venue_ssr_html(directory)
+    out = _fill_template(HOME_TEMPLATE, {
+        "ALL_VENUES_SSR": all_venues_lis,
+        "FOOTER_TOWN_LI": footer_town_lis,
+    })
+    SITE.mkdir(parents=True, exist_ok=True)
+    (SITE / "index.html").write_text(out, encoding="utf-8")
 
 
 def build_town_pages(directory: dict, doc: dict) -> int:
@@ -1501,7 +1597,8 @@ def main() -> int:
         json.dump(directory, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
 
-    n_pages, n_imgs, n_attempted = build_session_pages(doc)
+    soonest_ids = soonest_segment_ids(doc.get("sessions", []))
+    n_pages, n_imgs, n_attempted = build_session_pages(doc, soonest_ids)
     # Only renders we ATTEMPTED but failed count as degraded — the OG_RENDER_CAP
     # skips are intentional, not failures.
     n_fallbacks = max(0, n_attempted - n_imgs)
@@ -1510,7 +1607,8 @@ def main() -> int:
     n_guides = build_collection_pages(directory, doc)
     n_report = build_report_page(directory, doc)
     n_feeds = build_calendars(directory, doc)  # after venue pages — writes into /v/<slug>/
-    n_urls = write_sitemap_and_robots(doc, directory)
+    n_urls = write_sitemap_and_robots(doc, directory, soonest_ids)
+    build_homepage(directory)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
     _report_og_health(n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
