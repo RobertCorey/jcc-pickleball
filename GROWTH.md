@@ -3,18 +3,83 @@
 Mandate (Rob, /loop every 15m): "make this site a success … get users … increase
 KPIs for this type of aggregator site. You are in charge."
 
-## North-star + KPIs
-A local-discovery aggregator wins on **organic search traffic → engaged sessions →
-register-clicks** (no ad budget). Tracked KPIs:
-- **Indexable surface** — # of locally-targeted pages Google can rank (home, /v/ venue,
-  /t/ town). More high-quality local pages = more long-tail "pickleball in <town> RI" hits.
-- **Organic visits** — GoatCounter (jcc-pickleball.goatcounter.com). Baseline below.
-- **Register-clicks** — the conversion event already tracked (`register-click`).
-- **Coverage** — # venues (85) + # with LIVE schedules (2). Live schedules are the
-  differentiator vs a plain Google search.
-- **Freshness/accuracy** — hourly schedule refresh; weekly directory refresh.
+## VISION — Weeks 1-6 (starting 2026-07-03)
 
-## Strategy (highest leverage first)
+**What this is.** A free, ad-free, no-monetization directory + live-schedule
+aggregator for Rhode Island pickleball open play. There is no revenue plan.
+"Winning" means real Rhode Islanders actually use it to find a game — not
+indexed-page counts, not GA4 session counts (currently ~100% bot/datacenter
+traffic — see Week 1).
+
+**The bet.** The product is no longer the bottleneck. By 2026-07-03 the site
+already has 6 live-schedule clubs, a 36-venue/21-town directory, SEO 100/A11y
+100, and (as of iter 14) a fixed internal-link graph. Zero real humans know it
+exists yet — that's a distribution problem, not an engineering one. Programmatic
+SEO (iter 1-14) is real but slow-compounding (weeks-to-months for a brand-new,
+zero-authority domain) and was over-invested relative to its near-term payoff.
+The primary bet for weeks 1-6 is **direct distribution through the people who
+already run and play RI pickleball** — clubs and existing communities have
+concentrated, ready-made audiences at near-zero acquisition cost, and every
+club that adopts the tool becomes a *recurring* channel (their members return
+weekly), unlike a one-time forum post.
+
+**What I will not do autonomously:** post/message anyone, create accounts,
+spend money, or claim outreach happened when it hasn't. All outreach is
+drafted in `OUTREACH.md` for Rob to personally send — that's a hard line, not
+a preference.
+
+**Roadmap:**
+- **Week 1 — Ignition + fix measurement.** ✅ Outreach drafts to real, verified
+  RI pickleball communities + all 36 curated venues (`OUTREACH.md`, needs Rob
+  to send — nothing sent by any agent). ✅ Fixed measurement: GA4 audience
+  "Likely Real RI Users (New England geo)" (Region is one of RI/MA/CT) is now
+  live in the `open-play-ri` property — use it, not "All Users", to check
+  whether any of this is landing with real people. Baseline (2026-07-03, last
+  28 days): **3 of 87 "users" (3.4%)** are even geographically plausible as
+  real New England visitors — the rest is bot/datacenter traffic. That 3.4% is
+  the honest number to watch move.
+- **Week 2 — Turn clubs into partners, not just data sources.** ~~Ship a club
+  embed widget~~ — cut (2026-07-03, Rob's catch): the 6 live clubs already own
+  their real schedule via CourtReserve/Amilia; asking them to embed a copy of
+  their own data, sourced one hop removed from us, gives them nothing they
+  don't already have. Wrong incentive direction. The sound version: verify/
+  correct each of the 36 curated venues' listing (uncontroversial value — we
+  send them free targeted traffic they didn't build) and ask for a reciprocal
+  link, not an embed. `/v/<slug>/embed/` still exists (cheap, harmless) for the
+  narrow case of a third party who doesn't already have the data — e.g. a blog
+  post citing one club's schedule — but it's not a club-acquisition mechanic
+  and isn't the Week 2 bet anymore.
+- **Week 3 — Press/backlink push.** Pitch the identified local reporters/outlets
+  using the "State of RI Pickleball" data report as a data-journalism hook, not
+  a bare "please cover my site" ask.
+- **Week 4 — Retention.** The real test is whether week-1 users come back.
+  Push calendar-subscribe harder; consider a weekly "this week's open play near
+  you" digest. A one-time visit that never returns is not a win.
+- **Week 5 — Double down on what worked.** Look at the (by-then bot-filtered)
+  real-user data from weeks 1-4; put more effort into whichever channel
+  actually produced returning users, cut what didn't.
+- **Week 6 — Report + decide.** Real numbers to Rob (not indexed-page counts):
+  did this get traction? Deepen RI, or is a different move warranted? This is
+  Rob's call, not an autonomous one — money/scope decisions stay with him.
+
+**How this keeps running without an active chat session:** a scheduled agent
+(see `.github` / cron setup, iter 15) works through the current week's items on
+a multi-day cadence, logs real progress here, and never sends/posts anything
+itself — same trust boundary as the existing hourly scrape bot, scoped to
+code/content/drafts only.
+
+## North-star + KPIs (superseded by the Vision above; kept for the metric list)
+Tracked KPIs:
+- **Real (non-bot) weekly active users** — GA4, filtered (see iter 15). This is
+  now the primary number, not indexed-page count.
+- **Register-clicks** — the conversion event already tracked (`register-click`).
+- **Clubs partnered** — # using the embed widget or otherwise actively engaged
+  (replies to outreach, corrections sent in), not just passively listed.
+- **Coverage** — # venues (36 curated / 85 raw) + # with LIVE schedules (6).
+- **Indexable surface / organic visits** — still tracked, still matters, just
+  not the lead metric for the next 6 weeks (see Vision above for why).
+
+## Strategy (historical — pre-iter-14 framing; see Vision above for current priority)
 1. **Programmatic local SEO** — one strong landing page per town ("pickleball in <town>, RI"),
    per venue, and per intent (indoor, free public courts, beginners). [in progress]
 2. **More live schedules** — each new integrated source adds real value + indexable session

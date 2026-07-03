@@ -47,6 +47,7 @@ GENERIC_OG = SITE / "og.png"
 TEMPLATE = (HERE / "templates" / "session.html").read_text(encoding="utf-8")
 VENUE_TEMPLATE = (HERE / "templates" / "venue.html").read_text(encoding="utf-8")
 HOME_TEMPLATE = (HERE / "templates" / "index.html").read_text(encoding="utf-8")
+EMBED_TEMPLATE = (HERE / "templates" / "venue_embed.html").read_text(encoding="utf-8")
 
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://openplayri.com").rstrip("/")
 
@@ -744,6 +745,67 @@ def _session_row_html(s: dict) -> str:
             f'<span class="tm">{esc(tm)}</span></a></li>')
 
 
+def _embed_session_row_html(s: dict) -> str:
+    """Like _session_row_html, but absolute URLs + target=_top — the embed page
+    is designed to be iframed on a THIRD-PARTY site, so relative hrefs and a
+    same-frame navigation would both be wrong."""
+    p = parse_local(s.get("start"))
+    pe = parse_local(s.get("end"))
+    if not p:
+        return ""
+    day = WD_FULL[p["wd"]]
+    date = f"{MO_SHORT[p['mo'] - 1]} {p['d']}"
+    tm = (f"{fmt_time(p['h'], p['mi'])} – {fmt_time(pe['h'], pe['mi'])}" if pe else fmt_time(p["h"], p["mi"]))
+    href = f"{SITE_BASE_URL}/s/{esc(s.get('segment_id'))}/"
+    return (f'<li><a href="{href}" target="_top"><span class="day">{esc(day)}'
+            f'<span class="date">{esc(date)}</span></span>'
+            f'<span class="tm">{esc(tm)}</span></a></li>')
+
+
+def build_venue_embed_pages(directory: dict, doc: dict) -> int:
+    """Write site/v/<slug>/embed/index.html for every LIVE-schedule venue — a
+    minimal, iframe-friendly schedule widget any club can paste onto their own
+    site (see the "Embed this schedule" block on the normal venue page). Each
+    embed is a distribution node: the club's existing visitors see it, and it
+    credits/links back to Open Play RI. Only built for venues we track a real
+    schedule for — a static-address embed isn't worth a club's screen space."""
+    venues = [v for v in directory.get("venues", []) if v.get("slug") and v.get("source_id")]
+    if not venues:
+        return 0
+
+    upcoming_by_source: dict[str, list] = {}
+    for s in doc.get("sessions", []):
+        if not s.get("has_passed") and s.get("source_id"):
+            upcoming_by_source.setdefault(s["source_id"], []).append(s)
+    for lst in upcoming_by_source.values():
+        lst.sort(key=lambda s: s.get("start") or "")
+
+    count = 0
+    for v in venues:
+        slug = v["slug"]
+        sess = upcoming_by_source.get(v["source_id"], [])
+        rows = "".join(r for r in (_embed_session_row_html(s) for s in sess[:6]) if r)
+        if rows:
+            more = f'<a class="more" href="{SITE_BASE_URL}/v/{esc(slug)}/" target="_top">See the full schedule & register →</a>'
+            schedule_html = f'<ul>{rows}</ul>{more}'
+        else:
+            schedule_html = (f'<p class="empty">No upcoming sessions listed right now — '
+                              f'<a href="{SITE_BASE_URL}/v/{esc(slug)}/" target="_top" style="color:var(--forest)">check the full page</a>.</p>')
+
+        out = _fill_template(EMBED_TEMPLATE, {
+            "VENUE_NAME": esc(v.get("name") or "Pickleball"),
+            "VENUE_HREF": f"{SITE_BASE_URL}/v/{esc(slug)}/",
+            "HOME_HREF": f"{SITE_BASE_URL}/",
+            "CANONICAL": f"{SITE_BASE_URL}/v/{slug}/embed/",
+            "SCHEDULE_HTML": schedule_html,
+        })
+        edir = VENUES_DIR / slug / "embed"
+        edir.mkdir(parents=True, exist_ok=True)
+        (edir / "index.html").write_text(out, encoding="utf-8")
+        count += 1
+    return count
+
+
 def build_venue_pages(directory: dict, doc: dict) -> int:
     """Write site/v/<slug>/index.html for every directory venue. Returns count.
 
@@ -889,8 +951,18 @@ def build_venue_pages(directory: dict, doc: dict) -> int:
                 webcal = SITE_BASE_URL.replace("https://", "webcal://").replace("http://", "webcal://") + f"/v/{slug}/open-play.ics"
                 cal = (f'<a class="more" href="{esc(webcal)}" style="margin-left:18px">'
                        f'<span aria-hidden="true">📅</span> Subscribe in your calendar</a>')
+                embed_url = f"{SITE_BASE_URL}/v/{slug}/embed/"
+                embed_snippet = esc(f'<iframe src="{embed_url}" title="{name} open-play schedule" '
+                                     f'style="width:100%;max-width:420px;height:420px;border:1px solid #e4e0d3;'
+                                     f'border-radius:12px" loading="lazy"></iframe>')
+                embed_html = (f'<details class="embed-box"><summary>Citing this schedule elsewhere? Embed it — free</summary>'
+                              f'<p class="lead">Writing about {esc(name)}, or building a resource page that '
+                              f'links out to it? Paste this and the schedule shown stays live and current — '
+                              f'no manual updates needed.</p>'
+                              f'<pre class="embed-code">{embed_snippet}</pre></details>')
                 sched_html = (f'<section class="sched"><h2>Open play schedule</h2>'
-                              f'<p class="lead">{lead}</p><ul class="sessions">{rows}</ul>{more}{cal}</section>')
+                              f'<p class="lead">{lead}</p><ul class="sessions">{rows}</ul>{more}{cal}</section>'
+                              f'{embed_html}')
 
         # ---- nearby ----
         nearby = []
@@ -1603,6 +1675,7 @@ def main() -> int:
     # skips are intentional, not failures.
     n_fallbacks = max(0, n_attempted - n_imgs)
     n_venues = build_venue_pages(directory, doc)
+    n_embeds = build_venue_embed_pages(directory, doc)
     n_towns = build_town_pages(directory, doc)
     n_guides = build_collection_pages(directory, doc)
     n_report = build_report_page(directory, doc)
@@ -1620,7 +1693,7 @@ def main() -> int:
         f"wrote {DATA_OUT.relative_to(ROOT)} ({t.get('activities')} activities, "
         f"{t.get('sessions')} sessions, {t.get('upcoming_sessions')} upcoming) "
         f"+ {n_pages} session pages + {img_note} under site/s/ "
-        f"+ {n_venues} venue pages under site/v/ "
+        f"+ {n_venues} venue pages under site/v/ ({n_embeds} embeddable schedule widgets) "
         f"+ {n_towns} town pages under site/t/ + {n_guides} guides under site/guide/ "
         f"+ sitemap.xml/robots.txt ({n_urls} urls)  [base={SITE_BASE_URL}]",
         file=sys.stderr,

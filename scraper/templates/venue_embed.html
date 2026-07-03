@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{VENUE_NAME}} — live open play schedule</title>
+<meta name="robots" content="noindex,follow" />
+<link rel="canonical" href="{{CANONICAL}}" />
+<style>
+  :root{--forest:#12362a;--gold:#c68a2e;--ink:#1c2420;--ink-soft:#4b564f;--ink-faint:#7c877f;--line:#e4e0d3;--paper:#fffdf8;--r:12px;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;padding:14px;}
+  h1{font-size:15px;font-weight:800;margin:0 0 2px;}
+  h1 a{color:var(--ink);text-decoration:none;}
+  .sub{font-size:12px;color:var(--ink-faint);margin:0 0 10px;}
+  ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;}
+  li a{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;text-decoration:none;color:var(--ink);transition:border-color .15s;}
+  li a:hover{border-color:var(--forest);}
+  .day{font-weight:700;color:var(--forest);}
+  .date{display:block;font-weight:400;color:var(--ink-faint);font-size:11.5px;}
+  .tm{font-weight:600;white-space:nowrap;}
+  .empty{color:var(--ink-faint);font-size:13px;padding:10px 0;}
+  .more{display:inline-block;margin-top:8px;font-size:12.5px;font-weight:600;color:var(--forest);text-decoration:none;border-bottom:1.5px solid var(--line);}
+  .brand{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-faint);}
+  .brand a{color:var(--forest);font-weight:700;text-decoration:none;}
+</style>
+</head>
+<body>
+  <h1><a href="{{VENUE_HREF}}" target="_top">{{VENUE_NAME}}</a></h1>
+  <p class="sub">Live open-play pickleball schedule</p>
+  {{SCHEDULE_HTML}}
+  <div class="brand">Powered by <a href="{{HOME_HREF}}" target="_top">Open Play RI</a> — free RI pickleball schedules</div>
+</body>
+</html>

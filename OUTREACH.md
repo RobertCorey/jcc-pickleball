@@ -6,6 +6,77 @@ drafts for Rob to personally review, edit, and post/send himself. Produced by
 a growth-team workflow on 2026-07-03 (SEO audit + real-community research,
 see GROWTH.md iter 14).
 
+## Club listings — a simpler, sounder ask than the embed pitch
+
+An earlier draft of this plan pitched clubs on embedding *their own* schedule
+back onto their own site. That doesn't hold up (correctly called out — see
+GROWTH.md iter 14/15): the 6 live clubs already own their real schedule via
+CourtReserve/Amilia, so a copy of it sourced through us adds nothing. The
+sound version of "partner with clubs" is much simpler: **we already send them
+free, targeted traffic — tell them, verify their listing is right, ask for a
+link back.** That's a normal, uncontroversial directory pitch with no logical
+gap.
+
+**Template** (swap in name/venue from the table below; skip if there's no
+website/phone — nothing to send to):
+> Hi — I run Open Play RI (openplayri.com), a free, ad-free directory of every
+> place to play pickleball in Rhode Island (36 venues, 21 towns). [Venue name]
+> is listed here: [link].
+>
+> No ask attached — just didn't want to list you without a heads-up. Two
+> things: (1) if anything's wrong (hours, address, the "how to play" details),
+> reply and I'll fix it; (2) if [venue name] runs open play on a schedule
+> that's publicly viewable somewhere, I'd be glad to pull it in as a live,
+> auto-updating schedule the way we do for six other RI clubs — real times/
+> prices instead of just an address.
+>
+> If it's ever useful to link back to us so your players can see open play
+> elsewhere in RI too, appreciated but not the ask.
+
+**All 36 curated venues** (LIVE = already has a real-time schedule pulled in):
+
+| Venue | Town | Live? | Website | Phone |
+|---|---|---|---|---|
+| [Bayside Family YMCA](https://openplayri.com/v/bayside-family-ymca-barrington/) | Barrington |  | https://ymcagreaterprovidence.org/locations/bayside-family-ymca/ | (401) 245-2444 |
+| [Chianese Field](https://openplayri.com/v/chianese-field-barrington/) | Barrington |  | — | — |
+| [Quinta Gamelin Community Center](https://openplayri.com/v/quinta-gamelin-community-center-bristol/) | Bristol |  | https://bristolri.gov/253/Parks-Recreation | (401) 253-1611 |
+| [Coventry Community Center](https://openplayri.com/v/coventry-community-center-coventry/) | Coventry |  | https://coventryri.myrec.com/info/default.aspx | (401) 822-9107 |
+| [Cranston YMCA](https://openplayri.com/v/cranston-ymca-cranston/) | Cranston |  | http://www.cranstony.org/ | (401) 943-0444 |
+| [Pickleball Citi](https://openplayri.com/v/pickleball-citi-cranston/) | Cranston | LIVE | https://www.pickleballciti.com/ | (401) 999-9065 |
+| [Fore Court Racquet & Fitness Club](https://openplayri.com/v/fore-court-racquet-fitness-club-cumberland/) | Cumberland |  | http://www.forecourtri.com/ | (401) 333-4480 |
+| [Academy Field](https://openplayri.com/v/academy-field-east-greenwich/) | East Greenwich |  | — | — |
+| [Agawam Hunt](https://openplayri.com/v/agawam-hunt-east-providence/) | East Providence |  | http://www.agawamhunt.com/ | (401) 434-0980 |
+| [Centre Court Tennis Club](https://openplayri.com/v/centre-court-tennis-club-east-providence/) | East Providence |  | https://www.centrecourttennisclub.com/ | (401) 437-1210 |
+| [East Providence Recreation Center](https://openplayri.com/v/east-providence-recreation-center-east-providence/) | East Providence |  | http://www.eastprovidenceri.gov/ | (401) 433-6360 |
+| [Tennis Rhode Island, East Providence](https://openplayri.com/v/tennis-rhode-island-east-providence-east-providence/) | East Providence |  | https://www.tennisri.com/ | (401) 434-5550 |
+| [Johnston Indoor Recreation Center](https://openplayri.com/v/johnston-indoor-recreation-center-johnston/) | Johnston |  | https://johnstonrec.com/indoor-recreation-center | (401) 437-6326 |
+| [MacColl YMCA](https://openplayri.com/v/maccoll-ymca-lincoln/) | Lincoln |  | https://ymcapawtucket.org/locations/maccoll | (401) 725-0773 |
+| [Newport Pickleball Club](https://openplayri.com/v/newport-pickleball-club-middletown/) | Middletown |  | https://newportpickleballclub.com/ | (401) 324-5672 |
+| [Ocean State Pickleball](https://openplayri.com/v/ocean-state-pickleball-narragansett/) | Narragansett | LIVE | http://oceanstatepickleball.com/ | (401) 786-3329 |
+| [Newport Recreation Department](https://openplayri.com/v/newport-recreation-department-newport/) | Newport |  | https://www.cityofnewport.com/en-us/living-in-newport/recreation | (401) 845-5800 |
+| [Rodgers Recreation Center, Webster St](https://openplayri.com/v/rodgers-recreation-center-webster-st-newport-ri-02840-newpor/) | Newport |  | — | — |
+| [LIL Rhody PICKLEBALL](https://openplayri.com/v/lil-rhody-pickleball-north-kingstown/) | North Kingstown | LIVE | http://lilrhodypickleball.club/ | (401) 372-2272 |
+| [Wide World of Indoor Sports](https://openplayri.com/v/wide-world-of-indoor-sports-north-kingstown/) | North Kingstown |  | http://www.wideworldofindoorsports.com/ | (401) 295-1234 |
+| [Pawtucket Family YMCA](https://openplayri.com/v/pawtucket-family-ymca-pawtucket/) | Pawtucket |  | https://ymcapawtucket.org/pawtucket-family/ | (401) 727-7900 |
+| [Dwares JCC](https://openplayri.com/v/dwares-jcc-providence/) | Providence | LIVE | http://www.jewishallianceri.org/ | (401) 421-4111 |
+| [Erickson Athletic Complex](https://openplayri.com/v/erickson-athletic-complex-providence/) | Providence |  | — | — |
+| [Olney-Margolies Athletic Center (OMAC)](https://openplayri.com/v/olney-margolies-athletic-center-omac-providence/) | Providence |  | https://brownrec.com/facilities/olney-margolies-athletic-center-omac-/2 | — |
+| [Providence Tennis Academy at Roger Williams Park](https://openplayri.com/v/providence-tennis-academy-at-roger-williams-park-providence/) | Providence |  | http://www.providencetennis.com/ | (401) 935-4336 |
+| [Pickleball Willow courts](https://openplayri.com/v/pickleball-willow-courts-smithfield/) | Smithfield |  | — | — |
+| [Rally Point Racquet Club](https://openplayri.com/v/rally-point-racquet-club-smithfield/) | Smithfield |  | http://www.rallypointtennis.com/ | (401) 949-0320 |
+| [South Kingstown Recreation Center](https://openplayri.com/v/south-kingstown-recreation-center-south-kingstown/) | South Kingstown |  | https://parksandrec.southkingstownri.com/Default.aspx?id=1 | (401) 284-1975 |
+| [Longplex Family & Sports Center](https://openplayri.com/v/longplex-family-sports-center-tiverton/) | Tiverton |  | http://www.longplex.com/ | (401) 816-6650 |
+| [East Bay Pickleball Club](https://openplayri.com/v/east-bay-pickleball-club-warren/) | Warren | LIVE | https://eastbaypickleballclub.com/ | (401) 252-4021 |
+| [Pickleball Central Pro Shop at East Bay Pickleball Club](https://openplayri.com/v/pickleball-central-pro-shop-at-east-bay-pickleball-club-warr/) | Warren |  | https://pickleballcentral.com/pbc-pro-shop-locator/ | (401) 252-4021 |
+| [Centerline Pickleball Club](https://openplayri.com/v/centerline-pickleball-club-warwick/) | Warwick | LIVE | https://www.centerlinepickleballclub.com/ | (401) 249-9686 |
+| [Kent County YMCA](https://openplayri.com/v/kent-county-ymca-warwick/) | Warwick |  | https://ymcagreaterprovidence.org/locations/kent-county-ymca | (401) 828-0130 |
+| [Pickleballri](https://openplayri.com/v/pickleballri-warwick/) | Warwick |  | https://pickleballri.com/ | (508) 274-1377 |
+| [Rhode Island Racquet Club](https://openplayri.com/v/rhode-island-racquet-club-warwick/) | Warwick |  | http://www.rhodeislandracquetclub.com/ | (401) 828-4450 |
+| [Pickle ball courts](https://openplayri.com/v/pickle-ball-courts-west-warwick/) | West Warwick |  | — | — |
+
+Note: the already-LIVE clubs don't need the "add a live schedule" line — swap
+it for a quick thanks / listing-accuracy check only.
+
 ## Real communities found (verified where noted)
 
 | Target | Type | Why |
