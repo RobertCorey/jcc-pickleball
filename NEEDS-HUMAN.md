@@ -55,12 +55,18 @@ all-Google) with **7 live schedule sources**.
       (or issue) for your review. Would also cover the directory refresh above.
       **Needs you to add an `ANTHROPIC_API_KEY` repo secret.** Awaiting design sign-off.
 
-- [ ] **Sentry error monitoring — verify it's actually receiving events.** Added
-      the Sentry Loader Script (project `open-play-ri` under your existing
+- [ ] **Sentry error monitoring — CDN edge issue, not a config bug, needs a later recheck.**
+      Added the Sentry Loader Script (project `open-play-ri` under your existing
       `rob-corey-consulting` org) to all 3 page templates, error-monitoring only
-      (Session Replay and Tracing explicitly disabled — no consent banner on the
-      site, so no session recording by default). The CDN script returned a 503
-      intermittently right after project creation (likely propagation lag) —
-      should have resolved on its own within a few minutes, but worth a spot
-      check: visit https://rob-corey-consulting.sentry.io/issues/ after some
-      real traffic (or trigger a test error) and confirm events are landing.
+      (Session Replay and Tracing explicitly disabled). Confirmed 0 events landed
+      after checking https://rob-corey-consulting.sentry.io/issues/. Debugged: the
+      loader script (`js.sentry-cdn.com/...min.js`) 503s consistently in the
+      browser but returns 200 via curl every time — even with the browser's exact
+      headers spoofed. This points to one specific Fastly edge PoP near Rob's
+      network serving a stale cached 503 (likely from right after project
+      creation), not a real config problem — DSN, script placement, and init are
+      all verified correct. Should self-resolve as that edge's cache ages out.
+      **Recheck later** (a different network/device, or just revisit in a day or
+      two): https://rob-corey-consulting.sentry.io/issues/ after some real
+      traffic, or trigger `myUndefinedFunction();` in the browser console on
+      openplayri.com as a deliberate test error.
