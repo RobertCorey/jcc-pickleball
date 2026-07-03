@@ -1,0 +1,11 @@
+{
+  "name": "openplayri-functions",
+  "private": true,
+  "description": "Firebase Cloud Functions for openplayri.com — currently just the feedback-to-GitHub-issue bridge.",
+  "type": "commonjs",
+  "engines": { "node": "22" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-functions": "^6.3.1"
+  }
+}

@@ -1,4 +1,11 @@
 {
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs22"
+    }
+  ],
   "hosting": {
     "public": "site",
     "trailingSlash": true,
@@ -7,6 +14,9 @@
       "**/.*",
       "**/node_modules/**",
       "data/build.json"
+    ],
+    "rewrites": [
+      { "source": "/api/feedback", "function": "submitFeedback" }
     ],
     "headers": [
       {

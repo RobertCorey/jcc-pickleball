@@ -256,6 +256,39 @@ Tracked KPIs:
   account and confirming the new "Open Play RI" Meta Business Manager
   portfolio by email. No account created or payment entered by any agent.
 
+- (iter 19, 2026-07-03) ✅ **Feedback loop + error monitoring.** Rob wants to
+  personally flag issues while browsing the live site and have the growth-loop
+  agent pick them up — built the closed loop: a "💬 Feedback" widget on every
+  page (homepage/venue/session templates) POSTs to `/api/feedback`, a new
+  Firebase Function (`functions/index.js`, Node 22) that files a GitHub issue
+  labeled `feedback` in this repo (honeypot field + 2000-char cap for basic
+  abuse resistance). Same-origin via a Hosting rewrite (`/api/feedback` →
+  the function), so no CORS needed. **Blocked on one thing only Rob can do**:
+  the function needs a `GITHUB_FEEDBACK_TOKEN` Firebase secret (a
+  fine-grained GitHub PAT, Issues-only) — I don't enter API tokens myself.
+  Confirmed via a real (failing, as expected) deploy attempt that this is
+  the ONLY blocker — Secret Manager API is now enabled, Node runtime bumped
+  to 22 (was flagged deprecated), function code is otherwise deploy-ready.
+  Both scheduled-agent prompts (Mon/Thu + the Saturday one-off) updated to
+  check `curl .../issues?labels=feedback&state=open` (unauthenticated, works
+  on this public repo, no token needed for reading) and treat open feedback
+  as higher priority than the general backlog.
+
+  Also added Sentry error monitoring (project `open-play-ri` under Rob's
+  existing `rob-corey-consulting` org, via GitHub OAuth — confirmed with Rob
+  before authorizing) to all 3 templates: error monitoring only, Session
+  Replay and Tracing explicitly disabled (`replaysSessionSampleRate: 0`,
+  `tracesSampleRate: 0`) since the site has no consent banner and shouldn't
+  record visitor sessions by default. Sentry's loader-script CDN 503'd
+  intermittently right after project creation (propagation lag); worth Rob
+  spot-checking real events land at rob-corey-consulting.sentry.io.
+
+  Also on this iteration: bumped both scheduled-agent routines from Haiku to
+  **Opus** per Rob's correction ("we want Opus working on this at least") —
+  the STAY LEAN framing was aimed at cost, not model tier — and added a
+  one-time Saturday (2026-07-04) run so the new feedback mechanism gets
+  exercised soon rather than waiting until Monday.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the

@@ -2,6 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<script src="https://js.sentry-cdn.com/0f0139f6c3e62b7845f91a51c4f8afd2.min.js" crossorigin="anonymous"></script>
+<script>
+Sentry.onLoad(function() {
+  Sentry.init({
+    // Error monitoring only -- no consent banner on this site, so no
+    // Session Replay (would record user interactions) and no performance
+    // tracing (not needed for a static site, keeps event volume down).
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 0,
+    tracesSampleRate: 0
+  });
+});
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>{{PAGE_TITLE}}</title>
 <meta name="description" content="{{META_DESC}}" />
@@ -156,6 +169,72 @@
     var a=e.target.closest&&e.target.closest("a.js-reg");
     if(a&&window.gtag){gtag('event','register_click',{venue:1});}
   },true);
+})();
+</script>
+<style>
+  #fb-btn{position:fixed;right:18px;bottom:18px;z-index:9999;background:var(--forest,#12362a);color:var(--bone,#f3efe2);border:none;border-radius:999px;padding:11px 18px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px -6px rgba(0,0,0,.35);display:flex;align-items:center;gap:7px;}
+  #fb-btn:hover{filter:brightness(1.12);}
+  #fb-modal{position:fixed;inset:0;z-index:10000;background:rgba(20,25,18,.55);display:none;align-items:center;justify-content:center;padding:16px;}
+  #fb-modal.open{display:flex;}
+  #fb-card{background:var(--paper,#fffdf8);color:var(--ink,#1c2420);border-radius:var(--r,12px);max-width:420px;width:100%;padding:20px 22px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);font-family:inherit;}
+  #fb-card h3{margin:0 0 4px;font-size:16px;font-weight:800;}
+  #fb-card p.fb-sub{margin:0 0 14px;font-size:12.5px;color:var(--ink-faint,#7c877f);}
+  #fb-card textarea{width:100%;box-sizing:border-box;min-height:96px;border:1.5px solid var(--line-strong,#e4e0d3);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13.5px;resize:vertical;}
+  #fb-card input[type=email]{width:100%;box-sizing:border-box;margin-top:8px;border:1.5px solid var(--line-strong,#e4e0d3);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:13.5px;}
+  #fb-card .fb-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+  #fb-row{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
+  #fb-row button{font-family:inherit;font-size:13.5px;font-weight:700;border-radius:8px;padding:9px 16px;cursor:pointer;border:1.5px solid var(--line-strong,#e4e0d3);background:var(--paper,#fffdf8);color:var(--ink,#1c2420);}
+  #fb-send{background:var(--forest,#12362a);color:var(--bone,#f3efe2);border-color:var(--forest,#12362a);}
+  #fb-send:disabled{opacity:.6;cursor:default;}
+  #fb-status{margin-top:10px;font-size:12.5px;}
+  #fb-status.err{color:#b3261e;}
+  #fb-status.ok{color:var(--forest,#12362a);font-weight:700;}
+</style>
+<button id="fb-btn" type="button" aria-haspopup="dialog">💬 Feedback</button>
+<div id="fb-modal" role="dialog" aria-modal="true" aria-labelledby="fb-h">
+  <div id="fb-card">
+    <h3 id="fb-h">Something wrong, or an idea?</h3>
+    <p class="fb-sub">Goes straight to the person building this. No account needed.</p>
+    <textarea id="fb-msg" placeholder="What did you notice?" maxlength="2000"></textarea>
+    <input id="fb-hp" class="fb-hp" name="company" tabindex="-1" autocomplete="off" />
+    <input id="fb-email" type="email" placeholder="Email (optional, if you want a reply)" maxlength="200" />
+    <div id="fb-status"></div>
+    <div id="fb-row">
+      <button id="fb-cancel" type="button">Cancel</button>
+      <button id="fb-send" type="button">Send</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('fb-btn'), modal=document.getElementById('fb-modal'),
+      msg=document.getElementById('fb-msg'), email=document.getElementById('fb-email'),
+      hp=document.getElementById('fb-hp'), status=document.getElementById('fb-status'),
+      send=document.getElementById('fb-send'), cancel=document.getElementById('fb-cancel');
+  function open(){modal.classList.add('open');status.textContent='';status.className='';msg.focus();}
+  function close(){modal.classList.remove('open');}
+  btn.addEventListener('click',open);
+  cancel.addEventListener('click',close);
+  modal.addEventListener('click',function(e){if(e.target===modal)close();});
+  send.addEventListener('click',function(){
+    var message=msg.value.trim();
+    if(!message){status.textContent='Type something first.';status.className='err';return;}
+    send.disabled=true;status.textContent='Sending…';status.className='';
+    fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:message,email:email.value.trim(),page:location.pathname,company:hp.value})})
+      .then(function(r){return r.json().catch(function(){return {ok:r.ok};});})
+      .then(function(data){
+        send.disabled=false;
+        if(data && data.ok){
+          status.textContent='Thanks — got it.';status.className='ok';
+          msg.value='';email.value='';
+          setTimeout(close,1400);
+        } else {
+          status.textContent='Couldn’t send that — try again in a bit.';status.className='err';
+        }
+      })
+      .catch(function(){send.disabled=false;status.textContent='Couldn’t send that — try again in a bit.';status.className='err';});
+  });
 })();
 </script>
 </body>
