@@ -229,6 +229,33 @@ Tracked KPIs:
   which erodes Google's trust in the freshness signal) and cross-linking the
   data report / guides into the town/venue link graph.
 
+- (iter 15-18, 2026-07-03) ✅ **Vision rewrite, an honest measurement fix, a
+  killed-then-fixed growth idea, two product fixes, and paid-acquisition
+  drafts.** Rob pushed back on iter 14 being "hyper-specific" instead of an
+  owned vision — rewrote GROWTH.md's top section into a real 6-week plan
+  (distribution over more SEO, since the product isn't the bottleneck) and set
+  up a bot-filtered GA4 audience "Likely Real RI Users (New England geo)":
+  baseline **3 of 87 "users" in 28 days** are even geographically plausible.
+  Shipped, then corrected, a club embed widget (`/v/<slug>/embed/`) — Rob
+  correctly called out that asking a club to embed a copy of their own
+  CourtReserve/Amilia schedule (sourced through us) gives them nothing they
+  don't already have; kept the capability but reworded it as a third-party
+  citation tool, cut it as a club-acquisition mechanic, replaced with a sound
+  "verify your listing + reciprocal link" outreach batch covering all 36
+  curated venues (`OUTREACH.md`). Shipped two real product fixes: (1) the data
+  report's top-towns chart and "explore" section were dead-end plain text —
+  now the top 10 towns link to their `/t/` pages and all 3 guides are linked,
+  not just 1; (2) per-page-type sitemap `lastmod` — venue/town/guide/report
+  pages now hash their actual content and only bump `lastmod` when it changes
+  (`site/data/lastmod.json`, committed forward by CI same as sessions.json),
+  instead of all 284 URLs claiming they changed every hourly build. Set up a
+  recurring scheduled agent (Mon/Thu, `trig_01TuYMAUZb74K3osz5YS42Dk`) to keep
+  executing weeks 2-6 without a live session. Rob approved a $25 Google +
+  $25 Meta ad test; drafted both campaigns in full (`ADS.md`) — blocked on
+  Rob fixing an expired card on the existing "Bowling League" Google Ads
+  account and confirming the new "Open Play RI" Meta Business Manager
+  portfolio by email. No account created or payment entered by any agent.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
