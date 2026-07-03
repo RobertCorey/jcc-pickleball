@@ -26,6 +26,18 @@ all-Google) with **7 live schedule sources**.
 - [x] **Bristol registration URL** — swapped the read-only Google Calendar embed
       for the real Playerlineup signup (`https://bristolpickleball.playerlineup.com/`),
       the surface the club's official site routes registration through.
+- [x] **Feedback form → GitHub issue bridge.** Live and verified end-to-end
+      (2026-07-03): the "💬 Feedback" widget on every page posts to
+      `/api/feedback` → Firebase Function `submitFeedback` → files a GitHub
+      issue labeled `feedback`. Confirmed with a real test submission (issue
+      #11, filed and closed). Secret `GITHUB_FEEDBACK_TOKEN` set by Rob
+      directly (never entered by an agent — a first token pasted into chat was
+      correctly refused and revoked; the working one was set straight into
+      the `firebase functions:secrets:set` prompt). Artifact cleanup policy
+      also set (1-day retention) so old container images don't accrue storage
+      cost. The scheduled growth-loop agent checks
+      `curl .../issues?labels=feedback&state=open` each run and treats open
+      feedback as higher priority than the general backlog.
 
 ### By design (not a task)
 - **Venue directory refresh** (`discover_places.py` → `directory.json`) stays an
@@ -42,26 +54,6 @@ all-Google) with **7 live schedule sources**.
       venues / missing CourtReserve org ids / dead source endpoints and opens a PR
       (or issue) for your review. Would also cover the directory refresh above.
       **Needs you to add an `ANTHROPIC_API_KEY` repo secret.** Awaiting design sign-off.
-
-- [ ] **Feedback form → GitHub issue bridge — needs a GitHub token.** The site now
-      has a "💬 Feedback" widget (bottom-right, every page) that POSTs to
-      `/api/feedback`, a Firebase Function (`functions/index.js`) that files a
-      GitHub issue labeled `feedback` in this repo. The function code is written
-      and deployable, but it's blocked on a secret only you can set (I can't enter
-      API tokens into anything myself — hard line):
-      1. Create a **fine-grained GitHub PAT**: github.com → Settings → Developer
-         settings → Personal access tokens → Fine-grained tokens → New token.
-         Repository access: only `RobertCorey/jcc-pickleball`. Permissions:
-         **Issues: Read and write** (nothing else needed).
-      2. Run: `firebase functions:secrets:set GITHUB_FEEDBACK_TOKEN --project open-play-ri`
-         and paste the token when prompted.
-      3. Tell me it's set — I'll run `firebase deploy --only functions --project open-play-ri`
-         myself (already authenticated locally, and everything else about the
-         function deploys clean — confirmed via a dry run that the ONLY thing
-         missing is this secret value).
-      Once live, the scheduled growth-loop agent checks
-      `gh issue list --label feedback --state open` / the public issues API each
-      run and treats open feedback as higher priority than the general backlog.
 
 - [ ] **Sentry error monitoring — verify it's actually receiving events.** Added
       the Sentry Loader Script (project `open-play-ri` under your existing
