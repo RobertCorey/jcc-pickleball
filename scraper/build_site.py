@@ -1369,10 +1369,11 @@ def build_calendars(directory: dict, doc: dict) -> int:
     return feeds
 
 
-def _bar_row(label: str, n: int, total: int, sub: str = "") -> str:
+def _bar_row(label: str, n: int, total: int, sub: str = "", href: str | None = None) -> str:
     pct = round(n / total * 100) if total else 0
+    label_html = f'<a href="{esc(href)}">{esc(label)}</a>' if href else esc(label)
     return (
-        f'<div class="barrow"><div class="barlab">{esc(label)}'
+        f'<div class="barrow"><div class="barlab">{label_html}'
         f'<span class="barn">{n}{(" · " + esc(sub)) if sub else ""}</span></div>'
         f'<div class="bartrack"><i style="width:{max(pct,2)}%"></i></div></div>'
     )
@@ -1403,6 +1404,7 @@ def build_report_page(directory: dict, doc: dict) -> int:
         wd[(p["wd"] + 6) % 7] += 1  # Sun=0..Sat=6 → Mon=0..Sun=6
         hr[p["h"]] += 1
     busiest_day = WD[max(wd, key=wd.get)] if wd else "—"
+    top_real_town = next((t for t, _ in towns.most_common() if t != "Rhode Island"), None)
 
     def hour_label(h):
         ap = "am" if h < 12 else "pm"
@@ -1444,7 +1446,11 @@ def build_report_page(directory: dict, doc: dict) -> int:
            + stat(len(sessions), "upcoming sessions")
            + "</div>")
 
-    top_towns = "".join(_bar_row(f"{t}, RI", c, towns.most_common(1)[0][1]) for t, c in towns.most_common(10))
+    top_towns = "".join(
+        _bar_row(f"{t}, RI", c, towns.most_common(1)[0][1],
+                 href=(f"../t/{town_slug(t)}/" if t != "Rhode Island" else None))
+        for t, c in towns.most_common(10)
+    )
     wd_bars = "".join(_bar_row(WD[i], wd[i], max(wd.values()) if wd else 1) for i in range(7))
     tod_bars = "".join(_bar_row(k, v, max(tod.values()) if tod else 1) for k, v in tod.items())
 
@@ -1464,6 +1470,8 @@ def build_report_page(directory: dict, doc: dict) -> int:
         '.rfresh{color:var(--ink-faint);font-weight:600;}'
         '.barrow{margin:9px 0;}'
         '.barlab{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;color:var(--ink-soft);margin-bottom:4px;}'
+        '.barlab a{color:var(--forest);text-decoration:none;border-bottom:1px solid var(--line-strong);}'
+        '.barlab a:hover{border-color:var(--forest);}'
         '.barn{color:var(--ink);font-variant-numeric:tabular-nums;}'
         '.bartrack{height:9px;background:var(--bone-2);border:1px solid var(--line);border-radius:999px;overflow:hidden;}'
         '.bartrack>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--forest),var(--lime-deep));}'
@@ -1488,8 +1496,14 @@ def build_report_page(directory: dict, doc: dict) -> int:
         f'<section class="nearby" style="margin-top:30px"><h2>Explore the data</h2><div class="vlist">'
         f'<a class="vlink" href="../#directory"><span class="nm">Browse all {len(venues)} RI venues</span><span class="ct">directory</span></a>'
         f'<a class="vlink" href="../#sessions"><span class="nm">See the live open-play schedule</span><span class="ct">{len(sessions)} sessions</span></a>'
-        f'<a class="vlink" href="../guide/free-public-pickleball-courts-rhode-island/"><span class="nm">Free &amp; public courts in RI</span><span class="ct">guide</span></a>'
-        f'</div></section>'
+        + (f'<a class="vlink" href="../t/{esc(town_slug(top_real_town))}/">'
+           f'<span class="nm">Pickleball in {esc(top_real_town)}</span>'
+           f'<span class="ct">top town, {towns[top_real_town]} venues</span></a>' if top_real_town else "")
+        + "".join(
+            f'<a class="vlink" href="../guide/{esc(col["slug"])}/"><span class="nm">{esc(col["h1"])}</span><span class="ct">guide</span></a>'
+            for col in COLLECTIONS
+        )
+        + f'</div></section>'
         f'<p style="margin-top:24px;font-size:12.5px;color:var(--ink-faint);line-height:1.6">Methodology: venue counts come from public mapping data for Rhode Island; '
         f'session counts are live open-play/drop-in events from the {live_venues} venues Open Play RI '
         f'tracks (refreshed hourly) and reflect scheduled sessions in the next few weeks, not all-time. '
