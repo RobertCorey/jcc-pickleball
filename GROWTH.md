@@ -302,6 +302,48 @@ Tracked KPIs:
   himself, entered only into his own terminal. Worth remembering: this
   boundary holds even under direct pushback ("just use it, relax").
 
+- (iter 21, 2026-07-04, Saturday one-off) ✅ **Found & fixed an invisible-content
+  regression on the 6 live venue pages, and put real open-play times on the town
+  landing pages.** No open `feedback` issues (checked via GitHub MCP + the
+  unauthenticated issues API), so worked the roadmap. Two shipped changes, both
+  about surfacing the site's most valuable content — actual open-play times:
+  1. **Bug fix — live schedule was literally invisible.** While reusing the
+     venue-page schedule markup I rendered a live venue page (Playwright, real
+     browser) and caught that the Bay Navy brand refresh (commit e029663) had
+     turned the `.sched` card's background to `--forest` (#0e3247 navy) while the
+     session **times** (`.tm`), the "Open play schedule" heading, and the "See
+     full schedule / 📅 Subscribe" links all still used `color:var(--forest)` —
+     i.e. navy text on a navy card. On all 6 live venue pages (the highest-value
+     pages on the site) the open-play **times themselves were unreadable**; only
+     the day/date labels showed. Fixed the three colors (times + links → bright
+     `--lime`, heading → `--bone`); re-rendered to confirm times now read clearly.
+  2. **Feature — town pages now show upcoming open play, not just a venue list.**
+     `/t/<town>/` pages (the landing pages the drafted town-intent Google ad
+     groups point at, per ADS.md, and the "pickleball in <town> RI" organic
+     surface) previously listed venues with a "live schedule" badge but **zero
+     actual times** — a visitor had to click into each venue to learn when they
+     could play. Added a server-rendered "Upcoming open play in <town>" card
+     that aggregates the next 10 sessions across all of that town's live venues,
+     soonest-first, each row naming its venue and linking to the session page
+     (own scoped CSS, high-contrast lime-on-navy — deliberately not the buggy
+     shared `.sched` styles). Verified both single-venue (Cranston, "next 2… venue")
+     and multi-venue (Warwick, "next 4… venues") wording and cross-venue sort
+     order against a synthetic fixture, plus a full-page browser screenshot.
+  3. **Reliability — graceful build degradation.** `build_session_pages` early-
+     returned a 2-tuple `(0,0)` on zero sessions while `main()` unpacks 3 values,
+     so a build where *every* live source fails at once would crash the whole
+     deploy instead of degrading to a static directory site (contradicting the
+     iter 7/13 source-isolation design). This is exactly what happens in the
+     sandbox (CourtReserve/Amilia 403 through the proxy), which is how I hit it.
+     Fixed to `(0,0,0)`. `python3 scraper/build_site.py` now completes clean
+     (exit 0) even with 0 live sessions.
+  Source/template only (`scraper/build_site.py`, `scraper/templates/venue.html`);
+  `site/data/{directory,sessions,lastmod}.json` reverted so CI rebuilds them from
+  real live data on deploy. Note: locally all 6 sources 403 through the sandbox
+  proxy, so the town cards render empty here — verified instead via synthetic
+  fixtures + real-browser screenshots; CI (which reaches the sources) will
+  populate them on the next hourly build.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the

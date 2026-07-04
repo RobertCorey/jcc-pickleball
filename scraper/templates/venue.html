@@ -102,7 +102,7 @@ Sentry.onLoad(function() {
   .btn-ghost:hover{border-color:var(--ink);color:var(--ink);}
 
   .sched{margin-top:20px;background:var(--forest);color:var(--bone);border-radius:var(--r);padding:clamp(18px,3vw,26px);position:relative;overflow:hidden;}
-  .sched h2{color:var(--forest);}.sched h2::before{background:var(--gold);}
+  .sched h2{font-family:var(--fd);font-weight:800;font-size:clamp(18px,2.6vw,22px);letter-spacing:-.02em;color:var(--bone);margin-bottom:6px;}
   .sched .lead{font-size:14.5px;color:rgba(243,239,226,.82);margin-bottom:14px;line-height:1.5;}
   ul.sessions{list-style:none;display:flex;flex-direction:column;gap:2px;}
   ul.sessions li a{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:11px 2px;text-decoration:none;border-bottom:1px solid rgba(243,239,226,.14);color:var(--bone);transition:padding .14s;}
@@ -110,8 +110,8 @@ Sentry.onLoad(function() {
   ul.sessions li:last-child a{border-bottom:none;}
   ul.sessions .day{font-weight:700;font-size:14.5px;}
   ul.sessions .day .date{color:rgba(243,239,226,.6);font-weight:500;margin-left:7px;font-size:13px;}
-  ul.sessions .tm{font-family:var(--fm,"DM Mono",ui-monospace,Menlo,monospace);font-size:13px;color:var(--forest);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;}
-  .sched .more{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-weight:700;font-size:14px;color:var(--forest);text-decoration:none;border-bottom:1.5px solid transparent;transition:border-color .15s;}
+  ul.sessions .tm{font-family:var(--fm,"DM Mono",ui-monospace,Menlo,monospace);font-size:13px;color:var(--lime);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .sched .more{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-weight:700;font-size:14px;color:var(--lime);text-decoration:none;border-bottom:1.5px solid transparent;transition:border-color .15s;}
   .sched .more:hover{border-bottom-color:var(--gold);}
 
   .embed-box{margin-top:14px;background:var(--paper);border:1.5px solid var(--line-strong);border-radius:var(--r);padding:clamp(14px,2vw,18px) clamp(16px,2.4vw,22px);}

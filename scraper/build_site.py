@@ -491,12 +491,17 @@ def write_sitemap_and_robots(doc, directory=None, soonest_ids=None) -> int:
     return len(entries)
 
 
-def build_session_pages(doc, soonest_ids=None) -> tuple[int, int]:
+def build_session_pages(doc, soonest_ids=None) -> tuple[int, int, int]:
     """Write site/s/<id>/index.html for every session (+ a per-session og.png if
-    Playwright is available). Returns (page_count, image_count)."""
+    Playwright is available). Returns (page_count, image_count, attempted_count).
+
+    Note the 3-tuple: main() unpacks (n_pages, n_imgs, n_attempted). The empty
+    case must match that arity so a build with zero live sessions (e.g. every
+    source failing at once) degrades to a static directory site instead of
+    crashing — see the source-failure isolation design (GROWTH iter 7/13)."""
     sessions = doc.get("sessions", [])
     if not sessions:
-        return (0, 0)
+        return (0, 0, 0)
     # Per-source lookups: each session is rendered with ITS OWN venue/glance.
     sources_by_id = {m["id"]: m for m in doc.get("sources", []) if m.get("ok")}
     sessions_by_source: dict[str, list] = {}
@@ -794,6 +799,26 @@ def _session_row_html(s: dict) -> str:
     return (f'<li><a href="{href}"><span class="day">{esc(day)}'
             f'<span class="date">{esc(date)}</span></span>'
             f'<span class="tm">{esc(tm)}</span></a></li>')
+
+
+def _town_session_row_html(s: dict, live_srcs: dict) -> str:
+    """A session row for a TOWN page: like _session_row_html but also names which
+    venue the session is at (a town can have more than one live-schedule venue),
+    linking the row to the session page. `live_srcs` maps source_id -> venue dict."""
+    p = parse_local(s.get("start"))
+    pe = parse_local(s.get("end"))
+    if not p:
+        return ""
+    day = WD_FULL[p["wd"]]
+    date = f"{MO_SHORT[p['mo'] - 1]} {p['d']}"
+    tm = (f"{fmt_time(p['h'], p['mi'])} – {fmt_time(pe['h'], pe['mi'])}" if pe else fmt_time(p["h"], p["mi"]))
+    v = live_srcs.get(s.get("source_id")) or {}
+    vname = s.get("venue_name") or v.get("short_name") or v.get("name") or "Open play"
+    href = f"../../s/{esc(s.get('segment_id'))}/"
+    return (f'<li><a href="{href}">'
+            f'<span class="tsday">{esc(day)}<span class="tsdate">{esc(date)}</span></span>'
+            f'<span class="tsvn">{esc(vname)}</span>'
+            f'<span class="tstm">{esc(tm)}</span></a></li>')
 
 
 def _embed_session_row_html(s: dict) -> str:
@@ -1111,6 +1136,37 @@ def build_homepage(directory: dict) -> None:
     (SITE / "index.html").write_text(out, encoding="utf-8")
 
 
+# Scoped styles for the town page's "Upcoming open play" card. Kept out of the
+# shared venue template CSS (only town pages use it) and self-contained so the
+# session times read high-contrast on the dark navy card (bright lime on
+# --forest), unlike the shared .sched card. Emitted once per town page body.
+_TOWN_SCHED_CSS = (
+    '<style>'
+    '.tsched{margin-top:22px;background:var(--forest);color:var(--bone);'
+    'border-radius:var(--r);padding:clamp(18px,3vw,24px);}'
+    '.tsched h2{font-family:var(--fd);font-weight:800;font-size:clamp(18px,2.6vw,22px);'
+    'letter-spacing:-.02em;color:var(--bone);margin-bottom:6px;}'
+    '.tsched .tslead{font-size:14px;color:rgba(243,239,226,.82);margin-bottom:14px;line-height:1.5;}'
+    'ul.tsessions{list-style:none;display:flex;flex-direction:column;gap:2px;}'
+    'ul.tsessions li a{display:flex;align-items:baseline;gap:12px;padding:11px 2px;'
+    'text-decoration:none;border-bottom:1px solid rgba(243,239,226,.14);color:var(--bone);'
+    'transition:padding .14s;}'
+    'ul.tsessions li a:hover{padding-left:8px;}'
+    'ul.tsessions li:last-child a{border-bottom:none;}'
+    '.tsday{font-weight:700;font-size:14.5px;white-space:nowrap;}'
+    '.tsday .tsdate{color:rgba(243,239,226,.6);font-weight:500;margin-left:7px;font-size:13px;}'
+    '.tsvn{flex:1;min-width:0;font-size:13.5px;color:rgba(243,239,226,.78);'
+    'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;}'
+    '.tstm{font-family:var(--fm,"DM Mono",ui-monospace,Menlo,monospace);font-size:13px;'
+    'color:var(--lime);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;}'
+    '.tsched .tsmore{display:inline-flex;align-items:center;gap:7px;margin-top:14px;'
+    'font-weight:700;font-size:14px;color:var(--lime);text-decoration:none;'
+    'border-bottom:1.5px solid transparent;transition:border-color .15s;}'
+    '.tsched .tsmore:hover{border-bottom-color:var(--gold);}'
+    '</style>'
+)
+
+
 def build_town_pages(directory: dict, doc: dict) -> int:
     """Write site/t/<town-slug>/index.html for every town with venues. Returns count."""
     venues = [v for v in directory.get("venues", []) if v.get("slug")]
@@ -1171,6 +1227,32 @@ def build_town_pages(directory: dict, doc: dict) -> int:
                  f"Tap any venue for its address, map, phone, hours"
                  + (", and live open-play schedule" if live else "") + ".")
         cards = "".join(_venue_vlink(v, f"../../v/{v['slug']}/", bool(v.get("source_id"))) for v in vs)
+        # Upcoming open play across this town's live-schedule venues — put the
+        # real session times right on the town page (the ad + organic landing
+        # page for "pickleball in <town>, RI") instead of making a visitor click
+        # into each venue to find out when they can actually play. Server-
+        # rendered, so it's real indexable content and works without JS.
+        live_srcs = {v["source_id"]: v for v in vs if v.get("source_id")}
+        sched_html = ""
+        if live_srcs:
+            tsess = sorted(
+                (s for s in doc.get("sessions", [])
+                 if not s.get("has_passed") and s.get("source_id") in live_srcs),
+                key=lambda s: s.get("start") or "",
+            )
+            rows = "".join(r for r in (_town_session_row_html(s, live_srcs) for s in tsess[:10]) if r)
+            if rows:
+                shown = min(len(tsess), 10)
+                multi = len(live_srcs) > 1
+                tslead = (f"The next {shown} open-play session{'s' if shown != 1 else ''} at "
+                          f"{esc(city)}'s live-schedule venue{'s' if multi else ''} — times pulled "
+                          f"from each club's own booking system and updated hourly.")
+                more = ('<a class="tsmore" href="../../#sessions">See every upcoming RI session '
+                        '<span aria-hidden="true">→</span></a>')
+                sched_html = (_TOWN_SCHED_CSS
+                              + f'<section class="tsched"><h2>Upcoming open play in {esc(city)}</h2>'
+                              + f'<p class="tslead">{tslead}</p>'
+                              + f'<ul class="tsessions">{rows}</ul>{more}</section>')
         # nearby towns (by venue count)
         others = [c for c, _ in towns_sorted if c != city and c != "Rhode Island"][:8]
         nearby = "".join(
@@ -1181,6 +1263,7 @@ def build_town_pages(directory: dict, doc: dict) -> int:
         body = (f'<div class="vhead"><div class="eyebrow">Rhode Island · {esc(city)}</div>'
                 f'<h1>Pickleball in {esc(city)}, Rhode Island</h1>'
                 f'<p class="sub">{intro}</p>{live_note}</div>'
+                f'{sched_html}'
                 f'<section class="nearby" style="margin-top:22px"><h2>{n} place{"s" if n != 1 else ""} to play in {esc(city)}</h2>'
                 f'<div class="vlist">{cards}</div></section>'
                 + (f'<section class="nearby"><h2>Other Rhode Island towns</h2><div class="vlist">{nearby}</div></section>' if nearby else ""))
