@@ -510,6 +510,7 @@ Sentry.onLoad(function() {
     <h2>Upcoming open-play sessions</h2>
     <p class="sub">Real schedules for the venues we track — every upcoming drop-in session with its time, price, and live sign-up count. Filter by venue or day, and tap any session to share or register. <a href="webcal://openplayri.com/open-play-rhode-island.ics" style="color:var(--forest);font-weight:600;white-space:nowrap;border-bottom:1.5px solid var(--line-strong)">📅 Subscribe in your calendar</a></p>
   </div>
+  {{SOONEST_SSR}}
 </div>
 
 <div class="filters">
@@ -912,6 +913,13 @@ Sentry.onLoad(function() {
       cl = "<b>" + upcomingCount + "</b> upcoming session" + (upcomingCount === 1 ? "" : "s");
     }
     $("#countline").innerHTML = cl;
+
+    // The JS interactive list is now taking over — drop the server-rendered
+    // "soonest sessions" block so it isn't duplicated. It stays visible for
+    // no-JS visitors and if sessions.json fails to load (the fetch .catch path
+    // never reaches render()), so the core content degrades gracefully.
+    var _ssr = document.getElementById("ssr-soonest");
+    if (_ssr) _ssr.hidden = true;
 
     var listEl = $("#list");
     if (!rows.length) {

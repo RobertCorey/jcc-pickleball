@@ -801,10 +801,13 @@ def _session_row_html(s: dict) -> str:
             f'<span class="tm">{esc(tm)}</span></a></li>')
 
 
-def _town_session_row_html(s: dict, live_srcs: dict) -> str:
-    """A session row for a TOWN page: like _session_row_html but also names which
-    venue the session is at (a town can have more than one live-schedule venue),
-    linking the row to the session page. `live_srcs` maps source_id -> venue dict."""
+def _town_session_row_html(s: dict, live_srcs: dict, href_base: str = "../../") -> str:
+    """A session row for a TOWN page (also reused on the homepage): like
+    _session_row_html but also names which venue the session is at (a town —
+    or the homepage — can span more than one live-schedule venue), linking the
+    row to the session page. `live_srcs` maps source_id -> venue dict.
+    `href_base` is the relative prefix to the site root ("../../" for town
+    pages under /t/<slug>/, "" for the root-level homepage)."""
     p = parse_local(s.get("start"))
     pe = parse_local(s.get("end"))
     if not p:
@@ -814,7 +817,7 @@ def _town_session_row_html(s: dict, live_srcs: dict) -> str:
     tm = (f"{fmt_time(p['h'], p['mi'])} – {fmt_time(pe['h'], pe['mi'])}" if pe else fmt_time(p["h"], p["mi"]))
     v = live_srcs.get(s.get("source_id")) or {}
     vname = s.get("venue_name") or v.get("short_name") or v.get("name") or "Open play"
-    href = f"../../s/{esc(s.get('segment_id'))}/"
+    href = f"{href_base}s/{esc(s.get('segment_id'))}/"
     return (f'<li><a href="{href}">'
             f'<span class="tsday">{esc(day)}<span class="tsdate">{esc(date)}</span></span>'
             f'<span class="tsvn">{esc(vname)}</span>'
@@ -1124,13 +1127,57 @@ def _town_venue_ssr_html(directory: dict) -> tuple[str, str]:
     return "".join(all_lis), "".join(footer_lis)
 
 
-def build_homepage(directory: dict) -> None:
+def _home_soonest_ssr_html(directory: dict, doc: dict) -> str:
+    """Server-rendered 'next open-play sessions' block for the homepage.
+
+    The homepage's interactive session list is fetched client-side from
+    sessions.json, so a crawler, an AI-citation bot (ChatGPT/Perplexity fetch
+    raw HTML, they don't run JS), or a no-JS/slow visitor sees only a
+    "Loading…" skeleton — i.e. the site's single most valuable content (real
+    open-play times) is invisible on its highest-authority, most-shared page.
+    This renders the soonest ~12 upcoming sessions across all live venues
+    straight into the HTML: real indexable/citable times, instant first paint.
+    The JS list hides this block (#ssr-soonest) once it takes over, so JS users
+    still get the full filterable experience with no duplication. Returns "" if
+    there's no live data (every source failed) so the page degrades cleanly —
+    same source-isolation philosophy as the rest of the build."""
+    venues = [v for v in directory.get("venues", []) if v.get("slug") and v.get("source_id")]
+    live_srcs = {v["source_id"]: v for v in venues}
+    if not live_srcs:
+        return ""
+    sess = sorted(
+        (s for s in doc.get("sessions", [])
+         if not s.get("has_passed") and s.get("source_id") in live_srcs),
+        key=lambda s: s.get("start") or "",
+    )
+    rows = "".join(r for r in (_town_session_row_html(s, live_srcs, href_base="")
+                               for s in sess[:12]) if r)
+    if not rows:
+        return ""
+    shown = min(len(sess), 12)
+    n_live = len(live_srcs)
+    lead = (f"The next {shown} drop-in open-play session{'s' if shown != 1 else ''} across the "
+            f"{n_live} Rhode Island club{'s' if n_live != 1 else ''} we track live — times and "
+            f"prices pulled from each club's own booking system and updated hourly. Tap any "
+            f"session for details, or use the full filterable list below.")
+    more = ('<a class="tsmore" href="#directory">Browse every RI venue in the directory '
+            '<span aria-hidden="true">↓</span></a>')
+    return (_TOWN_SCHED_CSS
+            + '<section class="tsched" id="ssr-soonest" style="margin:14px 0 4px;">'
+            + '<h2>Next open-play sessions in Rhode Island</h2>'
+            + f'<p class="tslead">{lead}</p>'
+            + f'<ul class="tsessions">{rows}</ul>{more}</section>')
+
+
+def build_homepage(directory: dict, doc: dict) -> None:
     """Write site/index.html from the template, injecting server-rendered
-    venue/town links (see _town_venue_ssr_html)."""
+    venue/town links (see _town_venue_ssr_html) and the soonest upcoming
+    open-play sessions (see _home_soonest_ssr_html)."""
     all_venues_lis, footer_town_lis = _town_venue_ssr_html(directory)
     out = _fill_template(HOME_TEMPLATE, {
         "ALL_VENUES_SSR": all_venues_lis,
         "FOOTER_TOWN_LI": footer_town_lis,
+        "SOONEST_SSR": _home_soonest_ssr_html(directory, doc),
     })
     SITE.mkdir(parents=True, exist_ok=True)
     (SITE / "index.html").write_text(out, encoding="utf-8")
@@ -1829,7 +1876,7 @@ def main() -> int:
     n_report = build_report_page(directory, doc)
     n_feeds = build_calendars(directory, doc)  # after venue pages — writes into /v/<slug>/
     n_urls = write_sitemap_and_robots(doc, directory, soonest_ids)
-    build_homepage(directory)
+    build_homepage(directory, doc)
 
     _write_build_manifest(doc=doc, n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)
     _report_og_health(n_pages=n_pages, n_imgs=n_imgs, n_fallbacks=n_fallbacks)

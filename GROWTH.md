@@ -344,6 +344,47 @@ Tracked KPIs:
   fixtures + real-browser screenshots; CI (which reaches the sources) will
   populate them on the next hourly build.
 
+- (iter 22, 2026-07-06) ✅ **Server-rendered the soonest open-play sessions on the
+  homepage — the one page whose core content was still JS-only.** No open
+  `feedback` issues (checked via GitHub MCP `list_issues` labels=feedback — the
+  unauthenticated `curl`/`WebFetch` read paths both 403 through this session's
+  proxy now, so the MCP tool is the working read path). Worked the roadmap.
+  The gap: iter14/iter21 moved the homepage's venue/town **links** and the
+  **town pages'** session times into server-rendered HTML, but the homepage's
+  own "Upcoming open-play sessions" list is still 100% client-fetched from
+  `sessions.json` — so a crawler, an **AI-citation bot (ChatGPT/Perplexity/
+  Google-AI fetch raw HTML and don't run JS)**, or any no-JS/slow visitor sees
+  only a "Loading…" skeleton on the site's highest-authority, most-shared,
+  most-linked-to page. The site's single most valuable content (real RI
+  open-play times) was invisible exactly where it matters most for both organic
+  discovery and the AI-recommendation channel the vision cares about.
+  **Shipped:** `build_homepage` now server-renders the soonest 12 upcoming
+  sessions across all live venues (day · venue · time, each linked to its
+  session page) into the HTML via a new `_home_soonest_ssr_html`, reusing the
+  browser-verified `_town_session_row_html` + `_TOWN_SCHED_CSS` from iter21
+  (generalized the row helper with an `href_base` param so town pages use
+  `../../` and the root homepage uses `""` — no duplication). The existing
+  interactive JS list hides the block (`#ssr-soonest`) the moment it renders,
+  so JS users still get the full filterable experience with zero duplication;
+  the block stays visible for no-JS visitors **and** if `sessions.json` fails
+  to load client-side (the fetch `.catch` never reaches `render()`), a genuine
+  graceful-degradation win. Returns `""` when no live data exists (every
+  source down) so the page degrades cleanly — same source-isolation philosophy
+  as the rest of the build. **Verified:** unit-tested `_home_soonest_ssr_html`
+  against a synthetic 2-venue fixture (rows render soonest-first, past sessions
+  excluded, root-relative `s/<segment_id>/` hrefs, correct venue/time; empty
+  and no-live-source cases both return `""`); ran the full
+  `python3 scraper/build_site.py` (exit 0) and confirmed the `{{SOONEST_SSR}}`
+  placeholder is fully substituted with no literal token left and the sessions
+  section stays intact. Source/template only (`scraper/build_site.py`,
+  `scraper/templates/index.html`); `site/index.html` is gitignored (CI-built)
+  and the three `site/data/*.json` files were reverted so CI rebuilds them from
+  real live data. Note: locally all 6 sources 403 through the sandbox proxy, so
+  the block renders empty here — verified via fixture + build, same as iter21;
+  CI (which reaches the sources) populates it on the next hourly build.
+  Nothing here needs Rob — the outreach (OUTREACH.md) and ad (ADS.md) items
+  remain the only things blocked on him.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
