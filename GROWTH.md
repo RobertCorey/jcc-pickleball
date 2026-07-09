@@ -385,6 +385,50 @@ Tracked KPIs:
   Nothing here needs Rob — the outreach (OUTREACH.md) and ad (ADS.md) items
   remain the only things blocked on him.
 
+- (iter 23, 2026-07-09) ✅ **Shipped `/llms.txt` — an auto-updating index for the
+  AI-recommendation channel (ChatGPT/Perplexity/Claude/Gemini).** No open
+  `feedback` issues (checked via GitHub MCP `list_issues` labels=feedback — the
+  unauthenticated `curl` read path is 403-blocked in this session, MCP is the
+  working read path). Both distribution levers that need a human — the outreach
+  drafts (`OUTREACH.md`) and the $25 ad campaigns (`ADS.md`) — remain blocked on
+  Rob, and the classic-SEO internal-link/SSR surface is now thorough (iter14/21/22)
+  and, per the vision, deliberately not the place to keep over-investing. The one
+  genuinely high-leverage, non-Rob-blocked, on-vision lever left is the
+  **AI-answer channel the vision explicitly names** (iter22): when a Rhode
+  Islander asks an assistant "where can I play pickleball in RI tonight?", these
+  bots fetch raw content and don't run JS, and the canonical artifact for being
+  cited is a clean, current `/llms.txt` (llmstxt.org convention) — which the site
+  didn't have.
+  **Shipped:** a new `build_llms_txt(directory, doc)` in `scraper/build_site.py`
+  writes `site/llms.txt` on every hourly build from the same in-build `directory`
+  (live linkage already stamped by `link_to_sources`) and `doc` the HTML builders
+  use, so it stays exact and fresh: an H1 + summary blockquote with live counts
+  (36 venues / 21 towns / N live clubs) and a citable "busiest day" fact, then
+  link-dense markdown sections — **Live open-play schedules** (each live club →
+  its `/v/` page), **Guides** (only those that actually render, ≥3 venues),
+  **Browse by town** (all 21 `/t/` pages, venue-count each), **Data & reference**
+  (data report + all-RI `.ics` + sitemap), and **All venues** (all 36 `/v/` pages
+  grouped by town, live ones tagged). Degrades cleanly — if every live source is
+  down the live-schedule section and busiest-day fact are simply omitted rather
+  than lying (same source-isolation philosophy as the rest of the build). Added a
+  small `_md_text()` helper that strips markdown-breaking `[`/`]` from venue names.
+  `site/llms.txt` added to `.gitignore` (CI-built artifact, same as
+  `sitemap.xml`/`robots.txt`/`index.html`).
+  **Verified:** (1) unit-tested `build_llms_txt` against a synthetic 5-venue/
+  2-live-club fixture — correct counts (5/3/2), busiest-day = Monday from the
+  session timestamps, live section sorted by venue rank, guide-match filtering
+  (only "Clubs" qualified, indoor/free-public correctly excluded at <3 matches),
+  and `[park]`→`(park)` markdown sanitization all correct. (2) Ran the full
+  `python3 scraper/build_site.py` (exit 0): `site/llms.txt` written with the real
+  36 venues / 21 towns / 3 guides, and — because all 6 live sources 403 through
+  the sandbox proxy — the live-schedule section and busiest-day fact were cleanly
+  omitted, confirming the degrade path. CI (which reaches the sources) will
+  populate the live section + busiest-day on the next hourly build. Source-only
+  change (`scraper/build_site.py` + `.gitignore`); the three build-curated
+  `site/data/*.json` files were reverted per the ops note so CI rebuilds them from
+  real live data. Nothing here needs Rob — outreach and ads remain the only
+  human-blocked items.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the

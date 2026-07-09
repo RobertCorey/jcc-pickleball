@@ -11,6 +11,7 @@ site/rhode-island-pickleball-report/
 site/open-play-rhode-island.ics
 site/sitemap.xml
 site/robots.txt
+site/llms.txt
 
 # v2 (Vite + React) toolchain
 node_modules/

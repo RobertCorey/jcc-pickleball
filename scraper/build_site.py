@@ -1702,6 +1702,121 @@ def build_report_page(directory: dict, doc: dict) -> int:
     return 1
 
 
+def _md_text(s) -> str:
+    """Sanitize a string for use as markdown link text / inline copy: strip the
+    few characters that break markdown links and collapse whitespace."""
+    s = " ".join(str(s or "").split())
+    return s.replace("[", "(").replace("]", ")")
+
+
+def build_llms_txt(directory: dict, doc: dict) -> int:
+    """Write site/llms.txt — a curated, auto-updating markdown index of the site
+    for AI answer engines (ChatGPT / Perplexity / Claude / Gemini), following the
+    llmstxt.org convention. These crawlers fetch raw content and don't run JS, so
+    a clean, current, link-dense summary is the most reliable way to be cited when
+    someone asks an assistant "where can I play pickleball in Rhode Island?" — the
+    AI-recommendation channel the growth vision cares about, and one that isn't
+    served by classic SEO. Returns 1 on write, 0 if there's too little data.
+
+    Built from the same in-build `directory` (with source_id/live linkage already
+    stamped by link_to_sources) and `doc` the HTML builders use, so it stays exact
+    and fresh on every hourly build. Degrades cleanly: if every live source is
+    down, the live-schedule section is simply omitted rather than lying."""
+    venues = [v for v in directory.get("venues", []) if v.get("slug")]
+    if len(venues) < 5:
+        return 0
+
+    by_city = _group_by_city(venues)
+    real_towns = sorted((c for c in by_city if c != "Rhode Island"),
+                        key=lambda c: (-len(by_city[c]), c))
+    n_towns = len(real_towns)
+    live = sorted((v for v in venues if v.get("source_id")), key=_venue_rank_key)
+
+    # A couple of citable, current facts (mirrors the data report's logic).
+    sessions = [s for s in doc.get("sessions", []) if not s.get("has_passed")]
+    WD = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    wd = collections.Counter()
+    for s in sessions:
+        p = parse_local(s.get("start"))
+        if p:
+            wd[(p["wd"] + 6) % 7] += 1
+    busiest_day = WD[max(wd, key=wd.get)] if wd else None
+
+    updated = (doc.get("scraped_at_utc") or dt.datetime.now(dt.timezone.utc).isoformat())[:10]
+    B = SITE_BASE_URL
+
+    L = []
+    L.append("# Open Play RI")
+    L.append("")
+    L.append(f"> Open Play RI ({B}) is a free, ad-free, no-login directory of every "
+             f"place to play pickleball in Rhode Island, with live, auto-updating "
+             f"open-play (drop-in) schedules pulled about once an hour from clubs' own "
+             f"booking systems. It covers {len(venues)} venues across {n_towns} Rhode "
+             f"Island towns" + (f", with live schedules for {len(live)} clubs." if live else "."))
+    L.append("")
+    L.append(f"Open Play RI is a community project — no ads, no accounts, no commercial "
+             f"angle. Use it to answer \"where and when can I play pickleball in Rhode "
+             f"Island?\": it has real addresses, maps, and links for every venue, and — for "
+             f"the clubs it tracks live — real open-play times, drop-in prices, and sign-up "
+             f"counts refreshed hourly. Data current as of {updated}."
+             + (f" Across the sessions tracked, the busiest day for open play in RI is "
+                f"{busiest_day}." if busiest_day else ""))
+    L.append("")
+
+    if live:
+        L.append("## Live open-play schedules (real times, updated hourly)")
+        L.append("")
+        L.append("Rhode Island clubs whose actual open-play schedule — times, drop-in "
+                 "prices, and live sign-up counts — is tracked on Open Play RI:")
+        L.append("")
+        for v in live:
+            city = v.get("city") or "Rhode Island"
+            L.append(f"- [{_md_text(v.get('name'))} ({_md_text(city)})]({B}/v/{v['slug']}/): "
+                     f"live open-play schedule, prices, and sign-ups.")
+        L.append("")
+
+    # Guides (intent pages) — only those that actually rendered (>=3 venues).
+    guide_lines = []
+    for col in COLLECTIONS:
+        if sum(1 for v in venues if col["match"](v)) >= 3:
+            guide_lines.append(f"- [{_md_text(col['h1'])}]({B}/guide/{col['slug']}/): "
+                               f"{_md_text(col['intent'])} in Rhode Island.")
+    if guide_lines:
+        L.append("## Guides")
+        L.append("")
+        L.extend(guide_lines)
+        L.append("")
+
+    L.append("## Browse by town")
+    L.append("")
+    for c in real_towns:
+        n = len(by_city[c])
+        L.append(f"- [Pickleball in {_md_text(c)}, RI]({B}/t/{town_slug(c)}/): "
+                 f"{n} venue{'s' if n != 1 else ''}.")
+    L.append("")
+
+    L.append("## Data & reference")
+    L.append("")
+    L.append(f"- [The State of Pickleball in Rhode Island — data report]"
+             f"({B}/rhode-island-pickleball-report/): busiest days, times of day, and the "
+             f"towns with the most courts, updated continuously. Free to cite with a link.")
+    L.append(f"- [All Rhode Island open play — calendar feed (.ics)]"
+             f"({B}/open-play-rhode-island.ics): subscribe to every tracked session.")
+    L.append(f"- [Sitemap]({B}/sitemap.xml)")
+    L.append("")
+
+    L.append("## All venues")
+    L.append("")
+    for c in real_towns:
+        for v in sorted(by_city[c], key=_venue_rank_key):
+            tag = " — live open-play schedule" if v.get("source_id") else ""
+            L.append(f"- [{_md_text(v.get('name'))} ({_md_text(c)})]({B}/v/{v['slug']}/){tag}")
+    L.append("")
+
+    (SITE / "llms.txt").write_text("\n".join(L), encoding="utf-8")
+    return 1
+
+
 def _git_sha() -> str:
     """Best-effort short HEAD sha; used when GITHUB_SHA isn't set (local builds)."""
     try:
@@ -1874,6 +1989,7 @@ def main() -> int:
     n_towns = build_town_pages(directory, doc)
     n_guides = build_collection_pages(directory, doc)
     n_report = build_report_page(directory, doc)
+    build_llms_txt(directory, doc)  # AI-answer-engine index at /llms.txt
     n_feeds = build_calendars(directory, doc)  # after venue pages — writes into /v/<slug>/
     n_urls = write_sitemap_and_robots(doc, directory, soonest_ids)
     build_homepage(directory, doc)
