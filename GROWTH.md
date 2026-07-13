@@ -429,6 +429,53 @@ Tracked KPIs:
   real live data. Nothing here needs Rob — outreach and ads remain the only
   human-blocked items.
 
+- (iter 24, 2026-07-13) ✅ **Data-driven FAQ on all 21 town landing pages —
+  visible content + `FAQPage` schema, aimed squarely at the AI-answer channel
+  and local-intent search.** No open `feedback` issues (checked via GitHub MCP
+  `list_issues` labels=feedback — the unauthenticated `curl` read path is
+  403-blocked in this session, MCP is the working read path). Both distribution
+  levers that need a human — the outreach drafts (`OUTREACH.md`) and the $25 ad
+  campaigns (`ADS.md`) — remain blocked on Rob. On the non-Rob-blocked side, the
+  classic-SEO link/SSR surface is thorough (iter14/21/22) and the AI-index
+  (`/llms.txt`, iter23) is shipped; the next-highest-leverage on-vision lever was
+  the **content on the `/t/<town>/` pages themselves** — these are the exact
+  local-intent landing pages the drafted Google ad groups point at (per ADS.md,
+  "pickleball in <town> RI") and the surface an answer engine reads when someone
+  asks "where can I play pickleball in Cranston?" Until now each town page was a
+  venue list + (when live) a session table, but carried **no Q&A** — the single
+  most AI-citable format (assistants quote FAQ answers directly) and the one
+  eligible for FAQ rich results. Only the homepage had a (static) `FAQPage`.
+  **Shipped:** a new `_town_faq(city, vs, live)` in `scraper/build_site.py` that
+  builds a 3-question FAQ per town from that town's **real** data — Q1 "Where can
+  I play pickleball in <town>, RI?" names the actual venue count + first venues,
+  Q2 "Is there drop-in/open-play pickleball in <town>?" branches on whether the
+  town has live-schedule venues (names them + points at the on-page session
+  table) vs. not (points at nearby towns), Q3 "How much does it cost?" is
+  town-anchored. Each page now renders the FAQ as **visible HTML** (`section.tfaq`,
+  scoped `_TOWN_FAQ_CSS`, high-contrast on the light page) **and** a matching
+  `FAQPage` JSON-LD block — the visible text equals the schema text exactly, as
+  Google requires for the markup to be valid. Added a small `_join_names()`
+  helper for natural "A, B and C" venue lists. `build_town_pages` now emits three
+  JSON-LD blocks (ItemList + BreadcrumbList + FAQPage). **Verified:** (1)
+  unit-tested `_town_faq` for the live case (2 live venues → Q2 "Yes. …" naming
+  both, Q3 mentions the live per-session price), the no-live case (Q2 → "vary by
+  venue", Q3 → "check the individual venue's page"), and 1/2/3/4-venue grammar
+  (singular "There is 1 place … — <name>", "A, B and C", comma-list + "and N
+  more"); asserted every question and answer string appears in the visible HTML
+  (escaped) so schema==on-page text. (2) Ran the full
+  `python3 scraper/build_site.py` (exit 0) and machine-checked all **21** town
+  pages: every one parses to valid JSON in all 3 LD blocks and contains a
+  `FAQPage`, 0 malformed blocks; spot-read Bristol/Cranston/Warwick answers for
+  correct counts and phrasing. Source-only change (`scraper/build_site.py`); the
+  three build-curated `site/data/*.json` files were reverted per the ops note so
+  CI rebuilds them from real live data, and the `site/t/` HTML is CI-built
+  (gitignored). Note: locally all 6 live sources 403 through the sandbox proxy,
+  so the live/no-live FAQ branch is driven by each venue's `source_id` in
+  `directory.json` (static), not by scrape success — same as the existing "Live
+  open-play schedule" badge; CI (which reaches the sources) renders the session
+  tables the live-branch answers reference. Nothing here needs Rob — outreach and
+  ads remain the only human-blocked items.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the

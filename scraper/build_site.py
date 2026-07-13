@@ -1213,6 +1213,102 @@ _TOWN_SCHED_CSS = (
     '</style>'
 )
 
+_TOWN_FAQ_CSS = (
+    '<style>'
+    '.tfaq{margin-top:26px;}'
+    '.tfaq h2{font-family:var(--fd);font-weight:800;font-size:clamp(18px,2.6vw,22px);'
+    'letter-spacing:-.02em;color:var(--forest);margin-bottom:14px;}'
+    '.tfaq .faq-item{padding:14px 0;border-bottom:1px solid var(--line);}'
+    '.tfaq .faq-item:last-child{border-bottom:none;}'
+    '.tfaq .faq-q{font-family:var(--fd);font-weight:700;font-size:16px;'
+    'color:var(--ink);margin-bottom:5px;line-height:1.35;}'
+    '.tfaq .faq-a{font-size:14.5px;color:var(--ink-faint);line-height:1.55;}'
+    '</style>'
+)
+
+
+def _join_names(items: list[dict], k: int) -> str:
+    """Human list ('A, B, and C') of up to k venue names (plain text)."""
+    picked = [v.get("name") or "" for v in items[:k]]
+    picked = [p for p in picked if p]
+    if not picked:
+        return ""
+    if len(picked) == 1:
+        return picked[0]
+    if len(picked) == 2:
+        return f"{picked[0]} and {picked[1]}"
+    return ", ".join(picked[:-1]) + f", and {picked[-1]}"
+
+
+def _town_faq(city: str, vs: list[dict], live: list[dict]) -> tuple[str, dict]:
+    """Data-driven FAQ for a town page: returns (visible_html, FAQPage jsonld).
+
+    Q&A is the most AI-citable surface (answer engines quote it directly) and is
+    FAQ-rich-result eligible. Answers are built from the town's real venue list
+    (counts, live-schedule club names) so each town page carries substantive,
+    non-boilerplate content. The visible text matches the schema text exactly —
+    Google requires FAQ content to be present on the page for the markup to be
+    valid."""
+    n = len(vs)
+    qa: list[tuple[str, str]] = []
+
+    # Q1 — where to play (venue count + a few real names)
+    more = n - min(n, 3)
+    # plain comma list when a "and N more" tail follows, natural "A, B and C" otherwise
+    names = [v.get("name") or "" for v in vs[:3]]
+    names = [x for x in names if x]
+    top = ", ".join(names) if more > 0 else _join_names(vs, 3)
+    a1 = (f"There {'is' if n == 1 else 'are'} {n} place{'s' if n != 1 else ''} to play "
+          f"pickleball in {city}, Rhode Island")
+    if top:
+        a1 += (f" — {top}" if n == 1 else f", including {top}")
+        if more > 0:
+            a1 += f" and {more} more"
+    a1 += (". Each venue on this page has an address, map, phone, and hours — and, where a "
+           "club publishes one, a live open-play schedule.")
+    qa.append((f"Where can I play pickleball in {city}, Rhode Island?", a1))
+
+    # Q2 — drop-in / open play (data-driven: live vs. not)
+    if live:
+        a2 = (f"Yes. {_join_names(live, len(live))} run open-play (drop-in) pickleball in "
+              f"{city}, and this page lists their upcoming session times, prices, and sign-up "
+              f"counts — pulled from each club's own booking system and refreshed about once an "
+              f"hour.")
+    else:
+        a2 = (f"The pickleball venues in {city} are listed above with contact details and hours. "
+              f"Open-play (drop-in) times vary by venue, so tap a venue for its schedule or call "
+              f"ahead — and check the nearby Rhode Island towns below for venues with a live "
+              f"open-play schedule.")
+    qa.append((f"Is there drop-in or open-play pickleball in {city}?", a2))
+
+    # Q3 — cost
+    a3 = (f"Public and town courts in {city} are usually free to play. Dedicated clubs typically "
+          f"charge a few dollars per drop-in session")
+    if live:
+        a3 += (", and where we track a live schedule the current per-session price is shown next "
+               "to each session above.")
+    else:
+        a3 += "; check the individual venue's page for its current pricing."
+    qa.append((f"How much does it cost to play pickleball in {city}?", a3))
+
+    items = "".join(
+        f'<div class="faq-item"><h3 class="faq-q">{esc(q)}</h3>'
+        f'<p class="faq-a">{esc(a)}</p></div>'
+        for q, a in qa
+    )
+    html = (_TOWN_FAQ_CSS
+            + f'<section class="tfaq nearby"><h2>Pickleball in {esc(city)}: FAQ</h2>{items}</section>')
+    jsonld = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": q,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for q, a in qa
+        ],
+    }
+    return html, jsonld
+
 
 def build_town_pages(directory: dict, doc: dict) -> int:
     """Write site/t/<town-slug>/index.html for every town with venues. Returns count."""
@@ -1259,7 +1355,9 @@ def build_town_pages(directory: dict, doc: dict) -> int:
         }
         crumbs = _breadcrumb_jsonld([("Open Play RI", f"{SITE_BASE_URL}/"),
                                      (f"Pickleball in {city}", canonical)])
-        jsonld = _jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
+        faq_html, faq_jsonld = _town_faq(city, vs, live)
+        jsonld = (_jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
+                  + "\n" + _jsonld_script(faq_jsonld))
         breadcrumb = '<a href="../../">Open Play RI</a><span class="sep">/</span>' + f'<span>{esc(city)}, RI</span>'
 
         # body
@@ -1313,7 +1411,8 @@ def build_town_pages(directory: dict, doc: dict) -> int:
                 f'{sched_html}'
                 f'<section class="nearby" style="margin-top:22px"><h2>{n} place{"s" if n != 1 else ""} to play in {esc(city)}</h2>'
                 f'<div class="vlist">{cards}</div></section>'
-                + (f'<section class="nearby"><h2>Other Rhode Island towns</h2><div class="vlist">{nearby}</div></section>' if nearby else ""))
+                + (f'<section class="nearby"><h2>Other Rhode Island towns</h2><div class="vlist">{nearby}</div></section>' if nearby else "")
+                + faq_html)
 
         out = _fill_template(VENUE_TEMPLATE, {
             "PAGE_TITLE": esc(page_title), "META_DESC": esc(meta_desc), "OG_TITLE": esc(og_title),
