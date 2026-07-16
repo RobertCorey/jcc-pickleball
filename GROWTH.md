@@ -476,6 +476,59 @@ Tracked KPIs:
   tables the live-branch answers reference. Nothing here needs Rob — outreach and
   ads remain the only human-blocked items.
 
+- (iter 25, 2026-07-16) ✅ **Data-driven FAQ + `FAQPage` schema on all 3 `/guide/`
+  intent pages — extending the iter-24 town-FAQ pattern to the site's
+  highest-informational-intent surface.** No open `feedback` issues (checked via
+  GitHub MCP `list_issues` labels=feedback — the unauthenticated `curl` read path
+  now returns "GitHub access is not enabled for this session," so MCP is the
+  working read path this session). Both distribution levers that need a human —
+  the outreach drafts (`OUTREACH.md`) and the $25 ad campaigns (`ADS.md`) — remain
+  blocked on Rob (unchanged). On the non-Rob-blocked side, the guides
+  (`/guide/indoor-pickleball-rhode-island/`,
+  `/guide/free-public-pickleball-courts-rhode-island/`,
+  `/guide/pickleball-clubs-rhode-island/`) are exactly the informational-intent
+  pages an answer engine reads when someone asks "where can I play indoor
+  pickleball in RI?" / "are there free public pickleball courts in Rhode Island?"
+  / "what pickleball clubs are in RI?" — and they're also the drafted Google ad
+  sitelink targets (per ADS.md). They already carried ItemList + BreadcrumbList
+  schema, town/venue cross-links (iter 3/16), and other-guide cross-links, but
+  **no Q&A** — the single most AI-citable format (assistants quote FAQ answers
+  verbatim) and the one eligible for FAQ rich results. Only the town pages
+  (iter 24) and the static homepage had a `FAQPage` until now.
+  **Shipped:** a new `_guide_faq(col, matched, live, by_city)` in
+  `scraper/build_site.py` that builds a 3-question FAQ per guide from that guide's
+  **real matched-venue data** — venue count, top venue names, town spread, and
+  (where a live schedule is tracked) the live-club names — with an intent-specific
+  question set per slug (indoor → "…year-round?" / "…free?"; free-public →
+  "…reserve or pay?" / "…when open?"; clubs → "…open play/drop-in?" / "…cost?").
+  Each page now renders the FAQ as **visible HTML** (reusing iter-24's
+  `_TOWN_FAQ_CSS` / `.tfaq` styles) **and** a matching `FAQPage` JSON-LD block, so
+  `build_collection_pages` now emits three LD blocks (ItemList + BreadcrumbList +
+  FAQPage). The visible text equals the schema text exactly, as Google requires
+  for the markup to validate. Refactored the existing `by_city` grouping up a few
+  lines so the FAQ and the by-town sections share one computation (no duplicate
+  work). **Verified:** (1) unit-tested `_guide_faq` for the clubs-with-live case
+  (Q2 → "Yes. <club names> publish live open-play schedules…", Q3 mentions the
+  live per-session price), the indoor no-live case (Q2 → "Tap any venue for its
+  hours…", n==3 grammar "There are 3 … venues" with no stray "and N more" tail),
+  and the free-public case (singular/"and 1 more" grammar); asserted every
+  question and answer string appears in the visible HTML (escaped) so
+  schema==on-page text in all branches. (2) Ran the full
+  `python3 scraper/build_site.py` (exit 0) and machine-checked all **3** guide
+  pages: each parses to valid JSON in all 3 LD blocks and contains exactly one
+  `FAQPage` with 3 questions, the visible `.tfaq` section is present, and every
+  answer's text is present verbatim in the HTML; spot-read the indoor guide's
+  rendered FAQ for correct counts (19 venues / 15 towns) and phrasing.
+  Source-only change (`scraper/build_site.py`); the three build-curated
+  `site/data/*.json` files were reverted per the ops note so CI rebuilds them from
+  real live data, and the `site/guide/` HTML is CI-built (gitignored). Note: as in
+  iter 21/24, all 6 live sources 403 through the sandbox proxy locally, so
+  `link_to_sources` stamps no `source_id` and the guides render the *no-live* FAQ
+  branch here — the live branch (verified by unit test) fires on CI, which reaches
+  the sources, and mirrors the same source_id-driven "Live open-play schedule"
+  badge already on these pages. Nothing here needs Rob — outreach and ads remain
+  the only human-blocked items.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the

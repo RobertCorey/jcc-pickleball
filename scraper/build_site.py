@@ -1474,6 +1474,100 @@ COLLECTIONS = [
 ]
 
 
+def _guide_faq(col: dict, matched: list[dict], live: list[dict], by_city: dict) -> tuple[str, dict]:
+    """Data-driven FAQ + FAQPage schema for a /guide/ intent page.
+
+    Guides target the exact informational queries answer engines field directly
+    ("where can I play indoor pickleball in RI?", "free public pickleball courts
+    RI"), so a Q&A block built from each guide's real matched-venue data is the
+    highest-leverage AI-citable / FAQ-rich-result surface for these pages. The
+    visible text equals the schema text exactly, as Google requires for the
+    markup to be valid. Answers are assembled from live counts, real venue
+    names, and (where tracked) the live-schedule club names — no boilerplate."""
+    n = len(matched)
+    isare = "is" if n == 1 else "are"
+    s = "" if n == 1 else "s"
+    # top venue names — comma list + "and N more" tail when long, natural join otherwise
+    more = n - min(n, 3)
+    names = [v.get("name") or "" for v in matched[:3]]
+    names = [x for x in names if x]
+    top = ", ".join(names) if more > 0 else _join_names(matched, 3)
+    top_clause = ""
+    if top:
+        top_clause = f", including {top}" + (f" and {more} more" if more > 0 else "")
+    # towns represented, most venues first
+    tnames = [c for c in sorted(by_city, key=lambda c: (-len(by_city[c]), c)) if c != "Rhode Island"]
+    ntowns = len(tnames)
+    towns_txt = _join_names([{"name": c} for c in tnames], 4)
+    towns_clause = (f" across {ntowns} town{'s' if ntowns != 1 else ''}"
+                    + (f" including {towns_txt}" if towns_txt else "")) if ntowns else ""
+    live_txt = _join_names(live, len(live)) if live else ""
+
+    qa: list[tuple[str, str]] = []
+    if col["slug"] == "indoor-pickleball-rhode-island":
+        qa.append(("Where can I play indoor pickleball in Rhode Island?",
+                   f"There {isare} {n} indoor pickleball venue{s} in Rhode Island{top_clause}. "
+                   f"They range from dedicated pickleball clubs to YMCAs, rec centers, and sports "
+                   f"complexes{towns_clause} — each listed here with an address, map, and details."))
+        a2 = "Yes — indoor courts stay open through winter, rain, and summer heat, so you can play year-round."
+        a2 += (f" {live_txt} publish live open-play schedules you can check on this site before you head out."
+               if live else " Tap any venue for its hours and open-play times, which vary by location.")
+        qa.append(("Can I play pickleball indoors year-round in Rhode Island?", a2))
+        qa.append(("Is indoor pickleball free in Rhode Island?",
+                   "Most indoor venues — clubs, YMCAs, and sports complexes — charge a small drop-in fee "
+                   "(usually a few dollars a session) or membership, since they maintain dedicated indoor "
+                   "courts. Free play is far more common at public outdoor courts; see our free public "
+                   "courts guide for those."))
+    elif col["slug"] == "free-public-pickleball-courts-rhode-island":
+        qa.append(("Where are the free public pickleball courts in Rhode Island?",
+                   f"Rhode Island has {n} free or public pickleball court location{s}{top_clause}"
+                   f"{towns_clause}. These are town parks and public courts — generally no fee and "
+                   f"open to everyone."))
+        qa.append(("Do I need to reserve or pay to play at a public court in Rhode Island?",
+                   "Public and town courts are usually free and first-come, first-served — no reservation "
+                   "or membership. Bring your own paddle, and a portable net where courts aren't lined or "
+                   "netted for pickleball. Check the town's posted rules for open-play hours and any "
+                   "resident-only times."))
+        qa.append(("When are the public pickleball courts open in Rhode Island?",
+                   "Hours vary by town and season — most outdoor courts are open dawn to dusk in the "
+                   "warmer months. Tap a court for its address and details, and check the town's "
+                   "parks-and-recreation page for current open-play times."))
+    else:  # pickleball-clubs-rhode-island (and any future club-type guide)
+        qa.append((f"What pickleball clubs are there in Rhode Island?",
+                   f"There {isare} {n} pickleball club{s} in Rhode Island{top_clause}. These are the "
+                   f"venues built for the sport — the most courts, plus organized open play, lessons, "
+                   f"and leagues{towns_clause}."))
+        a2 = ("Yes. " + f"{live_txt} publish live open-play schedules — real session times, prices, and "
+              "sign-up counts, pulled from each club's own booking system and refreshed about hourly — "
+              "which you can see on each club's page here.") if live else \
+             ("Yes — most clubs run scheduled open-play and drop-in sessions. Tap a club for its "
+              "schedule, or call ahead to confirm times.")
+        qa.append(("Do Rhode Island pickleball clubs have open play or drop-in?", a2))
+        a3 = ("Clubs typically charge a drop-in fee of a few dollars per session, with membership or "
+              "class packages available.")
+        a3 += (" Where we track a live schedule, the current per-session price is shown next to each "
+               "session on the club's page." if live else " Tap a club for its current pricing.")
+        qa.append(("How much does it cost to play at a pickleball club in Rhode Island?", a3))
+
+    items = "".join(
+        f'<div class="faq-item"><h3 class="faq-q">{esc(q)}</h3>'
+        f'<p class="faq-a">{esc(a)}</p></div>'
+        for q, a in qa
+    )
+    html = (_TOWN_FAQ_CSS
+            + f'<section class="tfaq nearby"><h2>{esc(col["h1"])}: FAQ</h2>{items}</section>')
+    jsonld = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": q,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for q, a in qa
+        ],
+    }
+    return html, jsonld
+
+
 def build_collection_pages(directory: dict, doc: dict) -> int:
     """Write site/guide/<slug>/index.html for each curated collection. Returns count."""
     venues = [v for v in directory.get("venues", []) if v.get("slug")]
@@ -1507,7 +1601,11 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
         }
         crumbs = _breadcrumb_jsonld([("Open Play RI", f"{SITE_BASE_URL}/"),
                                      (col["h1"], canonical)])
-        jsonld = _jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
+        # group matched venues by town (reused for both the FAQ and the sections)
+        by_city = _group_by_city(matched)
+        faq_html, faq_jsonld = _guide_faq(col, matched, live, by_city)
+        jsonld = (_jsonld_script(item_list) + "\n" + _jsonld_script(crumbs)
+                  + "\n" + _jsonld_script(faq_jsonld))
         breadcrumb = ('<a href="../../">Open Play RI</a><span class="sep">/</span>'
                       f'<span>{esc(col["h1"])}</span>')
 
@@ -1517,8 +1615,7 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
             live_note = (f'<div class="badges"><span class="badge live"><span class="dot"></span>'
                          f'Live open-play schedule · {names}</span></div>')
 
-        # group matched venues by town for scannability
-        by_city = _group_by_city(matched)
+        # order the by-town sections for scannability (by_city built above)
         towns = sorted(by_city, key=lambda c: (-len(by_city[c]), c))
         sections = []
         for c in towns:
@@ -1539,7 +1636,7 @@ def build_collection_pages(directory: dict, doc: dict) -> int:
 
         body = (f'<div class="vhead"><div class="eyebrow">Rhode Island · Guide</div>'
                 f'<h1>{esc(col["h1"])}</h1><p class="sub">{esc(col["blurb"])}</p>{live_note}</div>'
-                f'{"".join(sections)}{guide_sec}')
+                f'{"".join(sections)}{guide_sec}{faq_html}')
 
         out = _fill_template(VENUE_TEMPLATE, {
             "PAGE_TITLE": esc(col["title"]), "META_DESC": esc(meta_desc),
