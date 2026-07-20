@@ -1,4 +1,10 @@
-# ADS — $25 Google Search + $25 Meta test campaigns (drafted, not launched)
+# ADS — ABANDONED (Rob, 2026-07-20). Do not pursue, do not list as pending.
+Rob decided against paid ads for now. Drafts below kept for reference only —
+never surface "ads blocked on Rob" in NEEDS-HUMAN, GROWTH, or run logs again.
+The Meta Business Manager portfolio stays dormant/unconfirmed; the Google Ads
+account card stays unfixed. If ads are ever revisited it will be Rob-initiated.
+
+# (was) ADS — $25 Google Search + $25 Meta test campaigns (drafted, not launched)
 
 Nothing here has been submitted or paid for by any agent. I can't create ad
 accounts or enter payment info — hard line, same boundary as everywhere else

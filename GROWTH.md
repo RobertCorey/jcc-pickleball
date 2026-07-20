@@ -591,6 +591,12 @@ Tracked KPIs:
   populate the real prices/spots on the next hourly build. Nothing here needs Rob —
   outreach (`OUTREACH.md`) and ads (`ADS.md`) remain the only human-blocked items.
 
+- (interactive session, 2026-07-20) **Ads abandoned by Rob** — the $25+$25 ad
+  campaigns are no longer pending and are not a human-blocked item. ADS.md now
+  says the same at the top. Distribution levers still open: outreach drafts
+  (OUTREACH.md, Rob-sent) and organic/AI-answer channels. Do not count ads in
+  "blocked on Rob" from here on.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
