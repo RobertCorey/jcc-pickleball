@@ -543,6 +543,54 @@ Tracked KPIs:
   growth iteration — infra hardening by Rob's interactive session during the
   2026-07-20 audit. Layout focus (see routine prompt) unchanged.
 
+- (iter 26, 2026-07-20, layout focus) ✅ **Venue-page schedule now shows price +
+  spots-left per session — not just the time.** No open `feedback` issues (checked
+  via GitHub MCP `list_issues` labels=feedback — the unauthenticated `curl` read
+  path returns "GitHub access is not enabled for this session," so MCP is the
+  working read path). Per Rob's current LAYOUT focus, picked the highest-impact
+  "see when + whether-to-go at a glance" gap. The 6 **live venue pages** are the
+  site's most valuable surface, and their `.sched` schedule block rendered each
+  upcoming session as **day/date + time only** — even though every session object
+  already carries `spots_remaining`/`capacity`/`status` and `drop_in_best_price`/
+  `drop_in_price`. So a Rhode Islander looking at, say, Providence JCC saw "Tuesday
+  Jul 21 — 6–8 PM" but had to click into the session page to learn whether there
+  was room or what it cost — the exact two facts that decide whether to head over.
+  (The homepage/town live lists already show availability; the venue page, oddly,
+  did not.)
+  **Shipped:** added `_session_price(s)` (best→regular drop-in price, e.g. "$5.25–$7"
+  or "$7", '' when unknown) and `_session_avail(s)` (returns a label + color class,
+  mirroring the homepage JS `avail()`: "Open" / "N spots left" / "1 spot left"
+  (singular) / "Full" / "Opens soon") in `scraper/build_site.py`, and rewrote
+  `_session_row_html` to render a second meta line under the day —
+  `<price> · <spots-left>` — with a colored status dot. Added the matching CSS to
+  `scraper/templates/venue.html`'s `ul.sessions` block: the row is now a two-line
+  left column (day/date on top, price·availability below) with the time still
+  mono-lime on the right; status colors are tuned for contrast **on the navy
+  `.sched` card** — light green `#8fe3a6` (good/open), amber `#f2c14e` (≤3 left),
+  salmon `#e9a487` (full), muted bone (opens soon). Only touches
+  `_session_row_html` (venue pages) — the third-party embed row
+  (`_embed_session_row_html`, separate function/template) is unchanged, and
+  `upcoming_by_source` is already future-only so no "past" state is needed here.
+  **Verified:** (1) unit-tested `_session_price`/`_session_avail`/`_session_row_html`
+  against 6 synthetic states (unlimited, 3-left, 14-left, full, opens-soon,
+  1-left-singular, single vs range price) — all correct incl. "1 spot left"
+  singular and "$5.25–$7" range. (2) Ran the full `python3 scraper/build_site.py`
+  (exit 0; degrades cleanly — all 6 sources 403 through the sandbox proxy locally
+  so no live schedule renders here, same as iter 21/24/25). (3) **Visual (not
+  skipped):** `npx playwright install chromium` succeeded; rendered the venue
+  template with real generated rows over a synthetic 5-session fixture and
+  screenshotted at **390px and 1280px**. At 390px each row cleanly wraps to two
+  lines — "Tuesday Jul 21" / "$5.25–$7 · ● 3 spots left" (amber) with "6 PM – 8 PM"
+  right-aligned in lime; the green/amber/salmon status dots are legible and
+  distinct on the navy card, nothing overflows or crowds. At 1280px the same rows
+  sit comfortably with day/price on the left and time far right. The "when + how
+  much + is there room" trio now reads at a glance without clicking through.
+  Source/template only (`scraper/build_site.py`, `scraper/templates/venue.html`);
+  the three build-curated `site/data/*.json` files were reverted per the ops note
+  so CI rebuilds them from real live data — CI (which reaches the sources) will
+  populate the real prices/spots on the next hourly build. Nothing here needs Rob —
+  outreach (`OUTREACH.md`) and ads (`ADS.md`) remain the only human-blocked items.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the

@@ -105,12 +105,22 @@ Sentry.onLoad(function() {
   .sched h2{font-family:var(--fd);font-weight:800;font-size:clamp(18px,2.6vw,22px);letter-spacing:-.02em;color:var(--bone);margin-bottom:6px;}
   .sched .lead{font-size:14.5px;color:rgba(243,239,226,.82);margin-bottom:14px;line-height:1.5;}
   ul.sessions{list-style:none;display:flex;flex-direction:column;gap:2px;}
-  ul.sessions li a{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:11px 2px;text-decoration:none;border-bottom:1px solid rgba(243,239,226,.14);color:var(--bone);transition:padding .14s;}
+  ul.sessions li a{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 2px;text-decoration:none;border-bottom:1px solid rgba(243,239,226,.14);color:var(--bone);transition:padding .14s;}
   ul.sessions li a:hover{padding-left:8px;}
   ul.sessions li:last-child a{border-bottom:none;}
+  ul.sessions .sinfo{display:flex;flex-direction:column;gap:4px;min-width:0;}
   ul.sessions .day{font-weight:700;font-size:14.5px;}
   ul.sessions .day .date{color:rgba(243,239,226,.6);font-weight:500;margin-left:7px;font-size:13px;}
-  ul.sessions .tm{font-family:var(--fm,"DM Mono",ui-monospace,Menlo,monospace);font-size:13px;color:var(--lime);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  ul.sessions .smeta{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:12.5px;line-height:1.3;}
+  ul.sessions .smeta .mdot{color:rgba(243,239,226,.4);}
+  ul.sessions .sprice{color:var(--bone);font-weight:700;font-variant-numeric:tabular-nums;}
+  ul.sessions .savail{font-weight:700;display:inline-flex;align-items:center;gap:5px;}
+  ul.sessions .savail::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none;}
+  ul.sessions .savail.good{color:#8fe3a6;}
+  ul.sessions .savail.low{color:#f2c14e;}
+  ul.sessions .savail.full{color:#e9a487;}
+  ul.sessions .savail.soon{color:rgba(243,239,226,.7);}
+  ul.sessions .tm{font-family:var(--fm,"DM Mono",ui-monospace,Menlo,monospace);font-size:13px;color:var(--lime);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;margin-top:1px;}
   .sched .more{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-weight:700;font-size:14px;color:var(--lime);text-decoration:none;border-bottom:1.5px solid transparent;transition:border-color .15s;}
   .sched .more:hover{border-bottom-color:var(--gold);}
 

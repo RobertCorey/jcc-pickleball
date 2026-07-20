@@ -787,6 +787,31 @@ def _venue_rank_key(v: dict) -> tuple:
             -(v.get("rating") or 0), v.get("name") or "")
 
 
+def _session_price(s: dict) -> str:
+    """Per-session drop-in price string (best price → regular), '' if unknown."""
+    vals = [float(v) for v in (s.get("drop_in_best_price"), s.get("drop_in_price"))
+            if isinstance(v, (int, float)) and v > 0]
+    if not vals:
+        return ""
+    lo, hi = min(vals), max(vals)
+    return price_range(lo, hi) if lo != hi else money(lo)
+
+
+def _session_avail(s: dict) -> tuple[str, str]:
+    """(label, css-class) for an UPCOMING session's spots — mirrors the
+    homepage JS avail() so the venue-page schedule matches the live list."""
+    left = s.get("spots_remaining") if isinstance(s.get("spots_remaining"), (int, float)) else None
+    if s.get("has_unlimited_spots"):
+        return ("Open", "good")
+    if s.get("status") == "available_soon":
+        return ("Opens soon", "soon")
+    if left == 0 or s.get("status") == "full" or s.get("has_place_left") is False:
+        return ("Full", "full")
+    if left is not None:
+        return (f"{left} spot{'s' if left != 1 else ''} left", "low" if left <= 3 else "good")
+    return ("Open", "good")
+
+
 def _session_row_html(s: dict) -> str:
     p = parse_local(s.get("start"))
     pe = parse_local(s.get("end"))
@@ -796,8 +821,18 @@ def _session_row_html(s: dict) -> str:
     date = f"{MO_SHORT[p['mo'] - 1]} {p['d']}"
     tm = (f"{fmt_time(p['h'], p['mi'])} – {fmt_time(pe['h'], pe['mi'])}" if pe else fmt_time(p["h"], p["mi"]))
     href = f"../../s/{esc(s.get('segment_id'))}/"
-    return (f'<li><a href="{href}"><span class="day">{esc(day)}'
-            f'<span class="date">{esc(date)}</span></span>'
+    # secondary line: price + spots-left, the "is there room / how much" a
+    # visitor needs to decide whether to head over — without clicking through.
+    price = _session_price(s)
+    av_label, av_cls = _session_avail(s)
+    meta = []
+    if price:
+        meta.append(f'<span class="sprice">{esc(price)}</span>')
+    meta.append(f'<span class="savail {av_cls}">{esc(av_label)}</span>')
+    meta_html = '<span class="smeta">' + '<span class="mdot">·</span>'.join(meta) + '</span>'
+    return (f'<li><a href="{href}"><span class="sinfo">'
+            f'<span class="day">{esc(day)}<span class="date">{esc(date)}</span></span>'
+            f'{meta_html}</span>'
             f'<span class="tm">{esc(tm)}</span></a></li>')
 
 
