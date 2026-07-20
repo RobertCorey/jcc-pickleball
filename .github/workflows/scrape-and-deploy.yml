@@ -87,6 +87,15 @@ jobs:
           fi
           echo "sessions.json is valid JSON with no conflict markers."
 
+      # Guard 2: the data must also be HEALTHY, not just parseable. A failing or
+      # zero-session source only produces a ::warning:: in build_merged_document,
+      # so without this check a mostly-dark scrape deploys silently (seen
+      # 2026-06-26: sources dropped while the build stayed green). One dark
+      # source = warn; two+ dark or a collapsed session count = keep yesterday's
+      # deploy live instead.
+      - name: Validate source health (deploy guard)
+        run: python3 scraper/check_source_health.py
+
       # Publish site/ to Firebase Hosting (live channel) BEFORE the git commit-back,
       # so the deploy always ships the freshly-built working tree and can never be
       # corrupted by a rebase conflict in the commit-back step. Auth via the deploy

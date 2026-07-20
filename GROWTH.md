@@ -529,6 +529,20 @@ Tracked KPIs:
   badge already on these pages. Nothing here needs Rob — outreach and ads remain
   the only human-blocked items.
 
+- (interactive session, 2026-07-20) ✅ **CI deploy guard: per-source health check.**
+  Added `scraper/check_source_health.py` + a "Validate source health" step in
+  scrape-and-deploy.yml, closing the silent-degradation gap: a failing source only
+  emits a `::warning::` in `build_merged_document`, so a mostly-dark scrape could
+  deploy while CI stayed green (bit us 2026-06-26). Rules: 1 dark source (ok=false
+  OR 0 sessions, measured against the `SOURCES` registry) → warning; ≥2 dark or
+  <100 upcoming sessions → deploy blocked, yesterday's deploy stays live (data
+  commit-back also skipped since it runs after the failed step). Verified: healthy
+  run exits 0 on live data (6/6 sources, 706 upcoming); simulated 2-dark-source
+  copy exits 1 with a clear ::error::. Also: closed stale tracking issue #3 (the
+  workflow has been green since 6/26; its own body says close-when-green). Not a
+  growth iteration — infra hardening by Rob's interactive session during the
+  2026-07-20 audit. Layout focus (see routine prompt) unchanged.
+
 ## Ops notes
 - **sessions.json merge conflicts**: the hourly bot commits `site/data/sessions.json` to main, so
   every feature push conflicts on it. The deploy job rebuilds it fresh from sources anyway, so the
